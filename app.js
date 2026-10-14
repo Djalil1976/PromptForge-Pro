@@ -6449,7 +6449,7 @@ function resetVideoAnalyzer() {
     el.analyzerVideoPlayer.src = '';
   }
   if (el.videoPreviewContainer) el.videoPreviewContainer.style.display = 'none';
-  if (el.videoDropZone) el.videoDropZone.style.display = 'block';
+  if (el.videoDropZone) el.videoDropZone.style.display = 'flex';
   if (el.extractedFramesStrip) el.extractedFramesStrip.innerHTML = '';
   if (el.framesCountBadge) el.framesCountBadge.textContent = '0 кадров';
   if (el.laserScannerOverlay) el.laserScannerOverlay.style.display = 'none';
