@@ -6456,7 +6456,7 @@ function resetVideoAnalyzer() {
   if (el.analyzerStatusBar) el.analyzerStatusBar.style.display = 'none';
   if (el.videoAnalyzerCard) el.videoAnalyzerCard.classList.remove('active-analyzing');
   if (el.analyzeVideoBtn) el.analyzeVideoBtn.disabled = false;
-  if (el.analyzeVideoBtnText) el.analyzeVideoBtnText.textContent = 'Деконструировать видео (AI Анализ)';
+  if (el.analyzeVideoBtnText) el.analyzeVideoBtnText.textContent = 'AI-анализ';
   if (el.videoUrlInput) el.videoUrlInput.value = '';
   if (el.videoFileInput) el.videoFileInput.value = '';
   updateLivePrompt();
@@ -6556,7 +6556,7 @@ async function runReverseVideoAnalysis(isOfflineDemo = false) {
       if (el.analyzerStatusBar) el.analyzerStatusBar.style.display = 'none';
       if (el.videoAnalyzerCard) el.videoAnalyzerCard.classList.remove('active-analyzing');
       el.analyzeVideoBtn.disabled = false;
-      el.analyzeVideoBtnText.textContent = 'Деконструировать заново';
+      el.analyzeVideoBtnText.textContent = 'AI-анализ';
       state.videoAnalysis.isAnalyzing = false;
     }, 800);
   }
