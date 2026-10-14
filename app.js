@@ -2408,24 +2408,17 @@ function renderColorOptions() {
   if (el.colorOptionsList) {
     const unselectItem = `
       <div class="select-item select-item-none ${!state.selectedColor ? 'same-as-selected' : ''}" data-color-id="">
-        <div class="lens-item-left">
-          <span class="lens-title-text">— Не выбрано (очистить) —</span>
-        </div>
+        <span class="lens-title-text">— Не выбрано (очистить) —</span>
       </div>
     `;
     el.colorOptionsList.innerHTML = unselectItem + COLOR_PALETTES.map(c => `
-      <div class="select-item ${c.id === state.selectedColor ? 'same-as-selected' : ''}" data-color-id="${c.id}">
-        <div class="lens-item-left">
-          <span class="lens-title-text">${c.label}</span>
-          <div class="lens-info-tooltip-wrap">
-            <span class="lens-info-icon">ⓘ</span>
-            <div class="lens-tooltip-content">
-              <div class="color-preview-wrap">
-                <img class="color-preview-img" src="colors/${c.id}.jpg?v=5.3" alt="${c.label}" loading="lazy">
-              </div>
-              <div class="color-tooltip-text">${c.desc}</div>
-            </div>
+      <div class="select-item color-select-item ${c.id === state.selectedColor ? 'same-as-selected' : ''}" data-color-id="${c.id}">
+        <span class="lens-title-text">${c.label}</span>
+        <div class="lens-tooltip-content color-hover-tooltip">
+          <div class="color-preview-wrap">
+            <img class="color-preview-img" src="colors/${c.id}.jpg?v=5.4" alt="${c.label}" loading="lazy">
           </div>
+          <div class="color-tooltip-text">${c.desc}</div>
         </div>
       </div>
     `).join('');
