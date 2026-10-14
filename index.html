@@ -6,10 +6,10 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <link rel="stylesheet" href="style.css?v=4.2">
+  <link rel="stylesheet" href="style.css?v=4.3">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
   <!-- Top Navigation Bar -->
@@ -837,9 +837,12 @@
                   <button class="format-pill-btn active" id="formatMasterBtn" data-format="master" title="Цельный кинематографический текст для генератора">Мастер-промпт</button>
                   <button class="format-pill-btn" id="formatStructuredBtn" data-format="structured" title="Структурированный список тегов и спецификаций">Структура</button>
                 </div>
-                <button class="terminal-copy-icon" id="quickCopyBtn" title="Быстрое копирование">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
-                </button>
+                <div class="prompt-lang-dropdown-wrap" title="Язык отображения промпта">
+                  <select id="promptLangSelect" class="prompt-lang-select" aria-label="Язык отображения промпта">
+                    <option value="en" selected>EN</option>
+                    <option value="ru">РУ</option>
+                  </select>
+                </div>
               </div>
             </div>
             <div class="terminal-body" id="finalPromptDisplay">
@@ -1012,6 +1015,6 @@
   <div class="toast-container" id="toastContainer"></div>
 
   <!-- Scripts -->
-  <script src="app.js?v=4.2"></script>
+  <script src="app.js?v=4.3"></script>
 </body>
 </html>

@@ -28,6 +28,7 @@
   
   --font-main: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
+  --font-google: 'Google Sans', 'Roboto', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 
   --radius-sm: 8px;
   --radius-md: 12px;
@@ -1937,8 +1938,8 @@ body {
 }
 
 .terminal-title {
-  font-family: var(--font-mono);
-  font-size: 0.76rem;
+  font-family: var(--font-google);
+  font-size: 0.78rem;
   font-weight: 700;
   display: flex;
   align-items: center;
@@ -2015,7 +2016,7 @@ body {
   border-radius: 14px;
   cursor: pointer;
   transition: all 0.15s ease;
-  font-family: inherit;
+  font-family: var(--font-google);
 }
 
 .format-pill-btn:hover {
@@ -2043,14 +2044,55 @@ body {
   color: var(--text-primary);
 }
 
+/* PROMPT LANGUAGE SELECT DROPDOWN (EN / РУ) */
+.prompt-lang-dropdown-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.prompt-lang-select {
+  appearance: none;
+  -webkit-appearance: none;
+  background: rgba(255, 255, 255, 0.07) url('data:image/svg+xml;utf8,<svg viewBox="0 0 24 24" width="12" height="12" fill="%2394a3b8" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>') no-repeat right 6px center;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 14px;
+  color: #f1f5f9;
+  font-family: var(--font-google);
+  font-size: 0.70rem;
+  font-weight: 700;
+  padding: 3px 22px 3px 9px;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.15s ease;
+  line-height: 1.3;
+}
+
+.prompt-lang-select:hover {
+  background-color: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.prompt-lang-select:focus {
+  border-color: var(--accent-orange, #f59e0b);
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.25);
+}
+
+.prompt-lang-select option {
+  background: #11131c;
+  color: #f1f5f9;
+  font-weight: 600;
+  padding: 4px;
+}
+
 .terminal-body {
-  padding: 8px 10px;
-  min-height: 280px;
-  max-height: 480px;
+  padding: 14px 16px;
+  min-height: 480px;
+  max-height: 780px;
   overflow-y: auto;
-  font-family: var(--font-mono);
-  font-size: 0.74rem;
-  line-height: 1.42;
+  font-family: var(--font-google);
+  font-size: 0.88rem;
+  line-height: 1.65;
   color: #e2e8f0;
   word-break: break-word;
   white-space: normal;
@@ -2059,8 +2101,8 @@ body {
 .placeholder-text {
   color: var(--text-muted);
   font-style: italic;
-  font-size: 0.76rem;
-  line-height: 1.5;
+  font-size: 0.82rem;
+  line-height: 1.6;
   display: block;
 }
 
@@ -2069,15 +2111,16 @@ body {
   background: rgba(217, 119, 6, 0.08);
   border: 1px solid rgba(217, 119, 6, 0.28);
   border-radius: var(--radius-sm);
-  padding: 12px 14px;
-  margin-bottom: 10px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
 }
 
 .master-prompt-label {
-  font-size: 0.68rem;
+  font-family: var(--font-google);
+  font-size: 0.74rem;
   font-weight: 700;
   color: #f59e0b;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
   margin-bottom: 8px;
   display: flex;
   align-items: center;
@@ -2085,19 +2128,21 @@ body {
 }
 
 .master-prompt-content {
-  font-size: 0.82rem;
-  line-height: 1.6;
+  font-size: 0.88rem;
+  line-height: 1.65;
   color: #f1f5f9;
-  font-family: var(--font-mono);
+  font-family: var(--font-google);
   word-break: break-word;
   white-space: pre-wrap;
+  letter-spacing: 0.01em;
 }
 
 .master-prompt-meta-hint {
-  font-size: 0.70rem;
+  font-size: 0.72rem;
+  font-family: var(--font-google);
   color: var(--text-muted);
-  line-height: 1.45;
-  padding: 4px 6px;
+  line-height: 1.5;
+  padding: 6px 8px;
   background: rgba(255, 255, 255, 0.02);
   border-radius: var(--radius-sm);
 }
@@ -2184,19 +2229,21 @@ body {
 
 /* PROMPT DISPLAY FORMATTING (LABELS & LINES) */
 .prompt-line {
-  margin: 0 0 5px 0;
+  margin: 0 0 8px 0;
   padding: 0;
-  line-height: 1.42;
+  line-height: 1.55;
   text-align: left;
+  font-family: var(--font-google);
 }
 
 .prompt-tag {
   color: #f59e0b;
   font-weight: 700;
   display: inline;
-  margin-right: 5px;
-  font-size: 0.73rem;
-  letter-spacing: 0.01em;
+  margin-right: 6px;
+  font-size: 0.80rem;
+  letter-spacing: 0.02em;
+  font-family: var(--font-google);
 }
 
 .prompt-tag.prompt-tag-frame {
@@ -2219,7 +2266,9 @@ body {
 
 .prompt-val {
   color: #f1f5f9;
-  font-size: 0.74rem;
+  font-size: 0.88rem;
+  font-family: var(--font-google);
+  line-height: 1.6;
 }
 
 /* UNSELECT / CLEAR ITEM IN DROPDOWNS */
@@ -5293,4 +5342,49 @@ body {
   filter: none;
   font-weight: 500;
   box-shadow: 0 0 12px currentColor;
+}
+
+/* Russian Translation Mode Badges and Content */
+.mp-lang-badge-active {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  background: rgba(59, 130, 246, 0.16);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.35);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  letter-spacing: 0.02em;
+}
+
+.mp-translating-pill {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  background: rgba(245, 158, 11, 0.16);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  animation: pulseTranslate 1.2s infinite alternate;
+}
+
+@keyframes pulseTranslate {
+  0% { opacity: 0.6; transform: scale(0.98); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+.ru-translated-content {
+  font-family: var(--font-google) !important;
+  color: #f8fafc;
+  font-size: 0.88rem;
+  line-height: 1.65;
+  letter-spacing: 0.01em;
+}
+
+.ru-translating {
+  opacity: 0.55;
+  filter: blur(0.5px);
+  transition: all 0.3s ease;
 }

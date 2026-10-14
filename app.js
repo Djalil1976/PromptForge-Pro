@@ -1341,6 +1341,7 @@ description: Specialized video generation using the Seedance 2.5 model with hard
 const state = {
   mode: 'image', // 'image' or 'video'
   promptFormat: 'master', // 'master' (ready-to-use cohesive prompt) or 'structured' (spec tags)
+  promptDisplayLang: 'en', // 'en' or 'ru'
   idea: '',
   onlineTranslatedIdea: '',
   selectedCamera: 'arri-alexa',
@@ -1574,6 +1575,7 @@ const el = {
   strengthText: document.getElementById('strengthText'),
   negativePromptDisplay: document.getElementById('negativePromptDisplay'),
   negativePromptText: document.getElementById('negativePromptText'),
+  promptLangSelect: document.getElementById('promptLangSelect'),
   quickCopyBtn: document.getElementById('quickCopyBtn'),
   copyPromptBtn: document.getElementById('copyPromptBtn'),
   resetBtn: document.getElementById('resetBtn'),
@@ -2531,6 +2533,52 @@ function scheduleOnlineTranslation(text) {
   }, 120);
 }
 
+// --- ENGLISH TO RUSSIAN MASTER PROMPT TRANSLATOR ---
+const enToRuCache = new Map();
+let promptRuTranslateDebounce = null;
+
+async function fetchEnglishToRussian(text) {
+  const trimmed = text ? text.trim() : '';
+  if (!trimmed) return '';
+  if (enToRuCache.has(trimmed)) {
+    return enToRuCache.get(trimmed);
+  }
+
+  // 1. Primary: Official Google Translate API (fast, high-accuracy neural translation, no key required)
+  try {
+    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=ru&dt=t&q=${encodeURIComponent(trimmed)}`;
+    const res = await fetch(url);
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data) && Array.isArray(data[0])) {
+        const translated = data[0].map(item => item[0]).filter(Boolean).join('').trim();
+        if (translated) {
+          enToRuCache.set(trimmed, translated);
+          return translated;
+        }
+      }
+    }
+  } catch (err) {
+    console.warn('Google Translate (EN->RU) error:', err);
+  }
+
+  // 2. Secondary fallback: MyMemory API
+  try {
+    const mmUrl = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(trimmed)}&langpair=en|ru`;
+    const mmRes = await fetch(mmUrl);
+    if (mmRes.ok) {
+      const mmData = await mmRes.json();
+      const mmText = mmData?.responseData?.translatedText;
+      if (mmText && !mmText.includes('MYMEMORY') && !mmText.includes('QUOTA')) {
+        enToRuCache.set(trimmed, mmText.trim());
+        return mmText.trim();
+      }
+    }
+  } catch (e) {}
+
+  return null;
+}
+
 function translateRussianIdea(ideaText) {
   if (!ideaText || ideaText.trim() === '') return '';
   const text = ideaText.trim();
@@ -3485,36 +3533,78 @@ function compilePrompt() {
 
   if (state.promptFormat === 'master') {
     plainPrompt = masterPrompt || sections.map(s => `${s.plainTag}: ${s.val}`).join('\n');
-    const highlightedMaster = formatHighlightedMasterPrompt(masterPrompt, ctx);
-    htmlPrompt = `
-      <div class="master-prompt-display">
-        <div class="master-prompt-header-row">
-          <div class="master-prompt-label">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-            ГОТОВЫЙ РАБОЧИЙ ПРОМПТ (${modelId.toUpperCase()})
+    
+    if (state.promptDisplayLang === 'ru') {
+      const isCached = enToRuCache.has(masterPrompt);
+      const ruText = isCached ? enToRuCache.get(masterPrompt) : '';
+      htmlPrompt = `
+        <div class="master-prompt-display">
+          <div class="master-prompt-header-row">
+            <div class="master-prompt-label">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              ПЕРЕВОД ПРОМПТА НА РУССКИЙ (${modelId.toUpperCase()})
+            </div>
+            ${isCached 
+              ? '<span class="mp-lang-badge-active">🇷🇺 РУССКИЙ ТЕКСТ</span>' 
+              : '<span class="mp-translating-pill">⏳ Переводим на русский...</span>'}
           </div>
-          <div class="mp-legend-bar">
-            <span class="mp-legend-pill" data-target="mp-seg-motion" title="Наведите, чтобы выделить движение камеры">🎥 Камера</span>
-            <span class="mp-legend-pill" data-target="mp-seg-optics" title="Наведите, чтобы выделить оптику">📷 Оптика</span>
-            <span class="mp-legend-pill" data-target="mp-seg-light" title="Наведите, чтобы выделить свет и цвет">💡 Свет</span>
-            <span class="mp-legend-pill" data-target="mp-seg-audio" title="Наведите, чтобы выделить аудио">🔊 Звук</span>
-          </div>
+          <div class="master-prompt-content ${isCached ? 'ru-translated-content' : 'ru-translating'}" id="masterPromptContentBox">${escapeHtml(isCached ? ruText : masterPrompt)}</div>
         </div>
-        <div class="master-prompt-content" id="masterPromptContentBox">${highlightedMaster}</div>
-      </div>
-      <div class="master-prompt-meta-hint">
-        💡 Наведите на теги сверху для проверки структуры или нажмите «Скопировать готовый промпт».
-      </div>
-    `;
+        <div class="master-prompt-meta-hint">
+          💡 Отображается перевод на русский для проверки смысла. Для генерации в моделях используется английский оригинал (скопируйте кнопкой ниже или переключите на EN).
+        </div>
+      `;
+    } else {
+      const highlightedMaster = formatHighlightedMasterPrompt(masterPrompt, ctx);
+      htmlPrompt = `
+        <div class="master-prompt-display">
+          <div class="master-prompt-header-row">
+            <div class="master-prompt-label">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              ГОТОВЫЙ РАБОЧИЙ ПРОМПТ (${modelId.toUpperCase()})
+            </div>
+            <div class="mp-legend-bar">
+              <span class="mp-legend-pill" data-target="mp-seg-motion" title="Наведите, чтобы выделить движение камеры">🎥 Камера</span>
+              <span class="mp-legend-pill" data-target="mp-seg-optics" title="Наведите, чтобы выделить оптику">📷 Оптика</span>
+              <span class="mp-legend-pill" data-target="mp-seg-light" title="Наведите, чтобы выделить свет и цвет">💡 Свет</span>
+              <span class="mp-legend-pill" data-target="mp-seg-audio" title="Наведите, чтобы выделить аудио">🔊 Звук</span>
+            </div>
+          </div>
+          <div class="master-prompt-content" id="masterPromptContentBox">${highlightedMaster}</div>
+        </div>
+        <div class="master-prompt-meta-hint">
+          💡 Наведите на теги сверху для проверки структуры или нажмите «Скопировать готовый промпт».
+        </div>
+      `;
+    }
   } else {
     plainPrompt = sections.map(s => `${s.plainTag}: ${s.val}`).join('\n');
-    htmlPrompt = sections.map(s => {
-      let tagClass = 'prompt-tag';
-      if (s.plainTag.startsWith('[')) tagClass += ' prompt-tag-frame';
-      else if (s.plainTag.includes('Audio') || s.plainTag.includes('Sound')) tagClass += ' prompt-tag-audio';
-      else if (s.plainTag.includes('Motion') || s.plainTag.includes('Dynamics')) tagClass += ' prompt-tag-motion';
-      return `<div class="prompt-line"><span class="${tagClass}">${s.uiTag}:</span> <span class="prompt-val">${escapeHtml(s.val)}</span></div>`;
-    }).join('');
+    if (state.promptDisplayLang === 'ru') {
+      const isCached = enToRuCache.has(plainPrompt);
+      const ruPlain = isCached ? enToRuCache.get(plainPrompt) : '';
+      htmlPrompt = `
+        <div class="master-prompt-display">
+          <div class="master-prompt-header-row">
+            <div class="master-prompt-label">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              СТРУКТУРА ПРОМПТА НА РУССКОМ (${modelId.toUpperCase()})
+            </div>
+            ${isCached 
+              ? '<span class="mp-lang-badge-active">🇷🇺 РУССКИЙ ТЕКСТ</span>' 
+              : '<span class="mp-translating-pill">⏳ Переводим на русский...</span>'}
+          </div>
+          <div class="master-prompt-content ${isCached ? 'ru-translated-content' : 'ru-translating'}" id="masterPromptContentBox" style="white-space: pre-wrap;">${escapeHtml(isCached ? ruPlain : plainPrompt)}</div>
+        </div>
+      `;
+    } else {
+      htmlPrompt = sections.map(s => {
+        let tagClass = 'prompt-tag';
+        if (s.plainTag.startsWith('[')) tagClass += ' prompt-tag-frame';
+        else if (s.plainTag.includes('Audio') || s.plainTag.includes('Sound')) tagClass += ' prompt-tag-audio';
+        else if (s.plainTag.includes('Motion') || s.plainTag.includes('Dynamics')) tagClass += ' prompt-tag-motion';
+        return `<div class="prompt-line"><span class="${tagClass}">${s.uiTag}:</span> <span class="prompt-val">${escapeHtml(s.val)}</span></div>`;
+      }).join('');
+    }
   }
 
   return {
@@ -3612,13 +3702,33 @@ function updateLivePrompt() {
 
   // If we have an AI-deconstructed Director Prompt from Gemini Vision / Demo and user is in Master format
   if (state.customDirectorPrompt && state.promptFormat === 'master') {
+    let directorContent = state.customDirectorPrompt;
+    let badgeHtml = '';
+    if (state.promptDisplayLang === 'ru') {
+      const isCached = enToRuCache.has(state.customDirectorPrompt);
+      if (isCached) {
+        directorContent = enToRuCache.get(state.customDirectorPrompt);
+        badgeHtml = '<span class="mp-lang-badge-active">🇷🇺 РУССКИЙ ТЕКСТ</span>';
+      } else {
+        badgeHtml = '<span class="mp-translating-pill">⏳ Переводим на русский...</span>';
+        if (promptRuTranslateDebounce) clearTimeout(promptRuTranslateDebounce);
+        promptRuTranslateDebounce = setTimeout(async () => {
+          const ru = await fetchEnglishToRussian(state.customDirectorPrompt);
+          if (ru && state.promptDisplayLang === 'ru') updateLivePrompt();
+        }, 80);
+      }
+    }
+
     const htmlPrompt = `
       <div class="master-prompt-display">
-        <div class="master-prompt-label">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-          <span>AI REVERSE DIRECTOR MASTER PROMPT</span>
+        <div class="master-prompt-header-row">
+          <div class="master-prompt-label">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <span>AI REVERSE DIRECTOR MASTER PROMPT</span>
+          </div>
+          ${badgeHtml}
         </div>
-        <div class="master-prompt-text">${escapeHtml(state.customDirectorPrompt)}</div>
+        <div class="master-prompt-content ${state.promptDisplayLang === 'ru' ? 'ru-translated-content' : ''}">${escapeHtml(directorContent)}</div>
       </div>
       <div class="master-prompt-meta-hint" style="margin-top: 8px; font-size: 0.73rem; color: #a1a1aa; line-height: 1.4;">
         🎬 Промпт зафиксирован из деконструкции видео. Нажмите <b>«Улучшить с AI»</b> или измените параметры в конструкторе, чтобы переключиться на живой редактируемый режим.
@@ -3647,6 +3757,20 @@ function updateLivePrompt() {
   if (compiled.hasContent) {
     el.finalPromptDisplay.innerHTML = compiled.html;
     el.resultCharCount.textContent = `${compiled.prompt.length} симв.`;
+
+    // Asynchronously translate to Russian if RU mode is selected and not cached
+    if (state.promptDisplayLang === 'ru') {
+      const textToTranslate = state.promptFormat === 'master' ? compiled.masterPrompt : compiled.prompt;
+      if (textToTranslate && !enToRuCache.has(textToTranslate)) {
+        if (promptRuTranslateDebounce) clearTimeout(promptRuTranslateDebounce);
+        promptRuTranslateDebounce = setTimeout(async () => {
+          const ru = await fetchEnglishToRussian(textToTranslate);
+          if (ru && state.promptDisplayLang === 'ru') {
+            updateLivePrompt();
+          }
+        }, 80);
+      }
+    }
   } else {
     el.finalPromptDisplay.innerHTML = `<span class="placeholder-text">Заполните идею или выберите параметры слева для сборки промпта...</span>`;
     el.resultCharCount.textContent = `0 симв.`;
@@ -4283,6 +4407,14 @@ function attachEventListeners() {
   if (el.resetBtn) el.resetBtn.addEventListener('click', handleResetAll);
   if (el.clearAllBtn) el.clearAllBtn.addEventListener('click', handleResetAll);
 
+  // Language Switcher Dropdown (EN / РУ)
+  if (el.promptLangSelect) {
+    el.promptLangSelect.addEventListener('change', (e) => {
+      state.promptDisplayLang = e.target.value;
+      updateLivePrompt();
+    });
+  }
+
   // Format Switcher Pills
   if (el.formatMasterBtn) {
     el.formatMasterBtn.addEventListener('click', () => {
@@ -4570,9 +4702,12 @@ function copyPromptToClipboard() {
   }
 
   navigator.clipboard.writeText(textToCopy).then(() => {
-    const label = (state.customDirectorPrompt && state.promptFormat === 'master')
+    let label = (state.customDirectorPrompt && state.promptFormat === 'master')
       ? 'Режиссерский AI-промпт'
       : (state.promptFormat === 'master' ? 'Готовый мастер-промпт' : 'Структурированный промпт');
+    if (state.promptDisplayLang === 'ru') {
+      label += ' (EN)';
+    }
     showToast(`${label} скопирован в буфер обмена!`, '📋');
     saveToHistory({
       id: Date.now(),
