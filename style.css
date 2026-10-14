@@ -1517,20 +1517,14 @@ body {
   align-items: center;
   justify-content: center;
   cursor: help;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  user-select: none;
-  flex-shrink: 0;
-}
-
-.lens-info-icon:hover {
-  transform: scale(1.18);
-  filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.85));
+.lens-info-icon {
+  display: none !important;
 }
 
 .lens-tooltip-content {
   position: absolute;
   bottom: calc(100% + 8px);
-  right: -6px; /* Выравнивание по правому краю иконки ⓘ: всплывающее окно раскрывается ВЛЕВО внутрь карточки */
+  right: -6px; /* Выравнивание по правому краю: всплывающее окно раскрывается ВЛЕВО внутрь карточки */
   left: auto;
   transform: translateY(4px);
   background: #1d1d23;
@@ -1544,7 +1538,7 @@ body {
   width: 280px; /* Широкая карточка для подробного описания */
   box-shadow: 0 16px 36px rgba(0, 0, 0, 0.95), 0 0 16px rgba(217, 119, 6, 0.4);
   z-index: 9999;
-  pointer-events: none;
+  pointer-events: none !important;
   opacity: 0;
   visibility: hidden;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
@@ -1556,7 +1550,7 @@ body {
   content: '';
   position: absolute;
   top: 100%;
-  right: 8px; /* Стрелочка четко над круглой иконкой ⓘ */
+  right: 18px;
   left: auto;
   transform: none;
   border-width: 6px;
@@ -1564,10 +1558,11 @@ body {
   border-color: #1d1d23 transparent transparent transparent;
 }
 
-.lens-info-tooltip-wrap:hover .lens-tooltip-content {
-  opacity: 1;
-  visibility: visible;
-  transform: translateY(0);
+.lens-info-tooltip-wrap:hover .lens-tooltip-content,
+.select-item:hover .lens-tooltip-content {
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: translateY(0) !important;
 }
 
 /* Для первых пунктов в списке открываем подсказку вниз, чтобы не уходила за верх экрана */
@@ -5831,11 +5826,11 @@ body {
   position: absolute !important;
   right: 6px !important;
   bottom: calc(100% + 6px) !important;
-  width: 290px !important;
+  width: 270px !important;
   background: #141419 !important;
   border: 1px solid rgba(245, 158, 11, 0.6) !important;
   border-radius: 8px !important;
-  padding: 10px 12px !important;
+  padding: 8px 10px !important;
   box-shadow: 0 16px 36px rgba(0, 0, 0, 0.95), 0 0 20px rgba(217, 119, 6, 0.4) !important;
   z-index: 99999 !important;
   pointer-events: none !important;
@@ -5867,18 +5862,18 @@ body {
   border-color: #141419 transparent transparent transparent;
 }
 
-/* For top items in the dropup list (unselect, teal-orange, monochrome, warm-kodak) open tooltip downwards */
-#colorCustomSelect .select-item:nth-child(-n+4) .color-hover-tooltip {
+/* For top 6 items in the dropup list (unselect, teal-orange, monochrome, warm-kodak, pastel, vivid-neon) open tooltip downwards to prevent any top clipping */
+#colorCustomSelect .select-item:nth-child(-n+6) .color-hover-tooltip {
   bottom: auto !important;
   top: calc(100% + 6px) !important;
   transform: translateY(-4px) !important;
 }
 
-#colorCustomSelect .select-item:nth-child(-n+4):hover .color-hover-tooltip {
+#colorCustomSelect .select-item:nth-child(-n+6):hover .color-hover-tooltip {
   transform: translateY(0) !important;
 }
 
-#colorCustomSelect .select-item:nth-child(-n+4) .color-hover-tooltip::after {
+#colorCustomSelect .select-item:nth-child(-n+6) .color-hover-tooltip::after {
   top: auto !important;
   bottom: 100% !important;
   border-color: transparent transparent #141419 transparent !important;

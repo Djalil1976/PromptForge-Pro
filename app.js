@@ -1877,7 +1877,6 @@ function renderCameraOptions() {
             <div class="lens-item-left">
               <span class="lens-title-text">${cam.label}</span>
               <div class="lens-info-tooltip-wrap">
-                <span class="lens-info-icon">ⓘ</span>
                 <div class="lens-tooltip-content ${tooltipPosClass} ${colAlignClass}">
                   <div class="lighting-tooltip-text">${cam.desc}</div>
                 </div>
@@ -1972,7 +1971,6 @@ function renderLensOptions() {
             <div class="lens-item-left">
               <span class="lens-title-text">${lens.label}</span>
               <div class="lens-info-tooltip-wrap">
-                <span class="lens-info-icon">ⓘ</span>
                 <div class="lens-tooltip-content ${tooltipPosClass} ${colAlignClass}">
                   <div class="lens-preview-wrap ${lens.id === 'anamorphic-cine' ? 'lens-preview-anamorphic' : ''}">
                     <img class="lens-preview-img" src="lenses/${lens.id}.jpg?v=3.9" alt="${lens.label}" loading="lazy">
@@ -2058,7 +2056,6 @@ function renderLightingOptions() {
             <div class="lens-item-left">
               <span class="lens-title-text">${l.label}</span>
               <div class="lens-info-tooltip-wrap">
-                <span class="lens-info-icon">ⓘ</span>
                 <div class="lens-tooltip-content ${tooltipPosClass} ${colAlignClass}">
                   <div class="lighting-preview-wrap">
                     <img class="lighting-preview-img" src="lighting/${l.id}.jpg" alt="${l.label}" loading="lazy">
@@ -2144,7 +2141,6 @@ function renderStyleOptions() {
             <div class="lens-item-left">
               <span class="lens-title-text">${s.label}</span>
               <div class="lens-info-tooltip-wrap">
-                <span class="lens-info-icon">ⓘ</span>
                 <div class="lens-tooltip-content ${tooltipPosClass} ${colAlignClass}">
                   <div class="lighting-preview-wrap">
                     <img class="lighting-preview-img" src="styles/${s.id}.jpg" alt="${s.label}" loading="lazy">
@@ -2223,7 +2219,6 @@ function renderCompositionOptions() {
             <div class="lens-item-left">
               <span class="lens-title-text">${c.label}</span>
               <div class="lens-info-tooltip-wrap">
-                <span class="lens-info-icon">\u24D8</span>
                 <div class="lens-tooltip-content ${tooltipPosClass}">
                   <div class="comp-preview-wrap">
                     <img class="comp-preview-img" src="compositions/${c.id}.jpg?v=3.4" alt="${c.label}" loading="lazy">
@@ -2301,7 +2296,6 @@ function renderVideoMotionOptions() {
             <div class="lens-item-left">
               <span class="lens-title-text" title="${m.label}">${m.label}</span>
               <div class="lens-info-tooltip-wrap">
-                <span class="lens-info-icon">ⓘ</span>
                 <div class="lens-tooltip-content">
                   <div class="motion-preview-wrap">
                     <video class="motion-preview-video" src="motions/${m.id}.mp4?v=3.6" muted loop playsinline preload="metadata"></video>
@@ -2345,7 +2339,6 @@ function renderDurationOptions() {
         <div class="lens-item-left">
           <span class="lens-title-text">${d.label}</span>
           <div class="lens-info-tooltip-wrap">
-            <span class="lens-info-icon">ⓘ</span>
             <div class="lens-tooltip-content">${d.desc}</div>
           </div>
         </div>
@@ -2377,7 +2370,6 @@ function renderFramerateOptions() {
         <div class="lens-item-left">
           <span class="lens-title-text">${f.label}</span>
           <div class="lens-info-tooltip-wrap">
-            <span class="lens-info-icon">ⓘ</span>
             <div class="lens-tooltip-content">${f.desc}</div>
           </div>
         </div>
@@ -2467,12 +2459,16 @@ function renderAspectRatios() {
       return `
         <div class="select-item ${isSelected ? 'selected' : ''} ${disabledClass}" 
              data-ratio="${a.id}" 
-             data-disabled="${!isSupported ? 'true' : 'false'}"
-             title="${a.label} • ${a.sub}${disabledTitle}">
+             data-disabled="${!isSupported ? 'true' : 'false'}">
           <div class="aspect-dropdown-item-wrap">
             <span class="aspect-rect-icon" data-ratio="${a.id}"></span>
             <span class="item-name">${a.label}</span>
             <span class="item-sub">${a.sub}</span>
+          </div>
+          <div class="lens-info-tooltip-wrap">
+            <div class="lens-tooltip-content">
+              <div class="lighting-tooltip-text"><strong>${a.label} (${a.sub})</strong><br>${a.ratioDesc}</div>
+            </div>
           </div>
         </div>
       `;
