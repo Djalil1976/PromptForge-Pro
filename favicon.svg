@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="forgeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fbbf24" />
+      <stop offset="50%" stop-color="#f59e0b" />
+      <stop offset="100%" stop-color="#b45309" />
+    </linearGradient>
+    <filter id="forgeGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#78350f" flood-opacity="0.5"/>
+    </filter>
+  </defs>
+  <!-- Background Badge -->
+  <rect width="64" height="64" rx="15" fill="url(#forgeGrad)" />
+  <!-- PromptForge Core Spark Star -->
+  <path d="M32 9 C32 20 20 32 9 32 C20 32 32 44 32 55 C32 44 44 32 55 32 C44 32 32 20 32 9 Z" 
+        fill="#ffffff" 
+        filter="url(#forgeGlow)" />
+  <!-- Accent micro spark -->
+  <circle cx="49" cy="15" r="2.8" fill="#fef08a" />
+</svg>
