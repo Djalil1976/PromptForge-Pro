@@ -139,7 +139,7 @@ const LIGHTING = [
 ];
 
 const STYLES = [
-  { id: 'photorealistic', label: 'Photorealistic', desc: 'Гиперреалистичное качество 8K, естественные поры кожи, микротекстуры тканей и физически корректная оптика.', prompt: 'hyper-detailed photorealism, lifelike skin textures, authentic materials, 8K ultra high fidelity' },
+  { id: 'photorealistic', label: 'Photorealistic', desc: 'Гиперреалистичное качество 8K, естественные поры кожи, микротекстуры тканей и физически корректная оптика.', prompt: 'hyper-detailed photorealism, authentic natural materials, 8K ultra high fidelity' },
   { id: 'analog-film', label: 'Analog Film (35mm Portra)', desc: 'Подлинная эстетика аналоговой 35-мм пленки Kodak Portra, мягкое благородное пленочное зерно, естественные тона кожи и мягкий ореол бликов.', prompt: 'authentic 35mm analog film photograph, Kodak Portra 400 color science, organic film grain, natural halation, gentle highlight rolloff' },
   { id: 'moody-noir', label: 'Classic Film Noir', desc: 'Культовый кинематографический черно-белый нуар 1940-х: глубокие черные тени, полосы света от жалюзи, сигаретный дым и сырой асфальт.', prompt: 'classic 1940s Hollywood film noir, dramatic black and white cinematography, deep rich shadows, venetian blinds light slits, moody rain aesthetic' },
   { id: 'hyperrealism', label: 'Raw Documentary', desc: 'Бескомпромиссная документальная хроника National Geographic / BBC: естественная фактура жизни, микродетали пыли и пор без глянца.', prompt: 'award-winning National Geographic documentary photography, candid authentic realism, raw natural textures, unretouched real life details' },
@@ -2977,7 +2977,7 @@ function compileVeo31(ctx) {
   if (ctx.activeCam) opticsList.push(ctx.activeCam.prompt);
   if (ctx.activeLens) opticsList.push(ctx.activeLens.prompt);
   if (opticsList.length > 0) {
-    masterParts.push(`. Filmed on ${opticsList.join(', ')} with authentic optical focal depth`);
+    masterParts.push(`. Optics & Camera: ${opticsList.join(', ')} with authentic optical focal depth.`);
   }
 
   const moodList = [];
@@ -3246,7 +3246,7 @@ function compileMinimaxH3(ctx) {
   masterParts.push(`[Temporal Progression]: ${timeline} `);
 
   if (opticsList.length > 0) {
-    masterParts.push(`[Cinematography & Atmosphere]: Filmed with ${opticsList.join(', ')}. True 2K clarity, volumetric atmospheric haze, natural optical bokeh. `);
+    masterParts.push(`[Cinematography & Atmosphere]: ${opticsList.join(', ')}. True 2K clarity, volumetric atmospheric haze, natural optical bokeh. `);
   }
 
   if (ctx.quickTags) {
@@ -3770,29 +3770,87 @@ function formatHighlightedMasterPrompt(text, ctx) {
   if (!text) return '';
   let html = escapeHtml(text);
 
-  const rules = [
-    // Блоки Grok Imagine 2.0 (FRAME) и MiniMax-H3
-    { regex: /(\[(?:Focus|Core Concept)\]:\s*[^\n\[]+)/g, cls: 'mp-seg-subject', label: 'Сцена и объект' },
-    { regex: /(\[(?:Temporal Progression)\]:\s*[^\n\[]+)/g, cls: 'mp-seg-motion', label: 'Таймлайн и движение' },
-    { regex: /(\[(?:Angle|Cinematography &amp; Atmosphere)\]:\s*[^\n\[]+)/g, cls: 'mp-seg-optics', label: 'Оптика и камера' },
-    { regex: /(\[(?:Mood|Realm|Scene Elements|Execution)\]:\s*[^\n\[]+)/g, cls: 'mp-seg-light', label: 'Свет и атмосфера' },
-    { regex: /(\[(?:Audio Environment|Sound Design)\]:\s*[^\n\[]+)/g, cls: 'mp-seg-audio', label: 'Звук и фоли' },
-    { regex: /(\[(?:Constraints)\]:\s*[^\n\[]+)/g, cls: 'mp-seg-spec', label: 'Ограничения' },
+  // 1. Точный секционный парсер для MiniMax-H3 и Grok Imagine 2.0 (не рвется на [0s-3s] и f/1.2)
+  if (html.includes('[Core Concept]:') || html.includes('[Focus]:')) {
+    const sectionMap = {
+      'Core Concept': { cls: 'mp-seg-subject', label: 'Концепт и сцена' },
+      'Temporal Progression': { cls: 'mp-seg-motion', label: 'Таймлайн и движение камеры' },
+      'Cinematography &amp; Atmosphere': { cls: 'mp-seg-optics', label: 'Оптика, свет и атмосфера' },
+      'Scene Elements': { cls: 'mp-seg-light', label: 'Элементы сцены' },
+      'Audio Environment': { cls: 'mp-seg-audio', label: 'Нативный звук 32kHz' },
+      'Constraints': { cls: 'mp-seg-spec', label: 'Тех. ограничения' },
+      'Focus': { cls: 'mp-seg-subject', label: 'Объект съемки' },
+      'Realm': { cls: 'mp-seg-light', label: 'Окружение и сцена' },
+      'Angle': { cls: 'mp-seg-optics', label: 'Ракурс и оптика' },
+      'Mood': { cls: 'mp-seg-light', label: 'Свет и колористика' },
+      'Execution': { cls: 'mp-seg-spec', label: 'Стиль и рендер' }
+    };
 
-    // Предложения Veo 3.1 и Omni 1.1 Flash
-    { regex: /(A continuous, unbroken [^.]+\.|Continuous, unbroken shot [^.]+\.)/gi, cls: 'mp-seg-motion', label: 'Формат плана' },
-    { regex: /(The camera (?:performs|executes|maintains) [^.]+\.)/gi, cls: 'mp-seg-motion', label: 'Движение камеры' },
-    { regex: /((?:Filmed on|captured on) [^.,]+(?:, [^.,]+)*)/gi, cls: 'mp-seg-optics', label: 'Камера и объектив' },
-    { regex: /((?:Lighting and visual atmosphere|Cinematography and atmosphere):\s*[^.]+\.)/gi, cls: 'mp-seg-light', label: 'Свет и атмосфера' },
-    { regex: /((?:Audio|Sound design):\s*[^.]+\.(?:\s*Synchronized SFX:\s*[^.]+\.)?(?:\s*Dialogue:\s*[^.]+\.)?)/gi, cls: 'mp-seg-audio', label: 'Саунд-дизайн' },
-    { regex: /((?:1080p crisp master|No dialogue\.)[^]*$)/gi, cls: 'mp-seg-spec', label: 'Тех. контроль' }
+    const tagRegex = /\[(Core Concept|Temporal Progression|Cinematography &amp; Atmosphere|Scene Elements|Audio Environment|Constraints|Focus|Realm|Angle|Mood|Execution)\]:/g;
+    const matches = [...html.matchAll(tagRegex)];
+
+    if (matches.length > 0) {
+      let resultHtml = '';
+      let lastIdx = 0;
+
+      for (let i = 0; i < matches.length; i++) {
+        const match = matches[i];
+        const tagName = match[1];
+        const startIdx = match.index;
+        const endIdx = (i + 1 < matches.length) ? matches[i + 1].index : html.length;
+
+        if (startIdx > lastIdx) {
+          resultHtml += html.slice(lastIdx, startIdx);
+        }
+
+        const chunk = html.slice(startIdx, endIdx).trim();
+        const cfg = sectionMap[tagName] || { cls: 'mp-seg-subject', label: tagName };
+        resultHtml += `<span class="mp-seg ${cfg.cls}" data-seg="${cfg.cls}" title="${cfg.label}">${chunk}</span> `;
+        lastIdx = endIdx;
+      }
+      return resultHtml.trim();
+    }
+  }
+
+  // 2. Парсер для Veo 3.1 и Omni 1.1 Flash (с поддержкой многоточий внутри движения и дробей f/1.2)
+  const narrativeRules = [
+    {
+      regex: /(A continuous, unbroken \d+s cinematic shot \([^)]+\)|Continuous, unbroken shot in a single continuous take with no scene cuts \([^)]+\)\.)/gi,
+      cls: 'mp-seg-motion',
+      label: 'Формат непрерывного плана'
+    },
+    {
+      regex: /(The camera (?:performs|executes|maintains)[\s\S]*?(?:at 24fps\.|(?=\s+(?:Optics &amp; Camera:|Filmed on|Cinematography and atmosphere:|Lighting and visual atmosphere:|Audio:|Sound design:))))/gi,
+      cls: 'mp-seg-motion',
+      label: 'Движение камеры'
+    },
+    {
+      regex: /((?:Optics &amp; Camera:|Filmed on|captured on)[\s\S]*?focal depth\.)/gi,
+      cls: 'mp-seg-optics',
+      label: 'Камера и объектив'
+    },
+    {
+      regex: /((?:Lighting and visual atmosphere|Cinematography and atmosphere):[\s\S]*?)(?=\s+(?:Contextual details:|Scene elements:|Consider micro-detail|Audio:|Sound design:|$))/gi,
+      cls: 'mp-seg-light',
+      label: 'Свет и атмосфера'
+    },
+    {
+      regex: /((?:Audio|Sound design):[\s\S]*?)(?=\s+(?:1080p crisp master|No dialogue\.\s*No scene cuts)|$)/gi,
+      cls: 'mp-seg-audio',
+      label: 'Саунд-дизайн'
+    },
+    {
+      regex: /((?:1080p crisp master|No dialogue\.\s*No scene cuts)[\s\S]*$)/gi,
+      cls: 'mp-seg-spec',
+      label: 'Тех. контроль'
+    }
   ];
 
-  rules.forEach(r => {
+  narrativeRules.forEach(r => {
     html = html.replace(r.regex, `<span class="mp-seg ${r.cls}" data-seg="${r.cls}" title="${r.label}">$1</span>`);
   });
 
-  // Подсветка одиночных параметров для Imagen 3 / Gemini Flash / GPT Image, если они еще не обернуты
+  // 3. Для фото-моделей (Imagen 3, Gemini Flash, GPT Image)
   if (ctx && !html.includes('mp-seg-optics')) {
     [ctx.activeCam?.prompt, ctx.activeLens?.prompt].filter(Boolean).forEach(p => {
       const esc = escapeHtml(p);
