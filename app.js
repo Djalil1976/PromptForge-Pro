@@ -1862,7 +1862,7 @@ function renderCameraOptions() {
     `;
 
     groups.forEach((grp, colIdx) => {
-      const colAlignClass = colIdx === 2 ? 'tooltip-align-right' : (colIdx === 1 ? 'tooltip-align-center' : 'tooltip-align-left');
+      const colAlignClass = colIdx === 2 ? 'tooltip-align-right' : 'tooltip-align-left';
       html += `
         <div class="comp-grid-col camera-col-${colIdx}">
           <div class="comp-col-title">
@@ -1956,7 +1956,7 @@ function renderLensOptions() {
     `;
 
     groups.forEach((grp, colIdx) => {
-      const colAlignClass = colIdx === 2 ? 'tooltip-align-right' : (colIdx === 1 ? 'tooltip-align-center' : 'tooltip-align-left');
+      const colAlignClass = colIdx === 2 ? 'tooltip-align-right' : 'tooltip-align-left';
       html += `
         <div class="comp-grid-col lens-col-${colIdx}">
           <div class="comp-col-title">
@@ -2041,7 +2041,7 @@ function renderLightingOptions() {
     `;
 
     groups.forEach((grp, colIdx) => {
-      const colAlignClass = colIdx === 2 ? 'tooltip-align-right' : (colIdx === 1 ? 'tooltip-align-center' : 'tooltip-align-left');
+      const colAlignClass = colIdx === 2 ? 'tooltip-align-right' : 'tooltip-align-left';
       html += `
         <div class="comp-grid-col lighting-col-${colIdx}">
           <div class="comp-col-title">
@@ -2126,7 +2126,7 @@ function renderStyleOptions() {
     `;
 
     groups.forEach((grp, colIdx) => {
-      const colAlignClass = colIdx === 2 ? 'tooltip-align-right' : (colIdx === 1 ? 'tooltip-align-center' : 'tooltip-align-left');
+      const colAlignClass = colIdx === 2 ? 'tooltip-align-right' : 'tooltip-align-left';
       html += `
         <div class="comp-grid-col style-col-${colIdx}">
           <div class="comp-col-title">
@@ -2289,14 +2289,15 @@ function renderVideoMotionOptions() {
           </div>
       `;
 
-      catMotions.forEach(m => {
+      catMotions.forEach((m, idx) => {
         const isSelected = m.id === state.selectedVideoMotion;
+        const tooltipPosClass = idx >= 3 ? 'tooltip-up' : 'tooltip-down';
         html += `
           <div class="select-item ${isSelected ? 'same-as-selected' : ''}" data-motion-id="${m.id}">
             <div class="lens-item-left">
               <span class="lens-title-text" title="${m.label}">${m.label}</span>
               <div class="lens-info-tooltip-wrap">
-                <div class="lens-tooltip-content">
+                <div class="lens-tooltip-content ${tooltipPosClass}">
                   <div class="motion-preview-wrap">
                     <video class="motion-preview-video" src="motions/${m.id}.mp4?v=3.6" muted loop playsinline preload="metadata"></video>
                   </div>

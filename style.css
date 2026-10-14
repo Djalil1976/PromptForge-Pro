@@ -1245,22 +1245,16 @@ body {
 }
 
 .lighting-columns-grid .comp-grid-col .lens-info-tooltip-wrap {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  width: 16px;
-  height: 16px;
+  position: static !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
 }
 
-.lighting-columns-grid .comp-grid-col .lens-info-tooltip-wrap:hover {
-  z-index: 100000;
-}
-
-/* Tooltip: Solid opaque background, golden border, unclipped */
+/* Tooltip: Solid opaque background, golden border, unclipped flyout */
 .lighting-columns-grid .lens-tooltip-content {
-  position: absolute;
+  position: absolute !important;
   background: #131316 !important;
   border: 1px solid #f59e0b !important;
   color: #f4f4f6 !important;
@@ -1269,50 +1263,59 @@ body {
   font-size: 0.82rem !important;
   font-weight: 500 !important;
   line-height: 1.42 !important;
-  width: 290px !important;
+  width: 270px !important;
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.99), 0 0 28px rgba(217, 119, 6, 0.5) !important;
   z-index: 999999 !important;
-  pointer-events: none;
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.18s ease, transform 0.18s ease;
-  white-space: normal;
-  text-align: left;
+  pointer-events: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  transition: opacity 0.18s ease, transform 0.18s ease !important;
+  white-space: normal !important;
+  text-align: left !important;
 }
 
-.lighting-columns-grid .lens-info-tooltip-wrap:hover .lens-tooltip-content,
 .lighting-columns-grid .select-item:hover .lens-tooltip-content {
-  opacity: 1;
-  visibility: visible;
-  pointer-events: auto;
+  opacity: 1 !important;
+  visibility: visible !important;
 }
 
-/* Tooltip Vertical Alignment */
+/* Tooltip Vertical Alignment relative to .select-item */
 .lighting-columns-grid .lens-tooltip-content.tooltip-down {
-  top: calc(100% + 8px);
-  bottom: auto;
+  top: 0 !important;
+  bottom: auto !important;
 }
 
 .lighting-columns-grid .lens-tooltip-content.tooltip-up {
-  top: auto;
-  bottom: calc(100% + 8px);
+  top: auto !important;
+  bottom: 0 !important;
 }
 
-/* Tooltip Horizontal Alignment - Prevents ANY overflow clipping */
-.lighting-columns-grid .lens-tooltip-content.tooltip-align-left {
-  left: 0;
-  right: auto;
+/* Columns 1 & 2 open to the RIGHT of .select-item */
+.lighting-columns-grid .lens-tooltip-content.tooltip-align-left,
+.lighting-columns-grid .comp-grid-col:nth-child(1) .lens-tooltip-content,
+.lighting-columns-grid .comp-grid-col:nth-child(2) .lens-tooltip-content {
+  left: calc(100% + 8px) !important;
+  right: auto !important;
+  transform: translateX(4px) !important;
 }
 
-.lighting-columns-grid .lens-tooltip-content.tooltip-align-center {
-  left: 50%;
-  right: auto;
-  transform: translateX(-50%);
+.lighting-columns-grid .select-item:hover .lens-tooltip-content.tooltip-align-left,
+.lighting-columns-grid .comp-grid-col:nth-child(1) .select-item:hover .lens-tooltip-content,
+.lighting-columns-grid .comp-grid-col:nth-child(2) .select-item:hover .lens-tooltip-content {
+  transform: translateX(0) !important;
 }
 
-.lighting-columns-grid .lens-tooltip-content.tooltip-align-right {
-  right: 0;
-  left: auto;
+/* Column 3 (Last Column) opens to the LEFT of .select-item */
+.lighting-columns-grid .lens-tooltip-content.tooltip-align-right,
+.lighting-columns-grid .comp-grid-col:nth-child(3) .lens-tooltip-content {
+  right: calc(100% + 8px) !important;
+  left: auto !important;
+  transform: translateX(-4px) !important;
+}
+
+.lighting-columns-grid .select-item:hover .lens-tooltip-content.tooltip-align-right,
+.lighting-columns-grid .comp-grid-col:nth-child(3) .select-item:hover .lens-tooltip-content {
+  transform: translateX(0) !important;
 }
 
 /* Tooltip pointer arrow */
@@ -1324,28 +1327,30 @@ body {
 }
 
 .lighting-columns-grid .lens-tooltip-content.tooltip-down::after {
-  bottom: 100%;
-  border-color: transparent transparent #131316 transparent !important;
+  top: 12px !important;
+  bottom: auto !important;
 }
 
 .lighting-columns-grid .lens-tooltip-content.tooltip-up::after {
-  top: 100%;
-  border-color: #131316 transparent transparent transparent !important;
+  bottom: 12px !important;
+  top: auto !important;
 }
 
-.lighting-columns-grid .lens-tooltip-content.tooltip-align-left::after {
-  left: 12px;
-  right: auto;
+/* Arrow points to the item from the right */
+.lighting-columns-grid .lens-tooltip-content.tooltip-align-left::after,
+.lighting-columns-grid .comp-grid-col:nth-child(1) .lens-tooltip-content::after,
+.lighting-columns-grid .comp-grid-col:nth-child(2) .lens-tooltip-content::after {
+  right: 100% !important;
+  left: auto !important;
+  border-color: transparent #131316 transparent transparent !important;
 }
 
-.lighting-columns-grid .lens-tooltip-content.tooltip-align-center::after {
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-.lighting-columns-grid .lens-tooltip-content.tooltip-align-right::after {
-  right: 12px;
-  left: auto;
+/* Arrow points to the item from the left */
+.lighting-columns-grid .lens-tooltip-content.tooltip-align-right::after,
+.lighting-columns-grid .comp-grid-col:nth-child(3) .lens-tooltip-content::after {
+  left: 100% !important;
+  right: auto !important;
+  border-color: transparent transparent transparent #131316 !important;
 }
 
 #lensSelectedVal .lens-tooltip-content {
@@ -3028,25 +3033,16 @@ body {
 }
 
 .motion-grid-col .lens-info-tooltip-wrap {
-  position: relative !important;
+  position: static !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
   flex-shrink: 0 !important;
-  width: 15px !important;
-  height: 15px !important;
-  margin-left: auto !important;
-}
-
-.motion-grid-col .lens-info-tooltip-wrap:hover {
-  z-index: 10000;
 }
 
 /* Tooltip: 100% Solid Opaque Dark Background & High Z-Index */
 .motion-grid-col .lens-tooltip-content {
-  position: absolute;
-  top: calc(100% + 8px);
-  bottom: auto;
+  position: absolute !important;
   background: #131316 !important;
   border: 1px solid #f59e0b !important;
   color: #f4f4f6 !important;
@@ -3055,15 +3051,15 @@ body {
   font-size: 0.84rem !important;
   font-weight: 500 !important;
   line-height: 1.45 !important;
-  width: 300px !important;
+  width: 270px !important;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.99), 0 0 24px rgba(217, 119, 6, 0.5) !important;
   z-index: 999999 !important;
-  pointer-events: none;
-  opacity: 0;
-  visibility: hidden;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  white-space: normal;
-  text-align: left;
+  pointer-events: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  transition: opacity 0.18s ease, transform 0.18s ease !important;
+  white-space: normal !important;
+  text-align: left !important;
 }
 
 .motion-preview-wrap {
@@ -3093,86 +3089,71 @@ body {
   color: #f4f4f6;
 }
 
-.motion-grid-col .lens-tooltip-content::after {
-  content: '';
-  position: absolute;
-  top: auto;
-  bottom: 100%;
-  border-width: 6px;
-  border-style: solid;
-  border-color: transparent transparent #131316 transparent !important;
-}
-
-/* For lower items (starting from item 7) or when .tooltip-up is set: open UPWARDS */
-.motion-grid-col .select-item:nth-child(n+8) .lens-tooltip-content,
-.motion-grid-col .lens-tooltip-content.tooltip-up {
-  top: auto !important;
-  bottom: calc(100% + 8px) !important;
-}
-
-.motion-grid-col .select-item:nth-child(n+8) .lens-tooltip-content::after,
-.motion-grid-col .lens-tooltip-content.tooltip-up::after {
-  top: 100% !important;
-  bottom: auto !important;
-  border-color: #131316 transparent transparent transparent !important;
-}
-
-.motion-grid-col .lens-tooltip-content.tooltip-down {
-  top: calc(100% + 8px) !important;
-  bottom: auto !important;
-}
-
-.motion-grid-col .lens-tooltip-content.tooltip-down::after {
-  top: auto !important;
-  bottom: 100% !important;
-  border-color: transparent transparent #131316 transparent !important;
-}
-
-/* Tooltip placements inside 5-column grid */
-.motion-grid-col:nth-child(1) .lens-tooltip-content,
-.motion-grid-col:nth-child(2) .lens-tooltip-content {
-  left: 0;
-  right: auto;
-  transform: translateY(4px);
-}
-.motion-grid-col:nth-child(1) .lens-tooltip-content::after,
-.motion-grid-col:nth-child(2) .lens-tooltip-content::after {
-  left: 14px;
-  right: auto;
-}
-
-.motion-grid-col:nth-child(3) .lens-tooltip-content {
-  left: 50%;
-  right: auto;
-  transform: translateX(-50%) translateY(4px);
-}
-.motion-grid-col:nth-child(3) .lens-tooltip-content::after {
-  left: 50%;
-  right: auto;
-  transform: translateX(-50%);
-}
-
-.motion-grid-col:nth-child(4) .lens-tooltip-content,
-.motion-grid-col:nth-child(5) .lens-tooltip-content {
-  right: 0;
-  left: auto;
-  transform: translateY(4px);
-}
-.motion-grid-col:nth-child(4) .lens-tooltip-content::after,
-.motion-grid-col:nth-child(5) .lens-tooltip-content::after {
-  right: 14px;
-  left: auto;
-}
-
-.motion-grid-col .lens-info-tooltip-wrap:hover .lens-tooltip-content,
 .motion-grid-col .select-item:hover .lens-tooltip-content {
   opacity: 1 !important;
   visibility: visible !important;
-  transform: translateY(0) !important;
 }
-.motion-grid-col:nth-child(3) .lens-info-tooltip-wrap:hover .lens-tooltip-content,
-.motion-grid-col:nth-child(3) .select-item:hover .lens-tooltip-content {
-  transform: translateX(-50%) translateY(0) !important;
+
+/* Vertical position */
+.motion-grid-col .lens-tooltip-content.tooltip-down {
+  top: 0 !important;
+  bottom: auto !important;
+}
+
+.motion-grid-col .lens-tooltip-content.tooltip-up {
+  top: auto !important;
+  bottom: 0 !important;
+}
+
+/* Tooltip placements inside 5-column grid:
+   Col 1, 2, 3, 4 open to the RIGHT of .select-item */
+.motion-grid-col:nth-child(-n+4) .lens-tooltip-content {
+  left: calc(100% + 8px) !important;
+  right: auto !important;
+  transform: translateX(4px) !important;
+}
+.motion-grid-col:nth-child(-n+4) .select-item:hover .lens-tooltip-content {
+  transform: translateX(0) !important;
+}
+
+/* Col 5 (Last Column) opens to the LEFT of .select-item */
+.motion-grid-col:nth-child(5) .lens-tooltip-content {
+  right: calc(100% + 8px) !important;
+  left: auto !important;
+  transform: translateX(-4px) !important;
+}
+.motion-grid-col:nth-child(5) .select-item:hover .lens-tooltip-content {
+  transform: translateX(0) !important;
+}
+
+/* Arrow */
+.motion-grid-col .lens-tooltip-content::after {
+  content: '';
+  position: absolute;
+  border-width: 6px;
+  border-style: solid;
+}
+
+.motion-grid-col .lens-tooltip-content.tooltip-down::after {
+  top: 12px !important;
+  bottom: auto !important;
+}
+
+.motion-grid-col .lens-tooltip-content.tooltip-up::after {
+  bottom: 12px !important;
+  top: auto !important;
+}
+
+.motion-grid-col:nth-child(-n+4) .lens-tooltip-content::after {
+  right: 100% !important;
+  left: auto !important;
+  border-color: transparent #131316 transparent transparent !important;
+}
+
+.motion-grid-col:nth-child(5) .lens-tooltip-content::after {
+  left: 100% !important;
+  right: auto !important;
+  border-color: transparent transparent transparent #131316 !important;
 }
 
 #videoMotionSelectedVal .lens-tooltip-content {
@@ -3366,21 +3347,16 @@ body {
 }
 
 .comp-grid-col .lens-info-tooltip-wrap {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  flex-shrink: 0;
-}
-
-.comp-grid-col .lens-info-tooltip-wrap:hover {
-  z-index: 10000;
+  position: static !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
 }
 
 /* Tooltip: 100% Solid Opaque Dark Background & High Z-Index */
 .comp-grid-col .lens-tooltip-content {
-  position: absolute;
-  top: calc(100% + 8px);
-  bottom: auto;
+  position: absolute !important;
   background: #131316 !important;
   border: 1px solid #f59e0b !important;
   color: #f4f4f6 !important;
@@ -3392,12 +3368,12 @@ body {
   width: 270px !important;
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.99), 0 0 28px rgba(217, 119, 6, 0.5) !important;
   z-index: 999999 !important;
-  pointer-events: none;
-  opacity: 0;
-  visibility: hidden;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  white-space: normal;
-  text-align: left;
+  pointer-events: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  transition: opacity 0.18s ease, transform 0.18s ease !important;
+  white-space: normal !important;
+  text-align: left !important;
 }
 
 .comp-preview-wrap {
@@ -3426,71 +3402,71 @@ body {
   line-height: 1.42;
 }
 
-.comp-grid-col .lens-tooltip-content::after {
-  content: '';
-  position: absolute;
-  top: auto;
-  bottom: 100%;
-  border-width: 6px;
-  border-style: solid;
-  border-color: transparent transparent #131316 transparent !important;
+.comp-grid-col .select-item:hover .lens-tooltip-content {
+  opacity: 1 !important;
+  visibility: visible !important;
 }
 
-/* For lower items (starting from item 4) or when .tooltip-up is set: open UPWARDS */
-.comp-grid-col .select-item:nth-child(n+5) .lens-tooltip-content,
+/* Vertical position relative to .select-item */
+.comp-grid-col .lens-tooltip-content.tooltip-down {
+  top: 0 !important;
+  bottom: auto !important;
+}
+
 .comp-grid-col .lens-tooltip-content.tooltip-up {
   top: auto !important;
-  bottom: calc(100% + 8px) !important;
-}
-
-.comp-grid-col .select-item:nth-child(n+5) .lens-tooltip-content::after,
-.comp-grid-col .lens-tooltip-content.tooltip-up::after {
-  top: 100% !important;
-  bottom: auto !important;
-  border-color: #131316 transparent transparent transparent !important;
-}
-
-.comp-grid-col .lens-tooltip-content.tooltip-down {
-  top: calc(100% + 8px) !important;
-  bottom: auto !important;
-}
-
-.comp-grid-col .lens-tooltip-content.tooltip-down::after {
-  top: auto !important;
-  bottom: 100% !important;
-  border-color: transparent transparent #131316 transparent !important;
+  bottom: 0 !important;
 }
 
 /* Tooltip placements inside 4-column grid:
-   Col 1 & 2 align to the left, Col 3 & 4 align to the right */
-.comp-grid-col:nth-child(1) .lens-tooltip-content,
-.comp-grid-col:nth-child(2) .lens-tooltip-content {
-  left: 0;
-  right: auto;
-  transform: translateY(4px);
+   Col 1, 2, 3 open to the RIGHT of .select-item */
+.comp-grid-col:nth-child(-n+3) .lens-tooltip-content {
+  left: calc(100% + 8px) !important;
+  right: auto !important;
+  transform: translateX(4px) !important;
 }
-.comp-grid-col:nth-child(1) .lens-tooltip-content::after,
-.comp-grid-col:nth-child(2) .lens-tooltip-content::after {
-  left: 14px;
-  right: auto;
+.comp-grid-col:nth-child(-n+3) .select-item:hover .lens-tooltip-content {
+  transform: translateX(0) !important;
 }
 
-.comp-grid-col:nth-child(3) .lens-tooltip-content,
+/* Col 4 (Last Column) opens to the LEFT of .select-item */
 .comp-grid-col:nth-child(4) .lens-tooltip-content {
-  right: 0;
-  left: auto;
-  transform: translateY(4px);
+  right: calc(100% + 8px) !important;
+  left: auto !important;
+  transform: translateX(-4px) !important;
 }
-.comp-grid-col:nth-child(3) .lens-tooltip-content::after,
-.comp-grid-col:nth-child(4) .lens-tooltip-content::after {
-  right: 14px;
-  left: auto;
+.comp-grid-col:nth-child(4) .select-item:hover .lens-tooltip-content {
+  transform: translateX(0) !important;
 }
 
-.comp-grid-col .lens-info-tooltip-wrap:hover .lens-tooltip-content {
-  opacity: 1 !important;
-  visibility: visible !important;
-  transform: translateY(0) !important;
+/* Arrow */
+.comp-grid-col .lens-tooltip-content::after {
+  content: '';
+  position: absolute;
+  border-width: 6px;
+  border-style: solid;
+}
+
+.comp-grid-col .lens-tooltip-content.tooltip-down::after {
+  top: 12px !important;
+  bottom: auto !important;
+}
+
+.comp-grid-col .lens-tooltip-content.tooltip-up::after {
+  bottom: 12px !important;
+  top: auto !important;
+}
+
+.comp-grid-col:nth-child(-n+3) .lens-tooltip-content::after {
+  right: 100% !important;
+  left: auto !important;
+  border-color: transparent #131316 transparent transparent !important;
+}
+
+.comp-grid-col:nth-child(4) .lens-tooltip-content::after {
+  left: 100% !important;
+  right: auto !important;
+  border-color: transparent transparent transparent #131316 !important;
 }
 
 #compositionSelectedVal .lens-tooltip-content {
