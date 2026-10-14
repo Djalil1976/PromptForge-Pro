@@ -3093,7 +3093,9 @@ function compileOmniFlash(ctx) {
   // Build Master Prompt according to Gemini Omni Flash official guide:
   // Must use "Continuous, unbroken shot" to prevent unwanted automatic scene cuts!
   const masterParts = [];
-  masterParts.push(`Continuous, unbroken shot in a single continuous take with no scene cuts (${durStr}, ${aspectStr}). `);
+  const compPrefix = ctx.activeComp ? ctx.activeComp.prompt : '';
+  const specDetails = [compPrefix, durStr, aspectStr].filter(Boolean).join(', ');
+  masterParts.push(`Continuous, unbroken shot in a single continuous take with no scene cuts (${specDetails}). `);
 
   if (ctx.baseDescription) {
     const descClean = ctx.baseDescription.trim().replace(/\.+$/, '');
@@ -3105,14 +3107,19 @@ function compileOmniFlash(ctx) {
     masterParts.push(`The camera executes a ${motionClean}. `);
   }
 
-  const visualParts = [];
-  if (ctx.activeCam) visualParts.push(ctx.activeCam.prompt);
-  if (ctx.activeLens) visualParts.push(ctx.activeLens.prompt);
-  if (ctx.activeComp) visualParts.push(ctx.activeComp.prompt);
-  if (ctx.activeLight) visualParts.push(ctx.activeLight.prompt);
-  if (ctx.activeColor) visualParts.push(ctx.activeColor.prompt);
-  if (visualParts.length > 0) {
-    masterParts.push(`Cinematography and atmosphere: ${visualParts.join(', ')}. `);
+  const opticsParts = [];
+  if (ctx.activeCam) opticsParts.push(ctx.activeCam.prompt);
+  if (ctx.activeLens) opticsParts.push(ctx.activeLens.prompt);
+  if (opticsParts.length > 0) {
+    masterParts.push(`Optics & Camera: ${opticsParts.join(', ')} with authentic optical focal depth. `);
+  }
+
+  const atmosphereParts = [];
+  if (ctx.activeLight) atmosphereParts.push(ctx.activeLight.prompt);
+  if (ctx.activeColor) atmosphereParts.push(ctx.activeColor.prompt);
+  if (ctx.activeStyle) atmosphereParts.push(cleanBuzzwords(ctx.activeStyle.prompt));
+  if (atmosphereParts.length > 0) {
+    masterParts.push(`Lighting and visual atmosphere: ${atmosphereParts.join(', ')}. `);
   }
 
   if (ctx.quickTags) {
@@ -3842,12 +3849,7 @@ function formatHighlightedMasterPrompt(text, ctx) {
         label: 'Камера и объектив'
       },
       {
-        regex: /(Cinematography and atmosphere:\s*)/gi,
-        cls: 'mp-seg-optics',
-        label: 'Кинематография'
-      },
-      {
-        regex: /((?:Lighting and visual atmosphere:)[\s\S]*?)(?=\s+(?:Contextual details:|Scene elements:|Consider micro-detail|Audio:|Sound design:|$))/gi,
+        regex: /((?:Lighting and visual atmosphere:|Cinematography and atmosphere:)[\s\S]*?)(?=\s+(?:Contextual details:|Scene elements:|Consider micro-detail|Audio:|Sound design:|$))/gi,
         cls: 'mp-seg-light',
         label: 'Свет и атмосфера'
       },
@@ -3897,7 +3899,7 @@ function formatHighlightedMasterPrompt(text, ctx) {
       if (!item.text) return;
       const esc = escapeHtml(item.text);
       // Оборачиваем только если этот фрагмент еще не внутри span
-      const safeRegex = new RegExp(`(?![^<]*>)(?<![\\w>])(${esc.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})(?![^<]*<\\/span>)`, 'g');
+      const safeRegex = new RegExp(`(?![^<]*>)(?<!\\w)(${esc.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})(?![^<]*<\\/span>)`, 'g');
       html = html.replace(safeRegex, `<span class="mp-seg ${item.cls}" data-seg="${item.cls}" title="${item.label}">$1</span>`);
     });
   }
