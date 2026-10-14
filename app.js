@@ -1878,6 +1878,9 @@ function renderCameraOptions() {
               <span class="lens-title-text">${cam.label}</span>
               <div class="lens-info-tooltip-wrap">
                 <div class="lens-tooltip-content ${tooltipPosClass} ${colAlignClass}">
+                  <div class="lens-preview-wrap">
+                    <img class="lens-preview-img" src="cameras/${cam.id}.jpg?v=6.4" alt="${cam.label}" loading="lazy">
+                  </div>
                   <div class="lighting-tooltip-text">${cam.desc}</div>
                 </div>
               </div>
