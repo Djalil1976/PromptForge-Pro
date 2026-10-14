@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <link rel="stylesheet" href="style.css?v=4.1">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Top Navigation Bar -->
+  <header class="top-nav">
+    <div class="nav-brand">
+      <div class="brand-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <div class="brand-title">PromptForge <span class="badge-pro">PRO</span></div>
+        <div class="brand-subtitle">AI Prompt Studio (Veo 3.1 • Omni 1.1 Flash • MiniMax-H3 • Imagen 3)</div>
+      </div>
+    </div>
+
+    <div class="nav-actions">
+      <div class="model-status-indicator" id="statusBadge">
+        <span class="status-dot"></span>
+        <span id="statusText">Генератор промптов готов</span>
+      </div>
+
+      <button class="nav-btn" id="openGalleryBtn" title="История и сохраненные промпты">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+        <span>История</span>
+      </button>
+
+      <button class="nav-btn nav-btn-danger" id="clearAllBtn" title="Сбросить все параметры">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+        <span>Очистить</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main 3-Column Studio Workspace -->
+  <main class="studio-container">
+    
+    <!-- LEFT COLUMN: IDEA & PROMPT EXPANSION -->
+    <section class="column column-idea">
+      <div class="panel-card">
+        <div class="card-header">
+          <div class="card-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4"/><path d="m4.93 4.93 2.83 2.83"/><path d="M2 12h4"/><path d="m4.93 19.07 2.83-2.83"/><path d="M12 22v-4"/><path d="m19.07 19.07-2.83-2.83"/><path d="M22 12h-4"/><path d="m19.07 4.93-2.83 2.83"/><circle cx="12" cy="12" r="4"/></svg>
+            <span>ИДЕЯ</span>
+          </div>
+          <div class="char-counter" id="charCounter">0 / 500</div>
+        </div>
+
+        <!-- Mode Toggle: Image vs Video -->
+        <div class="generation-mode-toggle">
+          <button class="mode-btn active" id="modeImageBtn" data-mode="image">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+            <span>Картинка</span>
+          </button>
+          <button class="mode-btn" id="modeVideoBtn" data-mode="video">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 8-6 4 6 4V8Z"/><rect width="14" height="12" x="2" y="6" rx="2"/></svg>
+            <span>Видео</span>
+          </button>
+        </div>
+
+        <!-- Idea Textarea -->
+        <div class="input-area-wrapper">
+          <textarea id="ideaInput" placeholder="Опишите сцену на русском языке (например: Девушка идет по ночному городу, портрет, неоновый дождь...)" maxlength="500"></textarea>
+        </div>
+
+        <!-- Idea Action Buttons -->
+        <div class="idea-actions">
+          <button class="btn btn-secondary" id="randomIdeaBtn" title="Сгенерировать готовую креативную идею">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="8" cy="8" r="1.5"/><circle cx="16" cy="8" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="8" cy="16" r="1.5"/><circle cx="16" cy="16" r="1.5"/></svg>
+            <span>Случайная</span>
+          </button>
+          <button class="btn btn-primary" id="aiEnhanceBtn" title="Расширить и улучшить идею с помощью Google Gemini AI">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/></svg>
+            <span id="aiEnhanceText">Улучшить с AI</span>
+          </button>
+        </div>
+
+        <!-- AI Model Skills & Specifications Section -->
+        <div class="model-skills-section" id="modelSkillsSection">
+          <div class="skills-card-header">
+            <div class="skills-header-title">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10"/><path d="M6 10h10"/><path d="M6 14h6"/></svg>
+              <span>СПЕЦИФИКАЦИИ МОДЕЛЕЙ (SKILLS)</span>
+            </div>
+            <span class="skills-badge" id="skillStatusBadge">АКТИВНА</span>
+          </div>
+
+          <!-- Model Switcher inside Skills Module -->
+          <div class="skills-model-picker">
+            <label for="skillModelSelect" class="skills-select-label">Спецификация для:</label>
+            <div class="skills-select-wrap">
+              <select id="skillModelSelect" class="custom-select skills-select">
+                <option value="imagen-3">Google Imagen 3 (Фотореализм)</option>
+                <option value="gemini-flash">Gemini 2.5 Flash (Мультимодал)</option>
+                <option value="gpt-image-2.5">GPT Image 2.5 (Реалистичное фото)</option>
+                <option value="imagine-image-2">Grok Imagine 2.0 (FRAME спецификация)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Active Skill Card -->
+          <div class="active-skill-card" id="activeSkillCard">
+            <div class="skill-file-row">
+              <div class="skill-file-info">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
+                <span class="skill-filename" id="skillFileName">imagen-3.md</span>
+              </div>
+              <span class="skill-source-tag" id="skillSourceTag">Встроенная</span>
+            </div>
+            <div class="skill-description" id="skillDescription">
+              Спецификация генерации фотореалистичных изображений для Google Imagen 3 (оптический реализм, микротекстуры, естественный свет).
+            </div>
+            <div class="skill-meta-pills" id="skillMetaPills">
+              <span class="skill-pill" id="skillRuleCount">⚡ 4 правила</span>
+              <span class="skill-pill" id="skillMediaType">📸 Фото</span>
+              <span class="skill-pill" id="skillSizePill">~3.1 КБ</span>
+            </div>
+          </div>
+
+          <!-- Action Buttons Bar -->
+          <div class="skills-actions-bar">
+            <!-- Hidden file input for uploading custom .md -->
+            <input type="file" id="skillFileInput" accept=".md,.markdown,.txt" style="display: none;">
+            
+            <button class="btn btn-secondary btn-sm" id="uploadSkillBtn" title="Загрузить свой .md файл со спецификацией/инструкцией для этой модели">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              <span>Загрузить .md</span>
+            </button>
+
+            <button class="btn btn-secondary btn-sm" id="viewSkillBtn" title="Просмотреть и редактировать инструкцию .md в удобном редакторе">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+              <span>Инструкция</span>
+            </button>
+
+            <button class="btn btn-secondary btn-sm" id="resetSkillBtn" title="Сбросить инструкцию к стандартной заводской спецификации">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+              <span>Сброс</span>
+            </button>
+          </div>
+
+          <!-- Mini Rules Highlight (Live Rules Checklist) -->
+          <div class="skill-rules-preview">
+            <div class="rules-preview-header">
+              <span class="rules-title">Ключевые принципы промпта:</span>
+              <span class="rules-status-dot"></span>
+            </div>
+            <ul class="rules-preview-list" id="skillRulesList">
+              <li>✔ Непрерывный план (Continuous Unbroken Shot)</li>
+              <li>✔ Кинематографическая физическая оптика</li>
+              <li>✔ Нативный синхронный саунд-дизайн и фоли</li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- MIDDLE COLUMN: GENERATION PARAMETERS (LIVE CONTROLS) -->
+    <section class="column column-params">
+
+      <!-- TOP MODULES ROW (2 COLUMNS: LEFT FOR FUTURE MODULE, RIGHT FOR REVERSE VIDEO AI) -->
+      <div class="top-modules-row" id="topModulesRow">
+
+        <!-- LEFT SLOT: AI DIRECTOR PRO (POWERED BY OPENROUTER) -->
+        <div class="panel-card ai-director-card" id="aiDirectorCard">
+          <div class="card-header director-header">
+            <div class="card-title director-title">
+              <span class="director-brand-icon">
+                <svg width="18" height="18" viewBox="116 0 790 560" fill="currentColor">
+                  <path d="M731.223 0C823.798 0 898.84 75.0445 898.84 167.616C898.84 260.188 823.798 335.232 731.223 335.232L897.482 501.492C918.601 522.611 903.645 558.721 873.781 558.721H395.991C241.705 558.721 116.631 433.646 116.631 279.36C116.631 125.074 241.705 0 395.991 0H731.223ZM395.991 111.744C303.42 111.744 228.375 186.789 228.375 279.36C228.375 371.932 303.42 446.976 395.991 446.976C488.563 446.976 563.607 371.932 563.607 279.36C563.607 186.789 488.563 111.744 395.991 111.744Z"/>
+                </svg>
+              </span>
+              <span>AI DIRECTOR</span>
+              <span class="badge-director-model" id="directorActiveModelBadge">Gemma 4 31B • Free</span>
+            </div>
+            <div class="director-header-actions">
+              <button class="director-icon-btn" id="directorResetBtn" title="Сбросить генерацию">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="ai-director-body">
+            <!-- Mode Pills: Scene, 3 Variations, Shot Breakdown, Polish Prompt -->
+            <div class="director-modes-row">
+              <button class="director-mode-btn active" data-mode="scene" id="modeSceneBtn" title="Развернуть короткую тему в готовую кинематографичную сцену">🎬 Сцена</button>
+              <button class="director-mode-btn" data-mode="variations" id="modeVariationsBtn" title="Сгенерировать 3 разных авторских концепта">⚡ 3 Вариации</button>
+              <button class="director-mode-btn" data-mode="shots" id="modeShotsBtn" title="Сгенерировать раскадровку: Общий / Средний / Крупный план">📐 Раскадровка</button>
+              <button class="director-mode-btn" data-mode="polish" id="modePolishBtn" title="Улучшить текущий промпт из конструктора до киностандарта">🌟 Доработать</button>
+            </div>
+
+            <!-- Input area for Theme / Concept -->
+            <div class="director-input-box">
+              <div class="director-input-header">
+                <label for="directorThemeInput" class="director-input-label">Тема или задумка сцены:</label>
+                <button type="button" class="btn-director-random" id="directorRandomThemeBtn" title="Случайная кинематографическая идея">🎲 Случайная</button>
+              </div>
+              <textarea id="directorThemeInput" class="director-textarea" rows="3" placeholder="Например: Неоновый дождь в трущобах Токио, киборг-самурай у палатки с раменом..."></textarea>
+              
+              <!-- Detailed Mode Instruction Guide (Syncs with Screenshot 2 buttons) -->
+              <div class="director-mode-guide" id="directorModeGuide">
+                <div class="guide-header">
+                  <span class="guide-badge" id="directorGuideBadge">🎬 Сцена</span>
+                  <span class="guide-title" id="directorGuideTitle">Генерация целостной киносцены</span>
+                </div>
+                <div class="guide-desc" id="directorGuideDesc">
+                  Опишите краткую идею, персонажа, действие или локацию. Нейросеть развернет её в единый сбалансированный мастер-промпт с голливудской оптикой (ARRI, Anamorphic), светом, динамикой и текстурами.
+                </div>
+                <div class="guide-tip" id="directorGuideTip">
+                  💡 <em>Совет:</em> Достаточно 1-2 предложений. Жанровый тон ниже задаст цветовую гамму и оптический сетап.
+                </div>
+              </div>
+            </div>
+
+            <!-- Parameters Bar: Model Selector & Genre Focus -->
+            <div class="director-controls-row">
+              <div class="director-control-group">
+                <span class="control-label-micro">Нейросеть (OpenRouter):</span>
+                <select id="directorModelSelect" class="director-select">
+                  <optgroup label="Бесплатные модели (Free Tier)">
+                    <option value="google/gemma-4-31b-it:free" selected>Google Gemma 4 31B (Free • Топ для промптов)</option>
+                    <option value="qwen/qwen3.8-27b:free">Qwen 3.8 27B (Free • Креатив и визуал)</option>
+                    <option value="nvidia/nemotron-3-super-120b-a12b:free">NVIDIA Nemotron 3 Super 120B (Free • 120B)</option>
+                    <option value="nvidia/nemotron-3.5-lightning:free">NVIDIA Nemotron 3.5 Lightning (Free • 1M)</option>
+                    <option value="openrouter/free">OpenRouter Free Router (Автовыбор)</option>
+                  </optgroup>
+                  <optgroup label="Флагманские модели (Pro Tier)">
+                    <option value="anthropic/claude-sonnet-5.5">Claude Sonnet 5.5 (Флагман Голливуда)</option>
+                    <option value="openai/gpt-5.5">GPT-5.5 (Флагман OpenAI)</option>
+                    <option value="deepseek/deepseek-v3.2">DeepSeek V3.2 (Ультра-детализация)</option>
+                    <option value="google/gemini-3.8-flash">Gemini 3.8 Flash (Флагман Google Flash)</option>
+                  </optgroup>
+                </select>
+              </div>
+
+              <div class="director-control-group">
+                <span class="control-label-micro">Жанровый тон:</span>
+                <select id="directorGenreSelect" class="director-select">
+                  <option value="cinematic" selected>Кинофильм (ARRI / 35mm)</option>
+                  <option value="cyberpunk">Киберпанк & Неонуар</option>
+                  <option value="scifi">Эпичный Sci-Fi & Космос</option>
+                  <option value="documentary">Живая документалистика</option>
+                  <option value="dark-fantasy">Темное фэнтези</option>
+                  <option value="minimalism">Минимализм & Эстетика</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Generate Action Button & Status -->
+            <div class="director-actions-wrap">
+              <button class="btn-director-generate" id="directorGenerateBtn">
+                <span class="btn-sparkle-icon">✨</span>
+                <span id="directorGenerateBtnText">Сгенерировать с AI</span>
+              </button>
+            </div>
+
+            <!-- Progress / Loading Bar -->
+            <div class="director-progress-bar" id="directorProgressBar" style="display: none;">
+              <div class="director-progress-inner"></div>
+              <span class="director-progress-label" id="directorProgressLabel">AI режиссер размышляет над композицией...</span>
+            </div>
+
+            <!-- Output Result Card -->
+            <div class="director-result-card" id="directorResultCard" style="display: none;">
+              <div class="director-result-header">
+                <div class="director-result-title">
+                  <span>🎬 Сгенерированный концепт</span>
+                </div>
+                <div class="director-result-tools">
+                  <button class="director-tool-btn" id="directorCopyBtn" title="Скопировать текст">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                    <span>Копировать</span>
+                  </button>
+                  <button class="director-apply-btn" id="directorApplyBtn" title="Отправить идею и параметры напрямую в конструктор промптов">
+                    <span>⚡ В конструктор</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Variations Tabs (for 3 variations mode) -->
+              <div class="director-var-tabs" id="directorVarTabs" style="display: none;">
+                <button class="director-var-tab active" data-var-idx="0">Вариант 1</button>
+                <button class="director-var-tab" data-var-idx="1">Вариант 2</button>
+                <button class="director-var-tab" data-var-idx="2">Вариант 3</button>
+              </div>
+
+              <div class="director-result-text" id="directorResultText">
+                <!-- Populated dynamically -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT SLOT: REVERSE VIDEO AI (VIDEO-TO-PROMPT ANALYZER) -->
+        <div class="panel-card video-analyzer-card" id="videoAnalyzerCard">
+        <div class="card-header analyzer-header">
+          <div class="card-title analyzer-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m22 8-6 4 6 4V8Z"/>
+              <rect width="14" height="12" x="2" y="6" rx="2"/>
+              <circle cx="9" cy="12" r="2"/>
+            </svg>
+            <span>REVERSE VIDEO AI</span>
+            <span class="badge-vision" id="visionBadge" title="Gemini 3.5 / 3.6 Flash Vision">Gemini Vision</span>
+          </div>
+          
+          <div class="analyzer-header-actions">
+            <button class="analyzer-icon-btn" id="analyzerSettingsBtn" title="Настройки Gemini API Key">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 2l-2 2m-1.5 1.5L16 7l-1.5-1.5M15 8l-5.5 5.5a4 4 0 1 1-5.6-5.6L9.4 2.4a4 4 0 0 1 5.6 5.6Z"/>
+              </svg>
+            </button>
+            <button class="analyzer-toggle-btn" id="analyzerCollapseBtn" title="Свернуть / Развернуть модуль">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m18 15-6-6-6 6"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="analyzer-body" id="analyzerBody">
+          <!-- URL Input Group -->
+          <div class="analyzer-url-row">
+            <div class="url-input-wrapper">
+              <span class="url-input-icon">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+              </span>
+              <input type="text" id="videoUrlInput" class="analyzer-input" placeholder="Вставьте ссылку на Reels, TikTok, Shorts или direct .mp4...">
+              <button class="url-paste-btn" id="pasteUrlBtn" title="Вставить из буфера">Вставить</button>
+            </div>
+            <button class="btn btn-secondary analyzer-load-btn" id="loadUrlBtn">Загрузить</button>
+          </div>
+
+          <!-- Divider -->
+          <div class="analyzer-divider">
+            <span>или перетащите файл</span>
+          </div>
+
+          <!-- Drag & Drop Zone -->
+          <div class="video-drop-zone" id="videoDropZone">
+            <input type="file" id="videoFileInput" accept="video/mp4,video/quicktime,video/webm" style="display: none;">
+            <div class="drop-zone-content">
+              <div class="drop-icon-wrap">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="17 8 12 3 7 8"/>
+                  <line x1="12" x2="12" y1="3" y2="15"/>
+                </svg>
+              </div>
+              <div class="drop-text-main">Перетащите видео (.mp4, .mov, .webm)</div>
+              <div class="drop-text-sub">или нажмите для выбора • До 100 МБ • <button type="button" class="btn-sample-video" id="loadSampleVideoBtn">Загрузить пример</button></div>
+            </div>
+          </div>
+
+          <!-- Video Preview & Frame Timeline (Hidden until video is loaded) -->
+          <div class="video-preview-wrapper" id="videoPreviewContainer" style="display: none;">
+            <div class="preview-header">
+              <div class="preview-file-info" id="videoFileInfo">
+                <span class="file-name" id="previewFileName">video.mp4</span>
+                <span class="file-meta" id="previewFileMeta">0:00 • 1080p</span>
+              </div>
+              <button class="btn-remove-video" id="removeVideoBtn" title="Удалить видео">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                <span>Удалить</span>
+              </button>
+            </div>
+
+            <div class="player-container">
+              <video id="analyzerVideoPlayer" class="analyzer-video" playsinline controls muted></video>
+              <div class="laser-scanner-overlay" id="laserScannerOverlay" style="display: none;">
+                <div class="laser-beam"></div>
+                <div class="hud-target top-left"></div>
+                <div class="hud-target top-right"></div>
+                <div class="hud-target bottom-left"></div>
+                <div class="hud-target bottom-right"></div>
+                <div class="hud-scanning-text">AI SCANNING FRAMES...</div>
+              </div>
+            </div>
+
+            <!-- Extracted Keyframes Strip -->
+            <div class="extracted-frames-section">
+              <div class="frames-header">
+                <div class="frames-label">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M7 3v18"/><path d="M3 7.5h4"/><path d="M3 12h18"/><path d="M3 16.5h4"/><path d="M17 3v18"/><path d="M17 7.5h4"/><path d="M17 16.5h4"/></svg>
+                  <span>Ключевые кадры для Gemini Vision</span>
+                </div>
+                <span class="frames-count" id="framesCountBadge">0 кадров</span>
+              </div>
+              <div class="frames-strip" id="extractedFramesStrip">
+                <!-- Populated by Canvas extraction -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Automation Options -->
+          <div class="analyzer-options-row">
+            <label class="analyzer-checkbox-label" title="Автоматически выбрать распознанные ракурс, объектив, свет и движение в конструкторе">
+              <input type="checkbox" id="autoFillParamsCheck" checked>
+              <span class="custom-checkbox"></span>
+              <span class="checkbox-text">Автозаполнить параметры формы</span>
+            </label>
+            <label class="analyzer-checkbox-label" title="Сформировать готовый мастер-промпт и отобразить в окне терминала">
+              <input type="checkbox" id="updateTerminalPromptCheck" checked>
+              <span class="custom-checkbox"></span>
+              <span class="checkbox-text">Сформировать промпт в терминал</span>
+            </label>
+          </div>
+
+          <!-- Main Action Button -->
+          <div class="analyzer-actions">
+            <button class="btn btn-primary analyzer-run-btn" id="analyzeVideoBtn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/></svg>
+              <span id="analyzeVideoBtnText">Деконструировать видео (AI Анализ)</span>
+            </button>
+          </div>
+
+          <!-- Progress / HUD Status Bar -->
+          <div class="analyzer-status-bar" id="analyzerStatusBar" style="display: none;">
+            <div class="status-progress-track">
+              <div class="status-progress-fill" id="statusProgressFill"></div>
+            </div>
+            <div class="status-info-row">
+              <span class="status-step-text" id="statusStepText">Подготовка кадров...</span>
+              <span class="status-percentage" id="statusPercentage">0%</span>
+            </div>
+          </div>
+
+          <!-- Visual Scene Breakdown (Appears after AI analysis) -->
+          <div class="video-breakdown-card" id="videoBreakdownCard" style="display: none;">
+            <div class="breakdown-header">
+              <div class="breakdown-title">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/></svg>
+                <span>РАЗБОР ВИДЕОРЯДА (GEMINI VISION)</span>
+              </div>
+              <div style="display: flex; gap: 6px; align-items: center;">
+                <button class="btn-copy-breakdown" id="restoreDirectorPromptBtn" title="Вернуть оригинальный AI-промпт видео в окно терминала">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                  <span>В терминал</span>
+                </button>
+                <button class="btn-copy-breakdown" id="copyBreakdownBtn" title="Скопировать разбор сцены">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                  <span>Копировать</span>
+                </button>
+              </div>
+            </div>
+            <div class="breakdown-body" id="breakdownContent">
+              <!-- Populated dynamically by Gemini analysis -->
+            </div>
+          </div>
+
+          <!-- API Key Status / Connect Banner (Split into Gemini and OpenRouter) -->
+          <div class="api-key-banner" id="apiKeyBanner">
+            <div class="banner-items-wrap">
+              <div class="banner-sub-item" id="geminiBannerSubItem">
+                <span class="banner-icon" id="geminiBannerIcon">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 0C12 6.627 6.627 12 0 12c6.627 0 12 5.373 12 12 0-6.627 5.373-12 12-12-6.627 0-12-5.373-12-12Z"/>
+                  </svg>
+                </span>
+                <span class="banner-text" id="apiKeyBannerText">Gemini Vision API активен</span>
+              </div>
+              <div class="banner-divider"></div>
+              <div class="banner-sub-item" id="openRouterBannerSubItem">
+                <span class="banner-icon" id="openRouterBannerIcon">
+                  <svg width="15" height="15" viewBox="116 0 790 560" fill="currentColor">
+                    <path d="M731.223 0C823.798 0 898.84 75.0445 898.84 167.616C898.84 260.188 823.798 335.232 731.223 335.232L897.482 501.492C918.601 522.611 903.645 558.721 873.781 558.721H395.991C241.705 558.721 116.631 433.646 116.631 279.36C116.631 125.074 241.705 0 395.991 0H731.223ZM395.991 111.744C303.42 111.744 228.375 186.789 228.375 279.36C228.375 371.932 303.42 446.976 395.991 446.976C488.563 446.976 563.607 371.932 563.607 279.36C563.607 186.789 488.563 111.744 395.991 111.744Z"/>
+                  </svg>
+                </span>
+                <span class="banner-text" id="openRouterBannerText">OpenRouter API не подключен</span>
+              </div>
+            </div>
+            <button class="btn-banner-key" id="openKeyFromBannerBtn">Настройки</button>
+          </div>
+        </div>
+      </div>
+      <!-- /TOP MODULES ROW -->
+      </div>
+
+      <!-- BOTTOM CARD: GENERATION PARAMETERS (LIVE CONTROLS) -->
+      <div class="panel-card scrollable-card">
+        <div class="card-header sticky-header">
+          <div class="card-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" x2="20" y1="21" y2="21"/><line x1="4" x2="20" y1="3" y2="3"/><line x1="4" x2="20" y1="12" y2="12"/><circle cx="8" cy="12" r="3"/><circle cx="16" cy="3" r="3"/><circle cx="14" cy="21" r="3"/></svg>
+            <span>ПАРАМЕТРЫ ГЕНЕРАЦИИ</span>
+          </div>
+          <span class="live-badge">Live</span>
+        </div>
+
+        <!-- ACCORDION: CAMERA & LENS (IN ONE ROW) -->
+        <div class="accordion-item open" id="accordionCameraLens">
+          <div class="accordion-header">
+            <div class="accordion-title">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
+              <span>КАМЕРА И ОБЪЕКТИВ</span>
+            </div>
+            <div class="accordion-chevron">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m18 15-6-6-6 6"/></svg>
+            </div>
+          </div>
+          <div class="accordion-content">
+            <div class="inline-selects-row">
+              <!-- Left Column: Camera -->
+              <div class="inline-select-col">
+                <div class="field-sublabel">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
+                  <span>Камера</span>
+                </div>
+                <div class="custom-select" id="cameraCustomSelect">
+                  <div class="select-selected" id="cameraSelectedVal">
+                    <div class="selected-lens-wrapper">
+                      <span class="selected-text-val" id="cameraSelectedText">Выберите камеру...</span>
+                      <div class="lens-info-tooltip-wrap">
+                        <span class="lens-info-icon">ⓘ</span>
+                        <div class="lens-tooltip-content" id="cameraSelectedTooltip">Нажмите, чтобы выбрать модель камеры.</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="select-items select-items-camera-3col" id="cameraOptionsList">
+                    <!-- Populated via JS -->
+                  </div>
+                </div>
+              </div>
+
+              <!-- Right Column: Lens -->
+              <div class="inline-select-col">
+                <div class="field-sublabel">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg>
+                  <span>Объектив</span>
+                </div>
+                <div class="custom-select" id="lensCustomSelect">
+                  <div class="select-selected" id="lensSelectedVal">
+                    <div class="selected-lens-wrapper">
+                      <span class="selected-text-val" id="lensSelectedText">Выберите объектив...</span>
+                      <div class="lens-info-tooltip-wrap" id="lensSelectedTooltipWrap">
+                        <span class="lens-info-icon">ⓘ</span>
+                        <div class="lens-tooltip-content" id="lensSelectedTooltip">Нажмите, чтобы выбрать объектив.</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="select-items select-items-lens select-items-lens-3col" id="lensOptionsList">
+                    <!-- Populated via JS -->
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ACCORDION: LIGHTING & STYLE (IN ONE ROW) -->
+        <div class="accordion-item open" id="accordionLightingStyle">
+          <div class="accordion-header">
+            <div class="accordion-title">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+              <span>ОСВЕЩЕНИЕ И СТИЛЬ</span>
+            </div>
+            <div class="accordion-chevron">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m18 15-6-6-6 6"/></svg>
+            </div>
+          </div>
+          <div class="accordion-content">
+            <div class="inline-selects-row">
+              <!-- Left Column: Lighting -->
+              <div class="inline-select-col">
+                <div class="field-sublabel">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+                  <span>Освещение</span>
+                </div>
+                <div class="custom-select" id="lightingCustomSelect">
+                  <div class="select-selected" id="lightingSelectedVal">
+                    <div class="selected-lens-wrapper">
+                      <span class="selected-text-val" id="lightingSelectedText">Выберите освещение...</span>
+                      <div class="lens-info-tooltip-wrap">
+                        <span class="lens-info-icon">ⓘ</span>
+                        <div class="lens-tooltip-content" id="lightingSelectedTooltip">Нажмите, чтобы выбрать схему освещения.</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="select-items select-items-lighting-3col" id="lightingOptionsList">
+                    <!-- Lighting options populated via JS -->
+                  </div>
+                </div>
+              </div>
+
+              <!-- Right Column: Style & Aesthetics -->
+              <div class="inline-select-col">
+                <div class="field-sublabel">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/></svg>
+                  <span>Стиль и эстетика</span>
+                </div>
+                <div class="custom-select" id="styleCustomSelect">
+                  <div class="select-selected" id="styleSelectedVal">
+                    <div class="selected-lens-wrapper">
+                      <span class="selected-text-val" id="styleSelectedText">Выберите стиль...</span>
+                      <div class="lens-info-tooltip-wrap">
+                        <span class="lens-info-icon">ⓘ</span>
+                        <div class="lens-tooltip-content" id="styleSelectedTooltip">Нажмите, чтобы выбрать стиль и эстетику.</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="select-items select-items-style-3col" id="styleOptionsList">
+                    <!-- Style options populated via JS -->
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ACCORDION: COMPOSITION & SHOT TYPE (DROPDOWN) -->
+        <div class="accordion-item open" id="accordionComposition">
+          <div class="accordion-header">
+            <div class="accordion-title">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/><path d="M15 3v18"/></svg>
+              <span>РАКУРС И КОМПОЗИЦИЯ</span>
+            </div>
+            <div class="accordion-chevron">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m18 15-6-6-6 6"/></svg>
+            </div>
+          </div>
+          <div class="accordion-content">
+            <div class="custom-select" id="compositionCustomSelect">
+              <div class="select-selected" id="compositionSelectedVal">
+                <div class="selected-lens-wrapper">
+                  <span class="selected-text-val" id="compositionSelectedText">Выберите ракурс...</span>
+                  <div class="lens-info-tooltip-wrap">
+                    <span class="lens-info-icon">ⓘ</span>
+                    <div class="lens-tooltip-content" id="compositionSelectedTooltip">Нажмите, чтобы выбрать ракурс и композицию.</div>
+                  </div>
+                </div>
+              </div>
+              <div class="select-items select-items-comp-4col" id="compositionOptionsList">
+                <!-- Composition options populated via JS -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- VIDEO DYNAMICS SECTION (DYNAMICALLY HIGHLIGHTED OR EXPANDED FOR VIDEO) -->
+        <div class="accordion-item" id="accordionVideoDynamics">
+          <div class="accordion-header">
+            <div class="accordion-title">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 8-6 4 6 4V8Z"/><rect width="14" height="12" x="2" y="6" rx="2"/></svg>
+              <span>ДВИЖЕНИЕ КАМЕРЫ (ВИДЕО)</span>
+              <span class="badge-mini" id="videoDynamicsBadge">Видео</span>
+            </div>
+            <div class="accordion-chevron">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m18 15-6-6-6 6"/></svg>
+            </div>
+          </div>
+          <div class="accordion-content">
+            <div class="custom-select" id="videoMotionCustomSelect">
+              <div class="select-selected" id="videoMotionSelectedVal">
+                <div class="selected-lens-wrapper">
+                  <span class="selected-text-val" id="videoMotionSelectedText">Выберите движение...</span>
+                  <div class="lens-info-tooltip-wrap">
+                    <span class="lens-info-icon">ⓘ</span>
+                    <div class="lens-tooltip-content" id="videoMotionSelectedTooltip">Нажмите, чтобы выбрать кинематографичное движение камеры.</div>
+                  </div>
+                </div>
+              </div>
+              <div class="select-items select-items-motion-5col" id="videoMotionOptionsList">
+                <!-- Video motion options populated via JS -->
+              </div>
+            </div>
+            <div class="inline-selects-row" style="margin-top: 12px;">
+              <!-- Left Column: Duration -->
+              <div class="inline-select-col">
+                <div class="field-sublabel">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  <span>Длительность клипа</span>
+                </div>
+                <div class="custom-select" id="durationCustomSelect">
+                  <div class="select-selected" id="durationSelectedVal">
+                    <div class="selected-lens-wrapper">
+                      <span class="selected-text-val" id="durationSelectedText">Выберите длительность...</span>
+                      <div class="lens-info-tooltip-wrap">
+                        <span class="lens-info-icon">ⓘ</span>
+                        <div class="lens-tooltip-content" id="durationSelectedTooltip">Нажмите, чтобы выбрать хронометраж клипа.</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="select-items" id="durationOptionsList">
+                    <!-- Populated via JS -->
+                  </div>
+                </div>
+              </div>
+
+              <!-- Right Column: Framerate -->
+              <div class="inline-select-col">
+                <div class="field-sublabel">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                  <span>Частота кадров / Эффект</span>
+                </div>
+                <div class="custom-select" id="framerateCustomSelect">
+                  <div class="select-selected" id="framerateSelectedVal">
+                    <div class="selected-lens-wrapper">
+                      <span class="selected-text-val" id="framerateSelectedText">Выберите частоту...</span>
+                      <div class="lens-info-tooltip-wrap">
+                        <span class="lens-info-icon">ⓘ</span>
+                        <div class="lens-tooltip-content" id="framerateSelectedTooltip">Нажмите, чтобы выбрать кадровую частоту и эффект.</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="select-items" id="framerateOptionsList">
+                    <!-- Populated via JS -->
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ACCORDION: ASPECT RATIO -->
+        <div class="accordion-item open" id="accordionAspectRatio">
+          <div class="accordion-header">
+            <div class="accordion-title">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="14" x="2" y="5" rx="2"/></svg>
+              <span>СООТНОШЕНИЕ СТОРОН</span>
+            </div>
+            <div class="accordion-chevron">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m18 15-6-6-6 6"/></svg>
+            </div>
+          </div>
+          <div class="accordion-content">
+            <div class="aspect-ratio-selector" id="aspectRatioContainer">
+              <!-- 16:9, 9:16, 1:1, 4:3, 21:9 -->
+            </div>
+          </div>
+        </div>
+
+        <!-- ACCORDION: COLOR PALETTE & MOOD -->
+        <div class="accordion-item open" id="accordionColor">
+          <div class="accordion-header">
+            <div class="accordion-title">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>
+              <span>ЦВЕТОВАЯ ГАММА И ТОНИРОВАНИЕ</span>
+            </div>
+            <div class="accordion-chevron">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m18 15-6-6-6 6"/></svg>
+            </div>
+          </div>
+          <div class="accordion-content">
+            <div class="custom-select" id="colorCustomSelect">
+              <div class="select-selected" id="colorSelectedVal">
+                <div class="selected-lens-wrapper">
+                  <span class="selected-text-val" id="colorSelectedText">Выберите гамму...</span>
+                  <div class="lens-info-tooltip-wrap">
+                    <span class="lens-info-icon">ⓘ</span>
+                    <div class="lens-tooltip-content" id="colorSelectedTooltip">Нажмите, чтобы выбрать цветовую гамму и тонирование.</div>
+                  </div>
+                </div>
+              </div>
+              <div class="select-items" id="colorOptionsList">
+                <!-- Color palette options populated via JS -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ACCORDION: NEGATIVE PROMPT -->
+        <div class="accordion-item" id="accordionNegative">
+          <div class="accordion-header">
+            <div class="accordion-title">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 14.14 14.14"/></svg>
+              <span>ИСКЛЮЧЕНИЯ (NEGATIVE PROMPT)</span>
+            </div>
+            <div class="accordion-chevron">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m18 15-6-6-6 6"/></svg>
+            </div>
+          </div>
+          <div class="accordion-content">
+            <div class="negative-tags-container" id="negativeTagsContainer">
+              <!-- Quick negative tags -->
+            </div>
+            <input type="text" id="negativeCustomInput" class="custom-input" placeholder="Дополнительные исключения через запятую (например: cartoon, blur, bad anatomy)">
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- RIGHT COLUMN: AI MODEL & RESULT -->
+    <section class="column column-result">
+      <div class="panel-card scrollable-card">
+        
+        <!-- AI MODEL SELECTOR GRID -->
+        <div class="model-selection-wrapper">
+          <div class="card-header">
+            <div class="card-title">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 9h6v6H9z"/><path d="M3 9h2"/><path d="M3 15h2"/><path d="M19 9h2"/><path d="M19 15h2"/><path d="M9 3v2"/><path d="M15 3v2"/><path d="M9 19v2"/><path d="M15 19v2"/></svg>
+              <span>AI МОДЕЛЬ</span>
+            </div>
+            <span class="badge-accent">Multi-Model Pro</span>
+          </div>
+
+          <div class="models-grid" id="modelsGrid">
+            <!-- Model cards populated dynamically -->
+          </div>
+        </div>
+
+        <!-- COMPILED RESULT CARD -->
+        <div class="result-box-wrapper">
+          <div class="card-header">
+            <div class="card-title">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+              <span>РЕЗУЛЬТАТ</span>
+            </div>
+            <div class="result-meta">
+              <span class="char-badge" id="resultCharCount">0 симв.</span>
+              <div class="strength-pill" id="strengthPill">
+                <span class="strength-dot"></span>
+                <span id="strengthText">Сила 0%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Prompt Output Container (Terminal Style) -->
+          <div class="terminal-card">
+            <div class="terminal-header">
+              <div class="terminal-title" id="terminalModelBadge">
+                <span class="terminal-model-logo"><svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17Z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24Z"/><path fill="#FBBC05" d="M5.28 14.27A7.17 7.17 0 0 1 4.9 12c0-.79.14-1.57.38-2.27V6.58H1.25A11.967 11.967 0 0 0 0 12c0 1.92.45 3.74 1.25 5.42l4.03-3.15Z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98Z"/></svg></span>
+                <span class="terminal-model-name">Imagen 3</span>
+                <span class="terminal-model-spec">• optical photography</span>
+              </div>
+              <div class="terminal-actions">
+                <div class="format-pill-toggle" id="formatPillToggle" title="Формат отображения промпта">
+                  <button class="format-pill-btn active" id="formatMasterBtn" data-format="master" title="Цельный кинематографический текст для генератора">Мастер-промпт</button>
+                  <button class="format-pill-btn" id="formatStructuredBtn" data-format="structured" title="Структурированный список тегов и спецификаций">Структура</button>
+                </div>
+                <button class="terminal-copy-icon" id="quickCopyBtn" title="Быстрое копирование">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="terminal-body" id="finalPromptDisplay">
+              <!-- Live compiled prompt goes here -->
+              <span class="placeholder-text">Заполните идею или выберите параметры слева для сборки промпта...</span>
+            </div>
+          </div>
+
+          <!-- Negative Prompt Display (if any) -->
+          <div class="negative-prompt-display" id="negativePromptDisplay" style="display: none;">
+            <div class="neg-label">NEGATIVE PROMPT:</div>
+            <div class="neg-text" id="negativePromptText"></div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="result-actions">
+            <button class="btn btn-copy" id="copyPromptBtn" title="Скопировать готовый промпт в буфер обмена">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+              <span>Скопировать готовый промпт</span>
+            </button>
+            <button class="btn btn-reset" id="resetBtn" title="Сбросить все настройки и очистить результат">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+              <span>Сброс</span>
+            </button>
+          </div>
+
+          <!-- Google AI Direct Web Access -->
+          <div class="gemini-direct-link" style="display: flex; gap: 8px;">
+            <a href="https://flow.google.com" target="_blank" rel="noopener" class="gemini-link-btn flow-link-btn" title="Открыть веб-студию генерации Google Flow">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              <span>Открыть в Google Flow</span>
+            </a>
+            <a href="https://gemini.google.com" target="_blank" rel="noopener" class="gemini-link-btn" title="Открыть веб-интерфейс Google Gemini Advanced">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/></svg>
+              <span>Gemini Advanced</span>
+            </a>
+          </div>
+
+          <!-- Optimization Hint Box -->
+          <div class="model-hint-card" id="modelHintCard">
+            <div class="hint-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4"/><path d="M12 18v4"/><path d="m4.93 4.93 2.83 2.83"/><path d="m16.24 16.24 2.83 2.83"/><path d="M2 12h4"/><path d="M18 12h4"/><path d="m4.93 19.07 2.83-2.83"/><path d="m16.24 7.76 2.83-2.83"/></svg>
+            </div>
+            <div class="hint-body">
+              <div class="hint-title" id="hintTitle">Оптимизация под Imagen 3</div>
+              <div class="hint-desc" id="hintDesc">
+                Используются дескрипторы освещения, камеры и физики сцены на английском языке для максимально реалистичного рендера Google AI без перегрузки мусорными тегами.
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+
+
+      </div>
+    </section>
+
+  </main>
+  <div class="drawer-backdrop" id="galleryDrawer">
+    <div class="drawer-card">
+      <div class="drawer-header">
+        <div class="drawer-title">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+          <span>Галерея и история генераций</span>
+        </div>
+        <button class="drawer-close" id="closeGalleryDrawer">&times;</button>
+      </div>
+      <div class="drawer-body" id="galleryItemsContainer">
+        <!-- Gallery cards -->
+        <div class="empty-gallery">История генераций пока пуста. Сгенерируйте промпт или картинку!</div>
+      </div>
+      <div class="drawer-footer">
+        <button class="btn btn-secondary" id="clearGalleryBtn">Очистить историю</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: API Keys Settings (Gemini & OpenRouter) -->
+  <div class="modal-backdrop" id="apiKeyModal" style="display: none;">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2l-2 2m-1.5 1.5L16 7l-1.5-1.5M15 8l-5.5 5.5a4 4 0 1 1-5.6-5.6L9.4 2.4a4 4 0 0 1 5.6 5.6Z"/></svg>
+          <span>Настройка API-ключей</span>
+        </div>
+        <button class="modal-close" id="closeApiKeyModalBtn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-desc">
+          Ключи сохраняются локально в вашем браузере (LocalStorage) и используются для прямого взаимодействия с нейросетями.
+        </p>
+
+        <!-- Gemini API Key -->
+        <div class="modal-field">
+          <label for="geminiApiKeyInput">🔑 Google AI Studio API Key (Gemini Vision 3.8):</label>
+          <div class="api-key-input-wrap">
+            <input type="password" id="geminiApiKeyInput" class="custom-input" placeholder="AIzaSy...">
+            <button type="button" class="btn-toggle-key" id="toggleKeyVisibilityBtn" title="Показать/скрыть">👁️</button>
+          </div>
+          <div class="api-key-hint">
+            Бесплатный ключ: <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">Google AI Studio ↗</a>
+          </div>
+        </div>
+
+        <!-- OpenRouter API Key -->
+        <div class="modal-field" style="margin-top: 14px;">
+          <label for="openRouterApiKeyInput">⚡ OpenRouter API Key (Claude, DeepSeek, GPT-4o):</label>
+          <div class="api-key-input-wrap">
+            <input type="password" id="openRouterApiKeyInput" class="custom-input" placeholder="sk-or-v1-...">
+            <button type="button" class="btn-toggle-key" id="toggleOpenRouterKeyBtn" title="Показать/скрыть">👁️</button>
+          </div>
+          <div class="api-key-hint">
+            Получить ключ: <a href="https://openrouter.ai/keys" target="_blank" rel="noopener">OpenRouter.ai Keys ↗</a>
+          </div>
+        </div>
+
+        <div class="modal-info-box" style="margin-top: 14px;">
+          ⚡ <strong>Подсказка:</strong> <strong>Gemini API</strong> выполняет визуальный анализ видеокадров (Vision), а <strong>OpenRouter API</strong> открывает доступ к моделям Claude, DeepSeek-R1 и GPT-4o.
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="useDemoOfflineBtn">Демо-режим</button>
+        <button class="btn btn-secondary" id="clearApiKeyBtn">Очистить все</button>
+        <button class="btn btn-primary" id="saveApiKeyBtn">Сохранить ключи</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Model Skill Markdown Viewer & Editor -->
+  <div class="modal-backdrop" id="skillEditorModalBackdrop" style="display: none;">
+    <div class="modal modal-lg" id="skillEditorModal">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <div class="modal-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
+            <span id="skillEditorTitle">Спецификация модели</span>
+          </div>
+          <span class="skill-editor-meta" id="skillEditorMeta">veo-3-1.md (Встроенная)</span>
+        </div>
+        <button class="modal-close" id="closeSkillEditorBtn" aria-label="Закрыть">&times;</button>
+      </div>
+      <div class="modal-body skill-editor-body">
+        <div class="skill-editor-toolbar">
+          <span class="toolbar-hint">Вы можете свободно редактировать правила для этой модели или скопировать весь текст. Изменения сохраняются локально.</span>
+          <div class="toolbar-actions">
+            <button class="btn btn-secondary btn-sm" id="copySkillContentBtn" title="Скопировать весь текст Markdown">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+              <span>Копировать</span>
+            </button>
+            <button class="btn btn-secondary btn-sm" id="downloadSkillFileBtn" title="Скачать файл .md на компьютер">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              <span>Экспорт .md</span>
+            </button>
+          </div>
+        </div>
+        <textarea id="skillEditorTextarea" class="custom-textarea skill-editor-textarea" spellcheck="false" placeholder="Инструкции спецификации модели в формате Markdown..."></textarea>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="cancelSkillEditorBtn">Закрыть</button>
+        <button class="btn btn-primary" id="saveSkillEditorBtn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          <span>Сохранить спецификацию</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Scripts -->
+  <script src="app.js?v=4.1"></script>
+</body>
+</html>
