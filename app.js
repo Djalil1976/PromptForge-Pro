@@ -1606,6 +1606,11 @@ const el = {
   framerateSelectedText: document.getElementById('framerateSelectedText'),
   framerateSelectedTooltip: document.getElementById('framerateSelectedTooltip'),
   framerateOptionsList: document.getElementById('framerateOptionsList'),
+  aspectCustomSelect: document.getElementById('aspectCustomSelect'),
+  aspectSelectedVal: document.getElementById('aspectSelectedVal'),
+  aspectSelectedText: document.getElementById('aspectSelectedText'),
+  aspectSelectedTooltip: document.getElementById('aspectSelectedTooltip'),
+  aspectOptionsList: document.getElementById('aspectOptionsList'),
   aspectRatioContainer: document.getElementById('aspectRatioContainer'),
   colorCustomSelect: document.getElementById('colorCustomSelect'),
   colorSelectedVal: document.getElementById('colorSelectedVal'),
@@ -2426,28 +2431,58 @@ function renderChips() {
 
 
 function renderAspectRatios() {
-  el.aspectRatioContainer.innerHTML = ASPECT_RATIOS.map(a => {
-    const isSupported = !a.supportedModes || a.supportedModes.includes(state.mode);
-    const isActive = a.id === state.selectedAspect && isSupported;
-    const disabledClass = !isSupported ? 'disabled-tag' : '';
-    const disabledTitle = !isSupported ? 'Недоступно для видеомоделей (только 16:9 и 9:16)' : '';
-    return `
-    <button class="aspect-btn ${isActive ? 'active' : ''} ${disabledClass}" 
-            data-ratio="${a.id}" 
-            data-disabled="${!isSupported ? 'true' : 'false'}"
-            title="${disabledTitle}">
-      <div class="aspect-icon-box"></div>
-      <div class="aspect-title">${a.label}</div>
-      <div class="aspect-sub">${a.sub}</div>
-    </button>
-  `}).join('');
-
   // Clear selection if currently selected ratio is unsupported in this mode
   if (state.selectedAspect) {
     const selectedRatio = ASPECT_RATIOS.find(a => a.id === state.selectedAspect);
     if (selectedRatio && selectedRatio.supportedModes && !selectedRatio.supportedModes.includes(state.mode)) {
       state.selectedAspect = '16:9'; // default to widescreen
     }
+  }
+
+  const activeRatio = ASPECT_RATIOS.find(a => a.id === state.selectedAspect) || ASPECT_RATIOS[0];
+  if (el.aspectSelectedText) {
+    el.aspectSelectedText.textContent = `${activeRatio.label} (${activeRatio.sub})`;
+  }
+  if (el.aspectSelectedTooltip) {
+    el.aspectSelectedTooltip.textContent = `${activeRatio.label} • ${activeRatio.sub} • ${activeRatio.ratioDesc}`;
+  }
+
+  if (el.aspectOptionsList) {
+    el.aspectOptionsList.innerHTML = ASPECT_RATIOS.map(a => {
+      const isSupported = !a.supportedModes || a.supportedModes.includes(state.mode);
+      const isSelected = a.id === state.selectedAspect && isSupported;
+      const disabledClass = !isSupported ? 'disabled-item' : '';
+      const disabledTitle = !isSupported ? ' (недоступно для видео)' : '';
+      return `
+        <div class="select-item ${isSelected ? 'selected' : ''} ${disabledClass}" 
+             data-ratio="${a.id}" 
+             data-disabled="${!isSupported ? 'true' : 'false'}"
+             title="${a.label} • ${a.sub}${disabledTitle}">
+          <div class="aspect-dropdown-item-wrap">
+            <span class="item-name">${a.label}</span>
+            <span class="item-sub">${a.sub}</span>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  if (el.aspectRatioContainer) {
+    el.aspectRatioContainer.innerHTML = ASPECT_RATIOS.map(a => {
+      const isSupported = !a.supportedModes || a.supportedModes.includes(state.mode);
+      const isActive = a.id === state.selectedAspect && isSupported;
+      const disabledClass = !isSupported ? 'disabled-tag' : '';
+      const disabledTitle = !isSupported ? 'Недоступно для видеомоделей (только 16:9 и 9:16)' : '';
+      return `
+      <button class="aspect-btn ${isActive ? 'active' : ''} ${disabledClass}" 
+              data-ratio="${a.id}" 
+              data-disabled="${!isSupported ? 'true' : 'false'}"
+              title="${disabledTitle}">
+        <div class="aspect-icon-box"></div>
+        <div class="aspect-title">${a.label}</div>
+        <div class="aspect-sub">${a.sub}</div>
+      </button>
+    `}).join('');
   }
 }
 
@@ -4137,7 +4172,8 @@ function attachEventListeners() {
       { list: el.videoMotionOptionsList, val: el.videoMotionSelectedVal },
       { list: el.durationOptionsList, val: el.durationSelectedVal },
       { list: el.framerateOptionsList, val: el.framerateSelectedVal },
-      { list: el.colorOptionsList, val: el.colorSelectedVal }
+      { list: el.colorOptionsList, val: el.colorSelectedVal },
+      { list: el.aspectOptionsList, val: el.aspectSelectedVal }
     ];
     selects.forEach(s => {
       if (s.list) s.list.classList.remove('select-open');
@@ -4608,23 +4644,39 @@ function attachEventListeners() {
     updateLivePrompt();
   });
 
-  // Aspect Ratio
-  el.aspectRatioContainer.addEventListener('click', (e) => {
-    const btn = e.target.closest('.aspect-btn');
-    if (!btn || btn.dataset.disabled === 'true' || btn.classList.contains('disabled-tag')) return;
-    const ratio = btn.dataset.ratio;
-    if (state.selectedAspect === ratio) {
-      // Toggle off if already selected
-      state.selectedAspect = '';
-      btn.classList.remove('active');
-    } else {
-      el.aspectRatioContainer.querySelectorAll('.aspect-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
+  // Aspect Ratio (Dropdown Select)
+  if (el.aspectSelectedVal) {
+    el.aspectSelectedVal.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleCustomSelect(el.aspectOptionsList, el.aspectSelectedVal);
+    });
+  }
+
+  if (el.aspectOptionsList) {
+    el.aspectOptionsList.addEventListener('click', (e) => {
+      const item = e.target.closest('.select-item');
+      if (!item || item.dataset.disabled === 'true' || item.classList.contains('disabled-item')) return;
+      const ratio = item.dataset.ratio;
       state.selectedAspect = ratio;
-    }
-    releaseCustomDirectorPrompt();
-    updateLivePrompt();
-  });
+      renderAspectRatios();
+      closeAllCustomSelects();
+      releaseCustomDirectorPrompt();
+      updateLivePrompt();
+    });
+  }
+
+  // Fallback for button container if exists
+  if (el.aspectRatioContainer) {
+    el.aspectRatioContainer.addEventListener('click', (e) => {
+      const btn = e.target.closest('.aspect-btn');
+      if (!btn || btn.dataset.disabled === 'true' || btn.classList.contains('disabled-tag')) return;
+      const ratio = btn.dataset.ratio;
+      state.selectedAspect = ratio;
+      renderAspectRatios();
+      releaseCustomDirectorPrompt();
+      updateLivePrompt();
+    });
+  }
 
   // Negative Tags
   el.negativeTagsContainer.addEventListener('click', (e) => {
@@ -4761,19 +4813,29 @@ function setMode(mode) {
     state.selectedComposition = state.selectedComposition || 'eye-level';
     state.selectedAspect = state.selectedAspect || '9:16';
 
-    // Disable video dynamics section (turn gray, lock inputs)
+    // Disable video dynamics columns (turn gray, lock inputs)
     if (el.accordionVideoDynamics) {
       el.accordionVideoDynamics.classList.add('disabled-video-section');
       el.accordionVideoDynamics.classList.add('open');
       const badge = document.getElementById('videoDynamicsBadge');
       if (badge) badge.textContent = 'Только для видео';
     }
-    const motionCol = document.getElementById('videoMotionCol');
-    if (motionCol) {
-      motionCol.classList.add('disabled-video-col');
-      const motionBadge = document.getElementById('videoMotionBadge');
-      if (motionBadge) motionBadge.textContent = 'Только для видео';
-    }
+    const videoCols = [
+      document.getElementById('videoMotionCol'),
+      document.getElementById('durationCol'),
+      document.getElementById('framerateCol')
+    ];
+    videoCols.forEach(col => {
+      if (col) col.classList.add('disabled-video-col');
+    });
+    const videoBadges = [
+      document.getElementById('videoMotionBadge'),
+      document.getElementById('durationBadge'),
+      document.getElementById('framerateBadge')
+    ];
+    videoBadges.forEach(b => {
+      if (b) b.textContent = 'Только для видео';
+    });
   } else {
     if (el.modeVideoBtn) el.modeVideoBtn.classList.add('active');
     if (el.modeImageBtn) el.modeImageBtn.classList.remove('active');
@@ -4795,19 +4857,29 @@ function setMode(mode) {
     state.selectedFramerate = state.selectedFramerate || '24fps cinematic';
     state.selectedAspect = state.selectedAspect || '9:16';
 
-    // Enable video dynamics section
+    // Enable video dynamics columns
     if (el.accordionVideoDynamics) {
       el.accordionVideoDynamics.classList.remove('disabled-video-section');
       el.accordionVideoDynamics.classList.add('open');
       const badge = document.getElementById('videoDynamicsBadge');
       if (badge) badge.textContent = 'Видео';
     }
-    const motionCol = document.getElementById('videoMotionCol');
-    if (motionCol) {
-      motionCol.classList.remove('disabled-video-col');
-      const motionBadge = document.getElementById('videoMotionBadge');
-      if (motionBadge) motionBadge.textContent = 'Видео';
-    }
+    const videoCols = [
+      document.getElementById('videoMotionCol'),
+      document.getElementById('durationCol'),
+      document.getElementById('framerateCol')
+    ];
+    videoCols.forEach(col => {
+      if (col) col.classList.remove('disabled-video-col');
+    });
+    const videoBadges = [
+      document.getElementById('videoMotionBadge'),
+      document.getElementById('durationBadge'),
+      document.getElementById('framerateBadge')
+    ];
+    videoBadges.forEach(b => {
+      if (b) b.textContent = 'Видео';
+    });
   }
 
   renderCameraOptions();
