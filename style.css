@@ -827,6 +827,21 @@ body {
   }
 }
 
+/* 3-COLUMN ROW FOR FORMAT, COLOR & NEGATIVE */
+.inline-selects-3col {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.25fr;
+  gap: 12px;
+  width: 100%;
+}
+
+@media (max-width: 900px) {
+  .inline-selects-3col {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+}
+
 /* ASPECT DROPDOWN ITEM */
 .aspect-dropdown-item-wrap {
   display: flex;

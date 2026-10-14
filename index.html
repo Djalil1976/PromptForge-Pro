@@ -10,7 +10,7 @@
   <meta name="theme-color" content="#090a10">
   <link rel="icon" type="image/svg+xml" href="favicon.svg?v=1">
   <link rel="alternate icon" href="favicon.svg?v=1">
-  <link rel="stylesheet" href="style.css?v=5.0">
+  <link rel="stylesheet" href="style.css?v=5.1">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -686,53 +686,46 @@
           </div>
         </div>
 
-        <!-- ACCORDION: ASPECT RATIO (DROPDOWN) -->
-        <div class="accordion-item open" id="accordionAspectRatio">
+        <!-- ACCORDION: ASPECT RATIO, COLOR PALETTE & NEGATIVE PROMPT (IN ONE ROW) -->
+        <div class="accordion-item open" id="accordionFormatColorNegative">
           <div class="accordion-header">
             <div class="accordion-title">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="14" x="2" y="5" rx="2"/></svg>
-              <span>СООТНОШЕНИЕ СТОРОН</span>
+              <span>СООТНОШЕНИЕ СТОРОН, ЦВЕТ И ИСКЛЮЧЕНИЯ</span>
             </div>
             <div class="accordion-chevron">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m18 15-6-6-6 6"/></svg>
             </div>
           </div>
           <div class="accordion-content">
-            <div class="custom-select" id="aspectCustomSelect">
-              <div class="select-selected" id="aspectSelectedVal">
-                <div class="selected-lens-wrapper">
-                  <span class="selected-text-val" id="aspectSelectedText">9:16 (Reels / Shorts)</span>
-                  <div class="lens-info-tooltip-wrap">
-                    <span class="lens-info-icon">ⓘ</span>
-                    <div class="lens-tooltip-content" id="aspectSelectedTooltip">Формат кадра и соотношение сторон</div>
+            <div class="inline-selects-3col">
+              <!-- Column 1: Aspect Ratio -->
+              <div class="inline-select-col">
+                <div class="field-sublabel">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="14" x="2" y="5" rx="2"/></svg>
+                  <span>Соотношение сторон</span>
+                </div>
+                <div class="custom-select" id="aspectCustomSelect">
+                  <div class="select-selected" id="aspectSelectedVal">
+                    <div class="selected-lens-wrapper">
+                      <span class="selected-text-val" id="aspectSelectedText">9:16 (Reels / Shorts)</span>
+                      <div class="lens-info-tooltip-wrap">
+                        <span class="lens-info-icon">ⓘ</span>
+                        <div class="lens-tooltip-content" id="aspectSelectedTooltip">Формат кадра и соотношение сторон</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="select-items" id="aspectOptionsList">
+                    <!-- Populated via JS -->
                   </div>
                 </div>
               </div>
-              <div class="select-items" id="aspectOptionsList">
-                <!-- Populated via JS -->
-              </div>
-            </div>
-          </div>
-        </div>
 
-        <!-- ACCORDION: COLOR PALETTE & NEGATIVE PROMPT (IN ONE ROW) -->
-        <div class="accordion-item open" id="accordionColorNegative">
-          <div class="accordion-header">
-            <div class="accordion-title">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>
-              <span>ЦВЕТОВАЯ ГАММА И ИСКЛЮЧЕНИЯ</span>
-            </div>
-            <div class="accordion-chevron">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m18 15-6-6-6 6"/></svg>
-            </div>
-          </div>
-          <div class="accordion-content">
-            <div class="inline-selects-row">
-              <!-- Left Column: Color Palette -->
+              <!-- Column 2: Color Palette -->
               <div class="inline-select-col">
                 <div class="field-sublabel">
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>
-                  <span>Цветовая гамма и тонирование</span>
+                  <span>Цветовая гамма</span>
                 </div>
                 <div class="custom-select" id="colorCustomSelect">
                   <div class="select-selected" id="colorSelectedVal">
@@ -750,14 +743,14 @@
                 </div>
               </div>
 
-              <!-- Right Column: Negative Prompt & Exclusions -->
+              <!-- Column 3: Negative Prompt & Exclusions -->
               <div class="inline-select-col">
                 <div class="field-sublabel">
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 14.14 14.14"/></svg>
                   <span>Исключения (Negative Prompt)</span>
                 </div>
                 <div class="negative-inline-row">
-                  <input type="text" id="negativeCustomInput" class="custom-input negative-compact-input" placeholder="Исключения через запятую (например: cartoon, blur, bad anatomy)">
+                  <input type="text" id="negativeCustomInput" class="custom-input negative-compact-input" placeholder="Исключения (например: cartoon, blur, bad anatomy)">
                   <div class="negative-tags-container" id="negativeTagsContainer">
                     <!-- Quick negative tags -->
                   </div>
@@ -995,6 +988,6 @@
   <div class="toast-container" id="toastContainer"></div>
 
   <!-- Scripts -->
-  <script src="app.js?v=5.0"></script>
+  <script src="app.js?v=5.1"></script>
 </body>
 </html>
