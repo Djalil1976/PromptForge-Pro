@@ -5279,6 +5279,12 @@ body {
   border-color: rgba(52, 211, 153, 0.4);
 }
 
+.mp-legend-pill[data-target="mp-seg-spec"]:hover {
+  background: rgba(251, 113, 133, 0.16);
+  color: #fb7185;
+  border-color: rgba(251, 113, 133, 0.4);
+}
+
 /* Master Prompt Highlighted Segments */
 .mp-seg {
   display: inline;

@@ -12,7 +12,7 @@ const CAMERA_BODIES = [
   { id: 'leica-m11', label: 'Leica M11 Rangefinder', shortLabel: 'Leica M11', desc: 'Культовый дальномер Leica. Уникальный микроконтраст, пленочная эстетика и естественная цветопередача.', prompt: 'captured on Leica M11 rangefinder, iconic Leica microcontrast and natural color science' },
   { id: 'hasselblad', label: 'Hasselblad X2D 100C (100MP)', shortLabel: 'Hasselblad X2D', desc: 'Средний формат 100 Мп. Премиальный объем кадра, невероятная глубина резкости и тончайшие переходы.', prompt: 'medium format photograph taken on Hasselblad X2D 100C, 100MP immense dynamic range' },
   { id: 'nikon-z9', label: 'Nikon Z9 Flagship', shortLabel: 'Nikon Z9', desc: 'Репортажный флагман. Бритвенная оптическая резкость, сверхбыстрая динамика, съемка спорта и дикой природы.', prompt: 'shot on Nikon Z9 flagship camera, razor sharp optical fidelity' },
-  { id: 'arri-alexa', label: 'ARRI Alexa Mini LF (Cinema)', shortLabel: 'ARRI Alexa Mini', desc: 'Золотой стандарт Голливуда. Органичное кинозерно, кинематографическая мягкость и благородная картинка.', prompt: 'cinematography filmed on ARRI Alexa Mini LF cinema camera, organic film grain, theatrical aesthetic' },
+  { id: 'arri-alexa', label: 'ARRI Alexa Mini LF (Cinema)', shortLabel: 'ARRI Alexa Mini', desc: 'Золотой стандарт Голливуда. Органичное кинозерно, кинематографическая мягкость и благородная картинка.', prompt: 'shot on ARRI Alexa Mini LF cinema camera, organic film grain, theatrical aesthetic' },
   { id: 'red-raptor', label: 'RED V-Raptor 8K (Cinema 8K)', shortLabel: 'RED V-Raptor 8K', desc: 'Кинокамера 8K формата VistaVision. Сверхдетализация, фактурные текстуры и кинопроизводство высшего класса.', prompt: 'shot on RED V-Raptor 8K VV cinema camera, ultra-fine textures, cinematic production quality' },
   { id: 'iphone16', label: 'iPhone 16 Pro Max (Mobile 4K)', shortLabel: 'iPhone 16 Pro', desc: 'Современная мобильная вычислительная фотография: реалистичный кадр с 48 Мп сенсора.', prompt: 'shot on iPhone 16 Pro Max 48MP main sensor, authentic mobile computational photography' },
   { id: 'dji-mavic', label: 'DJI Mavic 3 Cine (Aerial)', shortLabel: 'DJI Mavic 3 Cine', desc: 'Аэросъемка с оптики Hasselblad. Эпические пейзажи и масштабные пролеты с высоты птичьего полета.', prompt: 'aerial drone shot captured by DJI Mavic 3 Cine Hasselblad camera, 4K crisp landscape perspective' },
@@ -2804,9 +2804,9 @@ function generateOmniSoundscape(idea, motionId) {
     return 'High-speed dynamic audio: rushing aerodynamic wind shear, high-pitch drone turbine harmonics, rapid Doppler shifts';
   }
   if (motionId === 'orbit-360' || motionId === 'dolly-in' || motionId === 'static-shot') {
-    return 'Cinematic diegetic sound design: subtle focal Foley textures, natural room acoustics, atmospheric presence';
+    return 'Subtle focal Foley textures, natural room acoustics, atmospheric presence';
   }
-  return 'Immersive diegetic audio: authentic ambient environmental acoustics, crisp synchronized Foley textures, natural acoustic presence';
+  return 'Authentic ambient environmental acoustics, crisp synchronized Foley textures, natural acoustic presence';
 }
 
 function generateVeoAudio(idea, motionId) {
@@ -2844,7 +2844,7 @@ function generateVeoAudio(idea, motionId) {
   return {
     ambient,
     sfx,
-    fullAudioText: `Ambient soundscape: ${ambient}. Synchronized SFX: ${sfx}. Dialogue: No dialogue.`
+    fullAudioText: `Ambient soundscape: ${ambient}. Synchronized SFX: ${sfx}. Dialogue: No dialogue`
   };
 }
 
@@ -2862,7 +2862,7 @@ function compileImagen3(ctx) {
   const masterParts = [];
   if (ctx.activeComp) masterParts.push(ctx.activeComp.prompt);
   if (ctx.baseDescription) masterParts.push(`of ${ctx.baseDescription}`);
-  if (opticsParts.length > 0) masterParts.push(`captured on ${opticsParts.join(', ')} with authentic optical focal depth`);
+  if (opticsParts.length > 0) masterParts.push(`${opticsParts.join(', ')} with authentic optical focal depth`);
   if (ctx.activeLight) masterParts.push(ctx.activeLight.prompt);
   if (ctx.activeColor) masterParts.push(ctx.activeColor.prompt);
   if (ctx.activeStyle) masterParts.push(cleanBuzzwords(ctx.activeStyle.prompt));
@@ -3328,7 +3328,7 @@ function compileGeminiFlash(ctx) {
   if (ctx.activeLens) masterParts.push(ctx.activeLens.prompt);
   if (ctx.activeLight) masterParts.push(ctx.activeLight.prompt);
   if (ctx.activeColor) masterParts.push(ctx.activeColor.prompt);
-  if (ctx.activeStyle) masterParts.push(ctx.activeStyle.prompt);
+  if (ctx.activeStyle) masterParts.push(cleanBuzzwords(ctx.activeStyle.prompt));
   if (ctx.quickTags) masterParts.push(ctx.quickTags);
   const masterPrompt = masterParts.join(', ') + '.';
 
@@ -3515,7 +3515,7 @@ function compileImagineFrame(ctx) {
   if (moodParts.length > 0) frameParts.push(`[Mood]: ${moodParts.join(', ')}`);
 
   const execParts = [];
-  if (ctx.activeStyle) execParts.push(ctx.activeStyle.prompt);
+  if (ctx.activeStyle) execParts.push(cleanBuzzwords(ctx.activeStyle.prompt));
   if (ctx.activeAspect) execParts.push(`aspect ratio ${ctx.activeAspect.id}`);
   if (execParts.length > 0) frameParts.push(`[Execution]: ${execParts.join(', ')}`);
 
@@ -3714,10 +3714,11 @@ function compilePrompt() {
               ГОТОВЫЙ РАБОЧИЙ ПРОМПТ (${modelId.toUpperCase()})
             </div>
             <div class="mp-legend-bar">
-              <span class="mp-legend-pill" data-target="mp-seg-motion" title="Наведите, чтобы выделить движение камеры">🎥 Камера</span>
+              <span class="mp-legend-pill" data-target="mp-seg-motion" title="Наведите, чтобы выделить ракурс и движение">🎥 Ракурс/Камера</span>
               <span class="mp-legend-pill" data-target="mp-seg-optics" title="Наведите, чтобы выделить оптику">📷 Оптика</span>
-              <span class="mp-legend-pill" data-target="mp-seg-light" title="Наведите, чтобы выделить свет и цвет">💡 Свет</span>
-              <span class="mp-legend-pill" data-target="mp-seg-audio" title="Наведите, чтобы выделить аудио">🔊 Звук</span>
+              <span class="mp-legend-pill" data-target="mp-seg-light" title="Наведите, чтобы выделить свет и колористику">💡 Свет</span>
+              ${ctx.isVideoMode ? '<span class="mp-legend-pill" data-target="mp-seg-audio" title="Наведите, чтобы выделить аудио">🔊 Звук</span>' : ''}
+              <span class="mp-legend-pill" data-target="mp-seg-spec" title="Наведите, чтобы выделить стиль и спецификацию">🎨 Стиль/Спек</span>
             </div>
           </div>
           <div class="master-prompt-content" id="masterPromptContentBox">${highlightedMaster}</div>
@@ -3770,20 +3771,21 @@ function formatHighlightedMasterPrompt(text, ctx) {
   if (!text) return '';
   let html = escapeHtml(text);
 
-  // 1. Точный секционный парсер для MiniMax-H3 и Grok Imagine 2.0 (не рвется на [0s-3s] и f/1.2)
-  if (html.includes('[Core Concept]:') || html.includes('[Focus]:')) {
+  // А) БЛОЧНЫЕ МОДЕЛИ: MiniMax-H3 и Grok Imagine 2.0 (FRAME)
+  // Проверяем любой из тегов (даже если [Focus] пустой и промпт начинается с [Realm]:)
+  if (/\[(Core Concept|Temporal Progression|Cinematography &amp; Atmosphere|Focus|Realm|Angle|Mood|Execution)\]:/.test(html)) {
     const sectionMap = {
       'Core Concept': { cls: 'mp-seg-subject', label: 'Концепт и сцена' },
       'Temporal Progression': { cls: 'mp-seg-motion', label: 'Таймлайн и движение камеры' },
-      'Cinematography &amp; Atmosphere': { cls: 'mp-seg-optics', label: 'Оптика, свет и атмосфера' },
+      'Cinematography &amp; Atmosphere': { cls: 'mp-seg-optics', label: 'Оптика и камера' },
       'Scene Elements': { cls: 'mp-seg-light', label: 'Элементы сцены' },
       'Audio Environment': { cls: 'mp-seg-audio', label: 'Нативный звук 32kHz' },
       'Constraints': { cls: 'mp-seg-spec', label: 'Тех. ограничения' },
       'Focus': { cls: 'mp-seg-subject', label: 'Объект съемки' },
-      'Realm': { cls: 'mp-seg-light', label: 'Окружение и сцена' },
-      'Angle': { cls: 'mp-seg-optics', label: 'Ракурс и оптика' },
-      'Mood': { cls: 'mp-seg-light', label: 'Свет и колористика' },
-      'Execution': { cls: 'mp-seg-spec', label: 'Стиль и рендер' }
+      'Realm': { cls: 'mp-seg-motion', label: 'Ракурс и пространство [Realm]' },
+      'Angle': { cls: 'mp-seg-optics', label: 'Камера и оптика [Angle]' },
+      'Mood': { cls: 'mp-seg-light', label: 'Свет и колористика [Mood]' },
+      'Execution': { cls: 'mp-seg-spec', label: 'Стиль и формат [Execution]' }
     };
 
     const tagRegex = /\[(Core Concept|Temporal Progression|Cinematography &amp; Atmosphere|Scene Elements|Audio Environment|Constraints|Focus|Realm|Angle|Mood|Execution)\]:/g;
@@ -3799,12 +3801,21 @@ function formatHighlightedMasterPrompt(text, ctx) {
         const startIdx = match.index;
         const endIdx = (i + 1 < matches.length) ? matches[i + 1].index : html.length;
 
-        if (startIdx > lastIdx) {
-          resultHtml += html.slice(lastIdx, startIdx);
+        if (startIdx > lastIdx) resultHtml += html.slice(lastIdx, startIdx);
+
+        let chunk = html.slice(startIdx, endIdx).trim();
+        const cfg = sectionMap[tagName] || { cls: 'mp-seg-subject', label: tagName };
+
+        // Для MiniMax-H3 внутри [Cinematography & Atmosphere] выделяем Свет (mp-seg-light) и Стиль (mp-seg-spec) отдельными цветами!
+        if (tagName === 'Cinematography &amp; Atmosphere' && ctx) {
+          [ctx.activeLight?.prompt, ctx.activeColor?.prompt].filter(Boolean).forEach(p => {
+            const esc = escapeHtml(p);
+            if (esc && chunk.includes(esc)) {
+              chunk = chunk.replace(esc, `</span><span class="mp-seg mp-seg-light" data-seg="mp-seg-light" title="Свет и атмосфера">${esc}</span><span class="mp-seg mp-seg-optics" data-seg="mp-seg-optics" title="Оптика и стиль">`);
+            }
+          });
         }
 
-        const chunk = html.slice(startIdx, endIdx).trim();
-        const cfg = sectionMap[tagName] || { cls: 'mp-seg-subject', label: tagName };
         resultHtml += `<span class="mp-seg ${cfg.cls}" data-seg="${cfg.cls}" title="${cfg.label}">${chunk}</span> `;
         lastIdx = endIdx;
       }
@@ -3812,59 +3823,82 @@ function formatHighlightedMasterPrompt(text, ctx) {
     }
   }
 
-  // 2. Парсер для Veo 3.1 и Omni 1.1 Flash (с поддержкой многоточий внутри движения и дробей f/1.2)
-  const narrativeRules = [
-    {
-      regex: /(A continuous, unbroken \d+s cinematic shot \([^)]+\)|Continuous, unbroken shot in a single continuous take with no scene cuts \([^)]+\)\.)/gi,
-      cls: 'mp-seg-motion',
-      label: 'Формат непрерывного плана'
-    },
-    {
-      regex: /(The camera (?:performs|executes|maintains)[\s\S]*?(?:at 24fps\.|(?=\s+(?:Optics &amp; Camera:|Filmed on|Cinematography and atmosphere:|Lighting and visual atmosphere:|Audio:|Sound design:))))/gi,
-      cls: 'mp-seg-motion',
-      label: 'Движение камеры'
-    },
-    {
-      regex: /((?:Optics &amp; Camera:|Filmed on|captured on)[\s\S]*?focal depth\.)/gi,
-      cls: 'mp-seg-optics',
-      label: 'Камера и объектив'
-    },
-    {
-      regex: /((?:Lighting and visual atmosphere|Cinematography and atmosphere):[\s\S]*?)(?=\s+(?:Contextual details:|Scene elements:|Consider micro-detail|Audio:|Sound design:|$))/gi,
-      cls: 'mp-seg-light',
-      label: 'Свет и атмосфера'
-    },
-    {
-      regex: /((?:Audio|Sound design):[\s\S]*?)(?=\s+(?:1080p crisp master|No dialogue\.\s*No scene cuts)|$)/gi,
-      cls: 'mp-seg-audio',
-      label: 'Саунд-дизайн'
-    },
-    {
-      regex: /((?:1080p crisp master|No dialogue\.\s*No scene cuts)[\s\S]*$)/gi,
-      cls: 'mp-seg-spec',
-      label: 'Тех. контроль'
-    }
-  ];
-
-  narrativeRules.forEach(r => {
-    html = html.replace(r.regex, `<span class="mp-seg ${r.cls}" data-seg="${r.cls}" title="${r.label}">$1</span>`);
-  });
-
-  // 3. Для фото-моделей (Imagen 3, Gemini Flash, GPT Image)
-  if (ctx && !html.includes('mp-seg-optics')) {
-    [ctx.activeCam?.prompt, ctx.activeLens?.prompt].filter(Boolean).forEach(p => {
-      const esc = escapeHtml(p);
-      if (esc && html.includes(esc)) {
-        html = html.replace(esc, `<span class="mp-seg mp-seg-optics" data-seg="mp-seg-optics" title="Оптика">${esc}</span>`);
+  // Б) ВИДЕО-НАРРАТИВЫ: Veo 3.1 и Omni 1.1 Flash
+  if (html.includes('continuous, unbroken') || html.includes('Continuous, unbroken shot')) {
+    const narrativeRules = [
+      {
+        regex: /(A continuous, unbroken \d+s cinematic shot \([^)]+\)(?:\s+of\s+[^.]+)?\.|Continuous, unbroken shot in a single continuous take with no scene cuts \([^)]+\)\.)/gi,
+        cls: 'mp-seg-motion',
+        label: 'Формат плана и ракурс'
+      },
+      {
+        regex: /(The camera (?:performs|executes|maintains)[\s\S]*?(?:at 24fps\.|(?=\s+(?:Optics &amp; Camera:|Filmed on|Cinematography and atmosphere:|Lighting and visual atmosphere:|Audio:|Sound design:))))/gi,
+        cls: 'mp-seg-motion',
+        label: 'Движение камеры'
+      },
+      {
+        regex: /((?:Optics &amp; Camera:|Filmed on)[\s\S]*?focal depth\.)/gi,
+        cls: 'mp-seg-optics',
+        label: 'Камера и объектив'
+      },
+      {
+        regex: /(Cinematography and atmosphere:\s*)/gi,
+        cls: 'mp-seg-optics',
+        label: 'Кинематография'
+      },
+      {
+        regex: /((?:Lighting and visual atmosphere:)[\s\S]*?)(?=\s+(?:Contextual details:|Scene elements:|Consider micro-detail|Audio:|Sound design:|$))/gi,
+        cls: 'mp-seg-light',
+        label: 'Свет и атмосфера'
+      },
+      {
+        regex: /(Consider micro-detail[\s\S]*?cohesive scene\.)/gi,
+        cls: 'mp-seg-spec',
+        label: 'Директива детализации'
+      },
+      {
+        regex: /((?:Audio|Sound design):[\s\S]*?)(?=\s+(?:1080p crisp master|No dialogue\.\s*No scene cuts)|$)/gi,
+        cls: 'mp-seg-audio',
+        label: 'Саунд-дизайн'
+      },
+      {
+        regex: /((?:1080p crisp master|No dialogue\.\s*No scene cuts)[\s\S]*$)/gi,
+        cls: 'mp-seg-spec',
+        label: 'Тех. контроль и мастер'
       }
+    ];
+
+    narrativeRules.forEach(r => {
+      html = html.replace(r.regex, `<span class="mp-seg ${r.cls}" data-seg="${r.cls}" title="${r.label}">$1</span>`);
     });
   }
-  if (ctx && !html.includes('mp-seg-light')) {
-    [ctx.activeLight?.prompt, ctx.activeColor?.prompt].filter(Boolean).forEach(p => {
-      const esc = escapeHtml(p);
-      if (esc && html.includes(esc)) {
-        html = html.replace(esc, `<span class="mp-seg mp-seg-light" data-seg="mp-seg-light" title="Свет и цвет">${esc}</span>`);
-      }
+
+  // В) ТОЧЕЧНАЯ ПОДСВЕТКА ВСЕХ КОМПОНЕНТОВ (для Imagen 3, Gemini 2.5 Flash, GPT Image 2.5 и остатков в Omni 1.1)
+  if (ctx) {
+    const cleanStylePrompt = ctx.activeStyle ? cleanBuzzwords(ctx.activeStyle.prompt) : '';
+    const partsToHighlight = [
+      // Ракурс и композиция -> Желтый (🎥 Камера/Ракурс)
+      { text: ctx.activeComp?.prompt, cls: 'mp-seg-motion', label: 'Ракурс и композиция' },
+      // Камера и объектив -> Голубой (📷 Оптика)
+      { text: ctx.activeCam?.prompt ? `${ctx.activeCam.prompt}${ctx.activeLens ? ', ' + ctx.activeLens.prompt : ''} with authentic optical focal depth` : '', cls: 'mp-seg-optics', label: 'Оптика и сенсор' },
+      { text: ctx.activeCam?.prompt, cls: 'mp-seg-optics', label: 'Камера' },
+      { text: ctx.activeLens?.prompt, cls: 'mp-seg-optics', label: 'Объектив' },
+      // Свет и цвет -> Фиолетовый (💡 Свет)
+      { text: ctx.activeLight?.prompt, cls: 'mp-seg-light', label: 'Освещение' },
+      { text: ctx.activeColor?.prompt, cls: 'mp-seg-light', label: 'Цветовая палитра' },
+      // Стиль и формат -> Розовый (🎨 Стиль / Спек)
+      { text: cleanStylePrompt ? `${cleanStylePrompt}${ctx.activeAspect ? ', aspect ratio ' + ctx.activeAspect.id : ''}` : '', cls: 'mp-seg-spec', label: 'Стиль и формат' },
+      { text: cleanStylePrompt, cls: 'mp-seg-spec', label: 'Стиль и текстуры' },
+      { text: ctx.activeStyle?.prompt, cls: 'mp-seg-spec', label: 'Стиль' },
+      { text: ctx.activeAspect ? `aspect ratio ${ctx.activeAspect.id}` : '', cls: 'mp-seg-spec', label: 'Формат кадра' }
+    ];
+
+    partsToHighlight.forEach(item => {
+      if (!item.text) return;
+      const esc = escapeHtml(item.text);
+      // Оборачиваем только если этот фрагмент еще не внутри span
+      const safeRegex = new RegExp(`(?![^<]*>)(?<![\\w>])(${esc.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})(?![^<]*<\\/span>)`, 'g');
+      html = html.replace(safeRegex, `<span class="mp-seg ${item.cls}" data-seg="${item.cls}" title="${item.label}">$1</span>`);
     });
   }
 
