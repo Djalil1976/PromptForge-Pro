@@ -4253,12 +4253,19 @@ body {
   background: var(--bg-input);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
-  padding: 7px 70px 7px 32px;
+  padding: 7px 62px 7px 32px;
   color: var(--text-primary);
-  font-size: 0.78rem;
+  font-size: 0.77rem;
   font-family: inherit;
   transition: all 0.2s ease;
   min-height: 34px;
+}
+
+.analyzer-input::placeholder {
+  color: var(--text-muted);
+  font-size: 0.73rem;
+  text-overflow: ellipsis;
+  opacity: 0.9;
 }
 
 .analyzer-input:focus {
@@ -5773,4 +5780,68 @@ body {
   font-size: 0.72rem;
   color: var(--text-muted);
   margin-left: auto;
+}
+
+/* ========================================================
+   COLOR PALETTE PHOTO PREVIEWS & TOOLTIPS
+   Single cinematic composition graded across all 9 palettes
+   ======================================================== */
+.color-preview-wrap {
+  width: 100%;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 8px;
+  background: #090a10;
+  aspect-ratio: 16 / 9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(217, 119, 6, 0.45);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.65);
+}
+
+.color-preview-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.lens-info-tooltip-wrap:hover .color-preview-img {
+  transform: scale(1.04);
+}
+
+.color-tooltip-text {
+  font-size: 0.81rem;
+  color: #cbd5e1;
+  line-height: 1.45;
+}
+
+#colorCustomSelect .select-items {
+  overflow: visible !important;
+}
+
+#colorCustomSelect .lens-tooltip-content {
+  width: 290px !important;
+  background: #141419 !important;
+  border: 1px solid rgba(245, 158, 11, 0.55) !important;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.95), 0 0 18px rgba(217, 119, 6, 0.35) !important;
+}
+
+/* For top items in the dropup list, show tooltip downwards to prevent clipping */
+#colorCustomSelect .select-item:nth-child(-n+4) .lens-tooltip-content {
+  bottom: auto !important;
+  top: calc(100% + 8px) !important;
+  transform: translateY(-4px);
+}
+
+#colorCustomSelect .select-item:nth-child(-n+4) .lens-info-tooltip-wrap:hover .lens-tooltip-content {
+  transform: translateY(0);
+}
+
+#colorCustomSelect .select-item:nth-child(-n+4) .lens-tooltip-content::after {
+  top: auto !important;
+  bottom: 100% !important;
+  border-color: transparent transparent #141419 transparent !important;
 }

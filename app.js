@@ -2393,7 +2393,16 @@ function renderColorOptions() {
     el.colorSelectedText.title = current ? current.label : 'Выберите гамму...';
   }
   if (el.colorSelectedTooltip) {
-    el.colorSelectedTooltip.textContent = current ? current.desc : 'Нажмите, чтобы выбрать цветовую гамму.';
+    if (current) {
+      el.colorSelectedTooltip.innerHTML = `
+        <div class="color-preview-wrap">
+          <img class="color-preview-img" src="colors/${current.id}.jpg?v=5.3" alt="${current.label}">
+        </div>
+        <div class="color-tooltip-text">${current.desc}</div>
+      `;
+    } else {
+      el.colorSelectedTooltip.innerHTML = '<div class="color-tooltip-text">Нажмите, чтобы выбрать цветовую гамму и кинематографическое тонирование.</div>';
+    }
   }
 
   if (el.colorOptionsList) {
@@ -2410,7 +2419,12 @@ function renderColorOptions() {
           <span class="lens-title-text">${c.label}</span>
           <div class="lens-info-tooltip-wrap">
             <span class="lens-info-icon">ⓘ</span>
-            <div class="lens-tooltip-content">${c.desc}</div>
+            <div class="lens-tooltip-content">
+              <div class="color-preview-wrap">
+                <img class="color-preview-img" src="colors/${c.id}.jpg?v=5.3" alt="${c.label}" loading="lazy">
+              </div>
+              <div class="color-tooltip-text">${c.desc}</div>
+            </div>
           </div>
         </div>
       </div>
