@@ -3940,7 +3940,6 @@ function updateLivePrompt() {
     el.terminalModelBadge.innerHTML = `
       <span class="terminal-model-logo">${currentModel.logoSvg}</span>
       <span class="terminal-model-name">${currentModel.displayName || currentModel.name}</span>
-      <span class="terminal-model-spec">• ${currentModel.displaySpec || 'en prompt'}</span>
     `;
   }
 
@@ -6112,7 +6111,7 @@ function updateVisionBadge() {
     }
   }
   if (el.apiKeyBannerText) {
-    el.apiKeyBannerText.textContent = hasGemini ? 'Gemini Vision API активен' : 'Gemini API не подключен';
+    el.apiKeyBannerText.textContent = hasGemini ? 'Gemini Vision' : 'Gemini: нет';
   }
 
   // 3. OpenRouter Sub-Item in Banner
@@ -6124,7 +6123,7 @@ function updateVisionBadge() {
     }
   }
   if (el.openRouterBannerText) {
-    el.openRouterBannerText.textContent = hasOpenRouter ? 'OpenRouter API активен' : 'OpenRouter API не подключен';
+    el.openRouterBannerText.textContent = hasOpenRouter ? 'OpenRouter' : 'OpenRouter: нет';
   }
 
   // 4. Overall Banner Status & Settings Buttons
