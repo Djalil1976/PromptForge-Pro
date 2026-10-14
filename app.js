@@ -888,6 +888,48 @@ const RANDOM_IDEAS = [
   'Астронавт идет по зеркальной соляной пустыне Уюни, в которой отражаются миллиарды звезд Млечного Пути'
 ];
 
+const DEFAULT_SNAPSHOTS = [
+  {
+    id: 'default-arri-cine',
+    name: '🎬 Кино ARRI 9:16',
+    camera: 'arri-alexa',
+    lens: 'anamorphic-cine',
+    lighting: 'cinematic',
+    style: 'photorealistic',
+    composition: 'low-angle-hero',
+    motion: 'dolly-in',
+    color: 'teal-orange',
+    aspect: '9:16',
+    isDefault: true
+  },
+  {
+    id: 'default-cyberpunk',
+    name: '🌆 Неон Киберпанк',
+    camera: 'red-raptor',
+    lens: 'wide-35mm',
+    lighting: 'cyberpunk-glow',
+    style: 'cyberpunk',
+    composition: 'eye-level',
+    motion: 'tracking-shot',
+    color: 'vivid-neon',
+    aspect: '9:16',
+    isDefault: true
+  },
+  {
+    id: 'default-macro-detail',
+    name: '🔍 Макро Деталь',
+    camera: 'hasselblad',
+    lens: 'macro-100mm',
+    lighting: 'studio-softbox',
+    style: 'photorealistic',
+    composition: 'extreme-close-up',
+    motion: 'slow-zoom-in',
+    color: 'warm-kodak',
+    aspect: '16:9',
+    isDefault: true
+  }
+];
+
 const AI_MODELS = [
   {
     id: 'imagen-3',
@@ -1386,7 +1428,11 @@ const state = {
 
   // AI Model Skills & Specifications State
   activeSkillModelId: 'veo-3.1',
-  customModelSkills: JSON.parse(localStorage.getItem('promptforge_model_skills') || '{}')
+  customModelSkills: JSON.parse(localStorage.getItem('promptforge_model_skills') || '{}'),
+
+  // Snapshots State
+  snapshots: JSON.parse(localStorage.getItem('promptforge_snapshots') || 'null') || [...DEFAULT_SNAPSHOTS],
+  activeSnapshotId: null
 };
 
 // --- DOM ELEMENTS ---
@@ -1513,6 +1559,11 @@ const el = {
   copySkillContentBtn: document.getElementById('copySkillContentBtn'),
   downloadSkillFileBtn: document.getElementById('downloadSkillFileBtn'),
 
+  // Snapshots Bar
+  snapshotsBar: document.getElementById('snapshotsBar'),
+  saveSnapshotBtn: document.getElementById('saveSnapshotBtn'),
+  snapshotsChipsContainer: document.getElementById('snapshotsChipsContainer'),
+
   // Parameters (Camera & Lens in one row, Dropdowns for Lighting, Style, Composition)
   cameraCustomSelect: document.getElementById('cameraCustomSelect'),
   cameraSelectedVal: document.getElementById('cameraSelectedVal'),
@@ -1598,6 +1649,7 @@ function init() {
     attachEventListeners();
     setMode(state.mode || 'image');
     renderPresets();
+    renderSnapshots();
     renderCameraOptions();
     renderLensOptions();
     renderLightingOptions();
@@ -1648,6 +1700,104 @@ function renderPresets() {
       <span class="preset-btn-tag">${recipe.tag}</span>
     </button>
   `).join('');
+}
+
+function renderSnapshots() {
+  if (!el.snapshotsChipsContainer) return;
+  const list = state.snapshots || [];
+  if (list.length === 0) {
+    el.snapshotsChipsContainer.innerHTML = '<span class="snapshots-empty-hint">Нет сохраненных связок. Нажмите «+ Сохранить текущую»</span>';
+    return;
+  }
+
+  el.snapshotsChipsContainer.innerHTML = list.map(snap => {
+    const isActive = snap.id === state.activeSnapshotId;
+    return `
+      <div class="snapshot-chip ${isActive ? 'active' : ''}" data-snap-id="${snap.id}" title="Применить связку: ${escapeHtml(snap.name)}">
+        <span class="snapshot-chip-title">${escapeHtml(snap.name)}</span>
+        ${!snap.isDefault ? `<button type="button" class="snapshot-del-btn" data-snap-del="${snap.id}" title="Удалить эту связку">&times;</button>` : ''}
+      </div>
+    `;
+  }).join('');
+}
+
+function applySnapshot(snapId) {
+  const snap = (state.snapshots || []).find(s => s.id === snapId);
+  if (!snap) return;
+
+  state.activeSnapshotId = snap.id;
+  if (snap.camera) state.selectedCamera = snap.camera;
+  if (snap.lens) state.selectedLens = snap.lens;
+  if (snap.lighting) state.selectedLighting = snap.lighting;
+  if (snap.style) state.selectedStyle = snap.style;
+  if (snap.composition) state.selectedComposition = snap.composition;
+  if (snap.motion) state.selectedVideoMotion = snap.motion;
+  if (snap.color !== undefined) state.selectedColor = snap.color;
+  if (snap.aspect) state.selectedAspect = snap.aspect;
+
+  renderCameraOptions();
+  renderLensOptions();
+  renderLightingOptions();
+  renderStyleOptions();
+  renderCompositionOptions();
+  renderVideoMotionOptions();
+  renderColorOptions();
+  renderChips();
+  renderAspectRatios();
+  renderSnapshots();
+  releaseCustomDirectorPrompt();
+  updateLivePrompt();
+
+  showToast(`Связка "${snap.name}" применена!`, '⚡');
+}
+
+function saveCurrentSnapshot() {
+  const name = window.prompt('Название связки параметров:');
+  if (!name || !name.trim()) return;
+
+  const newSnap = {
+    id: 'snap-' + Date.now(),
+    name: name.trim(),
+    camera: state.selectedCamera,
+    lens: state.selectedLens,
+    lighting: state.selectedLighting,
+    style: state.selectedStyle,
+    composition: state.selectedComposition,
+    motion: state.selectedVideoMotion,
+    color: state.selectedColor,
+    aspect: state.selectedAspect,
+    isDefault: false
+  };
+
+  if (!Array.isArray(state.snapshots)) {
+    state.snapshots = [...DEFAULT_SNAPSHOTS];
+  }
+
+  state.snapshots.push(newSnap);
+  state.activeSnapshotId = newSnap.id;
+  try {
+    localStorage.setItem('promptforge_snapshots', JSON.stringify(state.snapshots));
+  } catch (e) {
+    console.warn('Failed to save snapshots to localStorage', e);
+  }
+
+  renderSnapshots();
+  showToast(`Связка "${newSnap.name}" сохранена!`, '💾');
+}
+
+function deleteSnapshot(snapId) {
+  if (!Array.isArray(state.snapshots)) return;
+  state.snapshots = state.snapshots.filter(s => s.id !== snapId);
+  if (state.activeSnapshotId === snapId) {
+    state.activeSnapshotId = null;
+  }
+  try {
+    localStorage.setItem('promptforge_snapshots', JSON.stringify(state.snapshots));
+  } catch (e) {
+    console.warn('Failed to save snapshots to localStorage', e);
+  }
+  renderSnapshots();
+  showToast('Связка параметров удалена', '🗑️');
 }
 
 function renderCameraOptions() {
@@ -3858,6 +4008,25 @@ function attachEventListeners() {
       if (!btn) return;
       const idx = parseInt(btn.dataset.presetIdx, 10);
       applyPreset(PRESET_RECIPES[idx]);
+    });
+  }
+
+  // Snapshots Bar Listeners
+  if (el.saveSnapshotBtn) {
+    el.saveSnapshotBtn.addEventListener('click', saveCurrentSnapshot);
+  }
+  if (el.snapshotsChipsContainer) {
+    el.snapshotsChipsContainer.addEventListener('click', (e) => {
+      const delBtn = e.target.closest('.snapshot-del-btn');
+      if (delBtn) {
+        e.stopPropagation();
+        deleteSnapshot(delBtn.dataset.snapDel);
+        return;
+      }
+      const chip = e.target.closest('.snapshot-chip');
+      if (chip) {
+        applySnapshot(chip.dataset.snapId);
+      }
     });
   }
 

@@ -10,7 +10,7 @@
   <meta name="theme-color" content="#090a10">
   <link rel="icon" type="image/svg+xml" href="favicon.svg?v=1">
   <link rel="alternate icon" href="favicon.svg?v=1">
-  <link rel="stylesheet" href="style.css?v=4.4">
+  <link rel="stylesheet" href="style.css?v=4.5">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -498,6 +498,14 @@
             <span>ПАРАМЕТРЫ ГЕНЕРАЦИИ</span>
           </div>
           <span class="live-badge">Live</span>
+        </div>
+
+        <div class="snapshots-bar" id="snapshotsBar">
+          <div class="snapshots-bar-top">
+            <span class="snapshots-label">⚡ МОИ СВЯЗКИ ОПТИКИ И СВЕТА:</span>
+            <button type="button" class="btn-save-snapshot" id="saveSnapshotBtn" title="Сохранить текущие выбранные параметры (Камера, Объектив, Свет, Стиль, Ракурс, Движение, Формат) в быструю кнопку">+ Сохранить текущую</button>
+          </div>
+          <div class="snapshots-chips-row" id="snapshotsChipsContainer"></div>
         </div>
 
         <!-- ACCORDION: CAMERA & LENS (IN ONE ROW) -->
@@ -1019,6 +1027,6 @@
   <div class="toast-container" id="toastContainer"></div>
 
   <!-- Scripts -->
-  <script src="app.js?v=4.4"></script>
+  <script src="app.js?v=4.5"></script>
 </body>
 </html>
