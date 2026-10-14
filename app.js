@@ -6588,7 +6588,7 @@ You MUST respond ONLY with a raw JSON object with this EXACT structure (no markd
   "camera": "arri-alexa",
   "lens": "wide-35mm",
   "lighting": "cinematic",
-  "style": "cinematic-photo",
+  "style": "photorealistic",
   "composition": "medium-shot",
   "motion": "dolly-in",
   "director_prompt": "A comprehensive, production-ready English text-to-video master prompt specifically engineered for Veo 3.1 / Gemini Omni / MiniMax-H3 / Runway Gen-3 / Sora. Describe the exact scene, subject, architecture, materials, lighting, fluid transformation dynamics, camera move, and physics in a continuous unbroken shot without any cuts or watermarks.",
@@ -6597,10 +6597,10 @@ You MUST respond ONLY with a raw JSON object with this EXACT structure (no markd
 
 Available IDs for fields:
 - camera: canon-r5, sony-a7rv, sony-fx3, leica-m11, hasselblad, nikon-z9, arri-alexa, red-raptor, iphone16, dji-mavic, vintage-film, gopro13
-- lens: ultra-wide-14mm, ultra-wide-16mm, wide-24mm, wide-35mm, lens-50mm, standard-85mm, tele-135mm, tele-70-200mm, super-tele-300mm, anamorphic-40mm
-- lighting: cinematic, natural-sun, studio-softbox, dramatic-split, rembrandt, golden-hour, blue-hour, neon-night, volumetric, cyberpunk-glow, high-key, dark-moody
-- style: cinematic-photo, editorial-fashion, photorealistic, cyberpunk, documentary, hyperrealism, vintage-70s, analog-film, minimalism, dark-fantasy, synthwave, anime-macro
-- composition: close-up, medium-shot, cowboy-shot, full-shot, extreme-wide, dutch-angle, eye-level, high-angle, birds-eye, over-shoulder, ground-level
+- lens: ultra-wide-14mm, ultra-wide-16mm, wide-24mm, wide-35mm, lens-50mm, standard-85mm, tele-135mm, tele-70-200mm, super-tele-300mm, macro-100mm, anamorphic-cine
+- lighting: cinematic, natural-window, studio-softbox, chiaroscuro, rembrandt, golden-hour, blue-hour, neon-glow, volumetric, cyberpunk-glow, high-key, foggy-overcast
+- style: photorealistic, editorial-fashion, cyberpunk, hyperrealism, vintage-70s, analog-film, minimalism, dark-fantasy, retro-synthwave, anime, moody-noir, concept-art
+- composition: close-up, medium-shot, cowboy-shot, full-shot, extreme-wide, dutch-angle, eye-level, high-angle, birds-eye, over-the-shoulder, ground-level
 - motion: dolly-in, dolly-out, orbit-clockwise, tracking-shot, crane-up, chase-shot, handheld-shot, fast-zoom-in`;
 
   // Build standard multi-part payload according to official Gemini REST API spec
@@ -6726,16 +6726,16 @@ function generateHeuristicVideoDeconstruction() {
   else if (fileName.includes('zoom')) detectedMotion = 'fast-zoom-in';
 
   let detectedCamera = isVertical ? 'iphone16' : 'arri-alexa';
-  let detectedLens = isVertical ? 'wide-35mm' : 'anamorphic-40mm';
+  let detectedLens = isVertical ? 'wide-35mm' : 'anamorphic-cine';
   let detectedLighting = 'cinematic';
-  let detectedStyle = 'cinematic-photo';
+  let detectedStyle = 'photorealistic';
   let detectedComposition = isVertical ? 'medium-shot' : 'close-up';
 
   const defaultRussianDesc = isVertical
     ? 'Демо-режим: Вертикальный динамичный видеоряд с выразительным акцентом на центральном объекте в теплом кинематографическом свете.'
     : 'Демо-режим: Горизонтальный кинематографичный план с глубокой проработкой атмосферы, объемным светом и плавным движением камеры вперед.';
 
-  const directorPrompt = `Cinematic ${isVertical ? 'vertical 9:16 portrait frame' : 'widescreen 16:9 cinematic shot'}, filmed on ${detectedCamera === 'arri-alexa' ? 'ARRI Alexa Mini LF' : 'iPhone 16 Pro Max 48MP'} with ${detectedLens === 'anamorphic-40mm' ? '40mm anamorphic lens, subtle horizontal streak flares and soft oval bokeh' : '35mm prime lens, natural optical clarity'}. Camera executes a smooth ${detectedMotion.replace('-', ' ')} with realistic physical inertia. Atmospheric volumetric lighting, authentic tactile micro-textures, 4K resolution, color graded with warm organic film tone. Single unbroken take, no sudden scene cuts, no watermark.`;
+  const directorPrompt = `Cinematic ${isVertical ? 'vertical 9:16 portrait frame' : 'widescreen 16:9 cinematic shot'}, filmed on ${detectedCamera === 'arri-alexa' ? 'ARRI Alexa Mini LF' : 'iPhone 16 Pro Max 48MP'} with ${detectedLens === 'anamorphic-cine' ? 'Cooke Anamorphic 2x cine lens, subtle horizontal streak flares and soft oval bokeh' : '35mm prime lens, natural optical clarity'}. Camera executes a smooth ${detectedMotion.replace('-', ' ')} with realistic physical inertia. Atmospheric volumetric lighting, authentic tactile micro-textures, 4K resolution, color graded with warm organic film tone. Single unbroken take, no sudden scene cuts, no watermark.`;
 
   return {
     breakdown: {
