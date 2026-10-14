@@ -5158,3 +5158,139 @@ body {
   box-shadow: 0 0 10px rgba(255, 179, 0, 0.25);
   outline: none;
 }
+
+/* ==========================================================================
+   MASTER PROMPT INTERACTIVE HIGHLIGHTING & LEGEND
+   ========================================================================== */
+
+.master-prompt-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.master-prompt-header-row .master-prompt-label {
+  margin-bottom: 0;
+}
+
+.mp-legend-bar {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.mp-legend-pill {
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-muted, #94a3b8);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.mp-legend-pill:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #f8fafc;
+  border-color: rgba(255, 255, 255, 0.22);
+  transform: translateY(-1px);
+}
+
+.mp-legend-pill[data-target="mp-seg-motion"]:hover {
+  background: rgba(251, 191, 36, 0.16);
+  color: #fbbf24;
+  border-color: rgba(251, 191, 36, 0.4);
+}
+
+.mp-legend-pill[data-target="mp-seg-optics"]:hover {
+  background: rgba(56, 189, 248, 0.16);
+  color: #38bdf8;
+  border-color: rgba(56, 189, 248, 0.4);
+}
+
+.mp-legend-pill[data-target="mp-seg-light"]:hover {
+  background: rgba(192, 132, 252, 0.16);
+  color: #c084fc;
+  border-color: rgba(192, 132, 252, 0.4);
+}
+
+.mp-legend-pill[data-target="mp-seg-audio"]:hover {
+  background: rgba(52, 211, 153, 0.16);
+  color: #34d399;
+  border-color: rgba(52, 211, 153, 0.4);
+}
+
+/* Master Prompt Highlighted Segments */
+.mp-seg {
+  display: inline;
+  padding: 1px 4px;
+  margin: 0 1px;
+  border-radius: 4px;
+  transition: opacity 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  line-height: 1.6;
+}
+
+/* mp-seg-motion — желто-янтарный #fbbf24 */
+.mp-seg.mp-seg-motion {
+  background: rgba(251, 191, 36, 0.14);
+  color: #fef3c7;
+  border-bottom: 1px solid rgba(251, 191, 36, 0.55);
+}
+
+/* mp-seg-optics — голубой #38bdf8 */
+.mp-seg.mp-seg-optics {
+  background: rgba(56, 189, 248, 0.14);
+  color: #e0f2fe;
+  border-bottom: 1px solid rgba(56, 189, 248, 0.55);
+}
+
+/* mp-seg-light — фиолетовый #c084fc */
+.mp-seg.mp-seg-light {
+  background: rgba(192, 132, 252, 0.14);
+  color: #f3e8ff;
+  border-bottom: 1px solid rgba(192, 132, 252, 0.55);
+}
+
+/* mp-seg-audio — изумрудный #34d399 */
+.mp-seg.mp-seg-audio {
+  background: rgba(52, 211, 153, 0.14);
+  color: #d1fae5;
+  border-bottom: 1px solid rgba(52, 211, 153, 0.55);
+}
+
+/* mp-seg-spec — розовый #fb7185 */
+.mp-seg.mp-seg-spec {
+  background: rgba(251, 113, 133, 0.14);
+  color: #ffe4e6;
+  border-bottom: 1px solid rgba(251, 113, 133, 0.55);
+}
+
+/* mp-seg-subject — синий / базовый */
+.mp-seg.mp-seg-subject {
+  background: rgba(96, 165, 250, 0.14);
+  color: #dbeafe;
+  border-bottom: 1px solid rgba(96, 165, 250, 0.55);
+}
+
+/* Hover States (Dimmed & Focused) */
+.mp-seg.dimmed {
+  opacity: 0.28;
+  filter: grayscale(40%);
+}
+
+.mp-seg.focused {
+  opacity: 1;
+  filter: none;
+  font-weight: 500;
+  box-shadow: 0 0 12px currentColor;
+}

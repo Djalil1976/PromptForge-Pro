@@ -3485,16 +3485,25 @@ function compilePrompt() {
 
   if (state.promptFormat === 'master') {
     plainPrompt = masterPrompt || sections.map(s => `${s.plainTag}: ${s.val}`).join('\n');
+    const highlightedMaster = formatHighlightedMasterPrompt(masterPrompt, ctx);
     htmlPrompt = `
       <div class="master-prompt-display">
-        <div class="master-prompt-label">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-          ГОТОВЫЙ РАБОЧИЙ ПРОМПТ (${modelId.toUpperCase()})
+        <div class="master-prompt-header-row">
+          <div class="master-prompt-label">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            ГОТОВЫЙ РАБОЧИЙ ПРОМПТ (${modelId.toUpperCase()})
+          </div>
+          <div class="mp-legend-bar">
+            <span class="mp-legend-pill" data-target="mp-seg-motion" title="Наведите, чтобы выделить движение камеры">🎥 Камера</span>
+            <span class="mp-legend-pill" data-target="mp-seg-optics" title="Наведите, чтобы выделить оптику">📷 Оптика</span>
+            <span class="mp-legend-pill" data-target="mp-seg-light" title="Наведите, чтобы выделить свет и цвет">💡 Свет</span>
+            <span class="mp-legend-pill" data-target="mp-seg-audio" title="Наведите, чтобы выделить аудио">🔊 Звук</span>
+          </div>
         </div>
-        <div class="master-prompt-content">${escapeHtml(masterPrompt)}</div>
+        <div class="master-prompt-content" id="masterPromptContentBox">${highlightedMaster}</div>
       </div>
       <div class="master-prompt-meta-hint">
-        💡 Нажмите «Скопировать готовый промпт» для вставки в Google Flow, Gemini Advanced или Google AI Studio.
+        💡 Наведите на теги сверху для проверки структуры или нажмите «Скопировать готовый промпт».
       </div>
     `;
   } else {
@@ -3515,6 +3524,53 @@ function compilePrompt() {
     negative: finalNegativeText,
     hasContent: hasContent
   };
+}
+
+function formatHighlightedMasterPrompt(text, ctx) {
+  if (!text) return '';
+  let html = escapeHtml(text);
+
+  const rules = [
+    // Блоки Grok Imagine 2.0 (FRAME) и MiniMax-H3
+    { regex: /(\[(?:Focus|Core Concept)\]:\s*[^\n\[]+)/g, cls: 'mp-seg-subject', label: 'Сцена и объект' },
+    { regex: /(\[(?:Temporal Progression)\]:\s*[^\n\[]+)/g, cls: 'mp-seg-motion', label: 'Таймлайн и движение' },
+    { regex: /(\[(?:Angle|Cinematography &amp; Atmosphere)\]:\s*[^\n\[]+)/g, cls: 'mp-seg-optics', label: 'Оптика и камера' },
+    { regex: /(\[(?:Mood|Realm|Scene Elements|Execution)\]:\s*[^\n\[]+)/g, cls: 'mp-seg-light', label: 'Свет и атмосфера' },
+    { regex: /(\[(?:Audio Environment|Sound Design)\]:\s*[^\n\[]+)/g, cls: 'mp-seg-audio', label: 'Звук и фоли' },
+    { regex: /(\[(?:Constraints)\]:\s*[^\n\[]+)/g, cls: 'mp-seg-spec', label: 'Ограничения' },
+
+    // Предложения Veo 3.1 и Omni 1.1 Flash
+    { regex: /(A continuous, unbroken [^.]+\.|Continuous, unbroken shot [^.]+\.)/gi, cls: 'mp-seg-motion', label: 'Формат плана' },
+    { regex: /(The camera (?:performs|executes|maintains) [^.]+\.)/gi, cls: 'mp-seg-motion', label: 'Движение камеры' },
+    { regex: /((?:Filmed on|captured on) [^.,]+(?:, [^.,]+)*)/gi, cls: 'mp-seg-optics', label: 'Камера и объектив' },
+    { regex: /((?:Lighting and visual atmosphere|Cinematography and atmosphere):\s*[^.]+\.)/gi, cls: 'mp-seg-light', label: 'Свет и атмосфера' },
+    { regex: /((?:Audio|Sound design):\s*[^.]+\.(?:\s*Synchronized SFX:\s*[^.]+\.)?(?:\s*Dialogue:\s*[^.]+\.)?)/gi, cls: 'mp-seg-audio', label: 'Саунд-дизайн' },
+    { regex: /((?:1080p crisp master|No dialogue\.)[^]*$)/gi, cls: 'mp-seg-spec', label: 'Тех. контроль' }
+  ];
+
+  rules.forEach(r => {
+    html = html.replace(r.regex, `<span class="mp-seg ${r.cls}" data-seg="${r.cls}" title="${r.label}">$1</span>`);
+  });
+
+  // Подсветка одиночных параметров для Imagen 3 / Gemini Flash / GPT Image, если они еще не обернуты
+  if (ctx && !html.includes('mp-seg-optics')) {
+    [ctx.activeCam?.prompt, ctx.activeLens?.prompt].filter(Boolean).forEach(p => {
+      const esc = escapeHtml(p);
+      if (esc && html.includes(esc)) {
+        html = html.replace(esc, `<span class="mp-seg mp-seg-optics" data-seg="mp-seg-optics" title="Оптика">${esc}</span>`);
+      }
+    });
+  }
+  if (ctx && !html.includes('mp-seg-light')) {
+    [ctx.activeLight?.prompt, ctx.activeColor?.prompt].filter(Boolean).forEach(p => {
+      const esc = escapeHtml(p);
+      if (esc && html.includes(esc)) {
+        html = html.replace(esc, `<span class="mp-seg mp-seg-light" data-seg="mp-seg-light" title="Свет и цвет">${esc}</span>`);
+      }
+    });
+  }
+
+  return html;
 }
 
 function escapeHtml(str) {
@@ -4242,6 +4298,35 @@ function attachEventListeners() {
       el.formatStructuredBtn.classList.add('active');
       if (el.formatMasterBtn) el.formatMasterBtn.classList.remove('active');
       updateLivePrompt();
+    });
+  }
+
+  // Master Prompt Legend Pills Hover Delegation
+  if (el.finalPromptDisplay) {
+    el.finalPromptDisplay.addEventListener('mouseover', (e) => {
+      const pill = e.target.closest('.mp-legend-pill');
+      if (!pill) return;
+      const targetClass = pill.dataset.target;
+      const segs = el.finalPromptDisplay.querySelectorAll('.mp-seg');
+      segs.forEach(seg => {
+        if (seg.classList.contains(targetClass)) {
+          seg.classList.add('focused');
+          seg.classList.remove('dimmed');
+        } else {
+          seg.classList.add('dimmed');
+          seg.classList.remove('focused');
+        }
+      });
+    });
+
+    el.finalPromptDisplay.addEventListener('mouseout', (e) => {
+      const pill = e.target.closest('.mp-legend-pill');
+      if (!pill) return;
+      if (e.relatedTarget && pill.contains(e.relatedTarget)) return;
+      const segs = el.finalPromptDisplay.querySelectorAll('.mp-seg');
+      segs.forEach(seg => {
+        seg.classList.remove('dimmed', 'focused');
+      });
     });
   }
 
