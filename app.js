@@ -1808,10 +1808,10 @@ function deleteSnapshot(snapId) {
 function renderCameraOptions() {
   const currentCam = CAMERA_BODIES.find(c => c.id === state.selectedCamera);
   if (el.cameraSelectedText) {
-    el.cameraSelectedText.textContent = currentCam ? (currentCam.shortLabel || currentCam.label) : 'Выберите камеру...';
+    el.cameraSelectedText.textContent = currentCam ? currentCam.label : 'Выберите камеру...';
     el.cameraSelectedText.title = currentCam ? currentCam.label : 'Выберите камеру...';
   } else if (el.cameraSelectedVal) {
-    el.cameraSelectedVal.textContent = currentCam ? (currentCam.shortLabel || currentCam.label) : 'Выберите камеру...';
+    el.cameraSelectedVal.textContent = currentCam ? currentCam.label : 'Выберите камеру...';
   }
   if (el.cameraSelectedTooltip) {
     el.cameraSelectedTooltip.textContent = currentCam ? currentCam.desc : 'Нажмите, чтобы выбрать модель камеры.';
@@ -1896,7 +1896,7 @@ function renderCameraOptions() {
 function renderLensOptions() {
   const currentLens = LENSES.find(l => l.id === state.selectedLens);
   if (el.lensSelectedText) {
-    el.lensSelectedText.textContent = currentLens ? (currentLens.shortLabel || currentLens.label) : 'Выберите объектив...';
+    el.lensSelectedText.textContent = currentLens ? currentLens.label : 'Выберите объектив...';
     el.lensSelectedText.title = currentLens ? currentLens.label : 'Выберите объектив...';
   }
   if (el.lensSelectedTooltip) {
