@@ -1730,7 +1730,6 @@ function applySnapshot(snapId) {
   const snap = (state.snapshots || []).find(s => s.id === snapId);
   if (!snap) return;
 
-  state.activeSnapshotId = snap.id;
   if (snap.camera) state.selectedCamera = snap.camera;
   if (snap.lens) state.selectedLens = snap.lens;
   if (snap.lighting) state.selectedLighting = snap.lighting;
@@ -1749,8 +1748,9 @@ function applySnapshot(snapId) {
   renderColorOptions();
   renderChips();
   renderAspectRatios();
-  renderSnapshots();
   releaseCustomDirectorPrompt();
+  state.activeSnapshotId = snap.id;
+  renderSnapshots();
   updateLivePrompt();
 
   showToast(`Связка "${snap.name}" применена!`, '⚡');
@@ -2458,7 +2458,7 @@ function renderAspectRatios() {
       const disabledClass = !isSupported ? 'disabled-item' : '';
       const disabledTitle = !isSupported ? ' (недоступно для видео)' : '';
       return `
-        <div class="select-item ${isSelected ? 'selected' : ''} ${disabledClass}" 
+        <div class="select-item aspect-select-item ${isSelected ? 'same-as-selected' : ''} ${disabledClass}" 
              data-ratio="${a.id}" 
              data-disabled="${!isSupported ? 'true' : 'false'}">
           <div class="aspect-dropdown-item-wrap">
@@ -3857,14 +3857,26 @@ function formatHighlightedMasterPrompt(text, ctx) {
         let chunk = html.slice(startIdx, endIdx).trim();
         const cfg = sectionMap[tagName] || { cls: 'mp-seg-subject', label: tagName };
 
-        // Для MiniMax-H3 внутри [Cinematography & Atmosphere] выделяем Свет (mp-seg-light) и Стиль (mp-seg-spec) отдельными цветами!
         if (tagName === 'Cinematography &amp; Atmosphere' && ctx) {
+          if (ctx.activeComp?.prompt) {
+            const escComp = escapeHtml(ctx.activeComp.prompt);
+            if (escComp && chunk.includes(escComp)) {
+              chunk = chunk.replace(escComp, `</span><span class="mp-seg mp-seg-motion" data-seg="mp-seg-motion" title="Ракурс и композиция">${escComp}</span><span class="mp-seg mp-seg-optics" data-seg="mp-seg-optics" title="Оптика и камера">`);
+            }
+          }
           [ctx.activeLight?.prompt, ctx.activeColor?.prompt].filter(Boolean).forEach(p => {
             const esc = escapeHtml(p);
             if (esc && chunk.includes(esc)) {
-              chunk = chunk.replace(esc, `</span><span class="mp-seg mp-seg-light" data-seg="mp-seg-light" title="Свет и атмосфера">${esc}</span><span class="mp-seg mp-seg-optics" data-seg="mp-seg-optics" title="Оптика и стиль">`);
+              chunk = chunk.replace(esc, `</span><span class="mp-seg mp-seg-light" data-seg="mp-seg-light" title="Свет и атмосфера">${esc}</span><span class="mp-seg mp-seg-optics" data-seg="mp-seg-optics" title="Оптика и камера">`);
             }
           });
+          const cleanStyle = ctx.activeStyle ? cleanBuzzwords(ctx.activeStyle.prompt) : '';
+          if (cleanStyle) {
+            const escStyle = escapeHtml(cleanStyle);
+            if (escStyle && chunk.includes(escStyle)) {
+              chunk = chunk.replace(escStyle, `</span><span class="mp-seg mp-seg-spec" data-seg="mp-seg-spec" title="Стиль и текстуры">${escStyle}</span><span class="mp-seg mp-seg-optics" data-seg="mp-seg-optics" title="Оптика и камера">`);
+            }
+          }
         }
 
         resultHtml += `<span class="mp-seg ${cfg.cls}" data-seg="${cfg.cls}" title="${cfg.label}">${chunk}</span> `;
@@ -3974,6 +3986,10 @@ function calculateStrength(promptText) {
 function releaseCustomDirectorPrompt() {
   if (state.customDirectorPrompt) {
     state.customDirectorPrompt = '';
+  }
+  if (state.activeSnapshotId) {
+    state.activeSnapshotId = null;
+    renderSnapshots();
   }
 }
 
