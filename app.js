@@ -2443,6 +2443,10 @@ function renderAspectRatios() {
   if (el.aspectSelectedText) {
     el.aspectSelectedText.textContent = `${activeRatio.label} (${activeRatio.sub})`;
   }
+  const iconEl = document.getElementById('aspectSelectedIcon');
+  if (iconEl) {
+    iconEl.setAttribute('data-ratio', activeRatio.id);
+  }
   if (el.aspectSelectedTooltip) {
     el.aspectSelectedTooltip.textContent = `${activeRatio.label} • ${activeRatio.sub} • ${activeRatio.ratioDesc}`;
   }
@@ -2459,6 +2463,7 @@ function renderAspectRatios() {
              data-disabled="${!isSupported ? 'true' : 'false'}"
              title="${a.label} • ${a.sub}${disabledTitle}">
           <div class="aspect-dropdown-item-wrap">
+            <span class="aspect-rect-icon" data-ratio="${a.id}"></span>
             <span class="item-name">${a.label}</span>
             <span class="item-sub">${a.sub}</span>
           </div>

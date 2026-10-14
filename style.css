@@ -5646,3 +5646,131 @@ body {
   font-style: italic;
   font-family: var(--font-google);
 }
+
+/* ========================================================
+   DISTINCT COLOR CODING FOR DEFAULT & SELECTED PARAMETERS
+   High-contrast studio palette for instant visual recognition
+   ======================================================== */
+#cameraSelectedText {
+  color: #38bdf8 !important; /* Cyan */
+  font-weight: 600;
+}
+
+#lensSelectedText {
+  color: #34d399 !important; /* Mint Emerald */
+  font-weight: 600;
+}
+
+#lightingSelectedText {
+  color: #fbbf24 !important; /* Amber Gold */
+  font-weight: 600;
+}
+
+#styleSelectedText {
+  color: #c084fc !important; /* Violet Fuchsia */
+  font-weight: 600;
+}
+
+#compositionSelectedText {
+  color: #60a5fa !important; /* Sky Blue */
+  font-weight: 600;
+}
+
+#videoMotionSelectedText {
+  color: #fb923c !important; /* Coral Orange */
+  font-weight: 600;
+}
+
+#durationSelectedText {
+  color: #a3e635 !important; /* Electric Lime */
+  font-weight: 600;
+}
+
+#framerateSelectedText {
+  color: #f43f5e !important; /* Rose Pink */
+  font-weight: 600;
+}
+
+#aspectSelectedText {
+  color: #eab308 !important; /* Warm Gold */
+  font-weight: 600;
+}
+
+#colorSelectedText {
+  color: #2dd4bf !important; /* Teal Turquoise */
+  font-weight: 600;
+}
+
+/* ========================================================
+   ASPECT RATIO RECTANGLE ICONS & DROPDOWN LAYOUT
+   ======================================================== */
+.aspect-rect-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid #eab308;
+  border-radius: 2.5px;
+  background: rgba(234, 179, 8, 0.14);
+  flex-shrink: 0;
+  box-shadow: 0 0 6px rgba(234, 179, 8, 0.3);
+  vertical-align: middle;
+  margin-right: 6px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.aspect-rect-icon[data-ratio="16:9"] {
+  width: 19px;
+  height: 11px;
+}
+
+.aspect-rect-icon[data-ratio="9:16"] {
+  width: 11px;
+  height: 19px;
+}
+
+.aspect-rect-icon[data-ratio="1:1"] {
+  width: 14px;
+  height: 14px;
+}
+
+.aspect-rect-icon[data-ratio="4:3"] {
+  width: 17px;
+  height: 13px;
+}
+
+.aspect-rect-icon[data-ratio="21:9"] {
+  width: 23px;
+  height: 10px;
+}
+
+.aspect-select-item:hover .aspect-rect-icon {
+  border-color: #fde047;
+  background: rgba(234, 179, 8, 0.28);
+  box-shadow: 0 0 10px rgba(253, 224, 71, 0.55);
+  transform: scale(1.08);
+}
+
+.aspect-select-item.same-as-selected .aspect-rect-icon {
+  border-color: #f59e0b;
+  background: rgba(245, 158, 11, 0.35);
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.6);
+}
+
+.aspect-dropdown-item-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.aspect-dropdown-item-wrap .item-name {
+  font-weight: 700;
+  color: #f1f5f9;
+  min-width: 44px;
+}
+
+.aspect-dropdown-item-wrap .item-sub {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-left: auto;
+}
