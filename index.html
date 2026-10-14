@@ -10,7 +10,7 @@
   <meta name="theme-color" content="#090a10">
   <link rel="icon" type="image/svg+xml" href="favicon.svg?v=1">
   <link rel="alternate icon" href="favicon.svg?v=1">
-  <link rel="stylesheet" href="style.css?v=4.8">
+  <link rel="stylesheet" href="style.css?v=4.9">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -26,7 +26,6 @@
       </div>
       <div class="brand-text">
         <div class="brand-title">PromptForge <span class="badge-pro">PRO</span></div>
-        <div class="brand-subtitle">AI Prompt Studio (Veo 3.1 • Omni 1.1 Flash • MiniMax-H3 • Imagen 3)</div>
       </div>
     </div>
 
@@ -53,11 +52,6 @@
           </div>
         </div>
         <button class="btn-banner-key" id="openKeyFromBannerBtn" title="Настройки API ключей">Настройки</button>
-      </div>
-
-      <div class="model-status-indicator" id="statusBadge">
-        <span class="status-dot"></span>
-        <span id="statusText">Генератор промптов готов</span>
       </div>
 
       <button class="nav-btn" id="openGalleryBtn" title="История и сохраненные промпты">
@@ -630,41 +624,73 @@
           </div>
         </div>
 
-        <!-- ACCORDION: COMPOSITION & SHOT TYPE (DROPDOWN) -->
+        <!-- ACCORDION: COMPOSITION & MOTION (IN ONE ROW) -->
         <div class="accordion-item open" id="accordionComposition">
           <div class="accordion-header">
             <div class="accordion-title">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/><path d="M15 3v18"/></svg>
-              <span>РАКУРС И КОМПОЗИЦИЯ</span>
+              <span>РАКУРС И ДВИЖЕНИЕ КАМЕРЫ</span>
             </div>
             <div class="accordion-chevron">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m18 15-6-6-6 6"/></svg>
             </div>
           </div>
           <div class="accordion-content">
-            <div class="custom-select" id="compositionCustomSelect">
-              <div class="select-selected" id="compositionSelectedVal">
-                <div class="selected-lens-wrapper">
-                  <span class="selected-text-val" id="compositionSelectedText">Выберите ракурс...</span>
-                  <div class="lens-info-tooltip-wrap">
-                    <span class="lens-info-icon">ⓘ</span>
-                    <div class="lens-tooltip-content" id="compositionSelectedTooltip">Нажмите, чтобы выбрать ракурс и композицию.</div>
+            <div class="inline-selects-row">
+              <!-- Left Column: Composition -->
+              <div class="inline-select-col">
+                <div class="field-sublabel">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/><path d="M15 3v18"/></svg>
+                  <span>Ракурс и композиция</span>
+                </div>
+                <div class="custom-select" id="compositionCustomSelect">
+                  <div class="select-selected" id="compositionSelectedVal">
+                    <div class="selected-lens-wrapper">
+                      <span class="selected-text-val" id="compositionSelectedText">Выберите ракурс...</span>
+                      <div class="lens-info-tooltip-wrap">
+                        <span class="lens-info-icon">ⓘ</span>
+                        <div class="lens-tooltip-content" id="compositionSelectedTooltip">Нажмите, чтобы выбрать ракурс и композицию.</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="select-items select-items-comp-4col" id="compositionOptionsList">
+                    <!-- Composition options populated via JS -->
                   </div>
                 </div>
               </div>
-              <div class="select-items select-items-comp-4col" id="compositionOptionsList">
-                <!-- Composition options populated via JS -->
+
+              <!-- Right Column: Video Motion -->
+              <div class="inline-select-col" id="videoMotionCol">
+                <div class="field-sublabel">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 8-6 4 6 4V8Z"/><rect width="14" height="12" x="2" y="6" rx="2"/></svg>
+                  <span>Движение камеры (видео)</span>
+                  <span class="badge-mini" id="videoMotionBadge">Видео</span>
+                </div>
+                <div class="custom-select" id="videoMotionCustomSelect">
+                  <div class="select-selected" id="videoMotionSelectedVal">
+                    <div class="selected-lens-wrapper">
+                      <span class="selected-text-val" id="videoMotionSelectedText">Выберите движение...</span>
+                      <div class="lens-info-tooltip-wrap">
+                        <span class="lens-info-icon">ⓘ</span>
+                        <div class="lens-tooltip-content" id="videoMotionSelectedTooltip">Нажмите, чтобы выбрать кинематографичное движение камеры.</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="select-items select-items-motion-5col" id="videoMotionOptionsList">
+                    <!-- Video motion options populated via JS -->
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- VIDEO DYNAMICS SECTION (DYNAMICALLY HIGHLIGHTED OR EXPANDED FOR VIDEO) -->
-        <div class="accordion-item" id="accordionVideoDynamics">
+        <!-- ACCORDION: DURATION & FRAMERATE (IN ONE ROW) -->
+        <div class="accordion-item open" id="accordionVideoDynamics">
           <div class="accordion-header">
             <div class="accordion-title">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 8-6 4 6 4V8Z"/><rect width="14" height="12" x="2" y="6" rx="2"/></svg>
-              <span>ДВИЖЕНИЕ КАМЕРЫ (ВИДЕО)</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              <span>ДЛИТЕЛЬНОСТЬ И ЧАСТОТА КАДРОВ</span>
               <span class="badge-mini" id="videoDynamicsBadge">Видео</span>
             </div>
             <div class="accordion-chevron">
@@ -672,21 +698,7 @@
             </div>
           </div>
           <div class="accordion-content">
-            <div class="custom-select" id="videoMotionCustomSelect">
-              <div class="select-selected" id="videoMotionSelectedVal">
-                <div class="selected-lens-wrapper">
-                  <span class="selected-text-val" id="videoMotionSelectedText">Выберите движение...</span>
-                  <div class="lens-info-tooltip-wrap">
-                    <span class="lens-info-icon">ⓘ</span>
-                    <div class="lens-tooltip-content" id="videoMotionSelectedTooltip">Нажмите, чтобы выбрать кинематографичное движение камеры.</div>
-                  </div>
-                </div>
-              </div>
-              <div class="select-items select-items-motion-5col" id="videoMotionOptionsList">
-                <!-- Video motion options populated via JS -->
-              </div>
-            </div>
-            <div class="inline-selects-row" style="margin-top: 12px;">
+            <div class="inline-selects-row">
               <!-- Left Column: Duration -->
               <div class="inline-select-col">
                 <div class="field-sublabel">
@@ -1028,6 +1040,6 @@
   <div class="toast-container" id="toastContainer"></div>
 
   <!-- Scripts -->
-  <script src="app.js?v=4.8"></script>
+  <script src="app.js?v=4.9"></script>
 </body>
 </html>

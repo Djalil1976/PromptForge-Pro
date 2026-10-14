@@ -4768,6 +4768,12 @@ function setMode(mode) {
       const badge = document.getElementById('videoDynamicsBadge');
       if (badge) badge.textContent = 'Только для видео';
     }
+    const motionCol = document.getElementById('videoMotionCol');
+    if (motionCol) {
+      motionCol.classList.add('disabled-video-col');
+      const motionBadge = document.getElementById('videoMotionBadge');
+      if (motionBadge) motionBadge.textContent = 'Только для видео';
+    }
   } else {
     if (el.modeVideoBtn) el.modeVideoBtn.classList.add('active');
     if (el.modeImageBtn) el.modeImageBtn.classList.remove('active');
@@ -4795,6 +4801,12 @@ function setMode(mode) {
       el.accordionVideoDynamics.classList.add('open');
       const badge = document.getElementById('videoDynamicsBadge');
       if (badge) badge.textContent = 'Видео';
+    }
+    const motionCol = document.getElementById('videoMotionCol');
+    if (motionCol) {
+      motionCol.classList.remove('disabled-video-col');
+      const motionBadge = document.getElementById('videoMotionBadge');
+      if (motionBadge) motionBadge.textContent = 'Видео';
     }
   }
 
