@@ -10,7 +10,7 @@
   <meta name="theme-color" content="#090a10">
   <link rel="icon" type="image/svg+xml" href="favicon.svg?v=1">
   <link rel="alternate icon" href="favicon.svg?v=1">
-  <link rel="stylesheet" href="style.css?v=6.4">
+  <link rel="stylesheet" href="style.css?v=6.5">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;0,900;1,400;1,500&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -498,7 +498,12 @@
         <div class="snapshots-bar" id="snapshotsBar">
           <div class="snapshots-bar-top">
             <span class="snapshots-label">⚡ МОИ СВЯЗКИ ОПТИКИ И СВЕТА:</span>
-            <button type="button" class="btn-save-snapshot" id="saveSnapshotBtn" title="Сохранить текущие выбранные параметры (Камера, Объектив, Свет, Стиль, Ракурс, Движение, Формат) в быструю кнопку">+ Сохранить текущую</button>
+            <div class="snapshots-actions-right">
+              <button type="button" class="btn-identity-lock" id="identityLockBtn" title="Включить жесткую фиксацию черт лица персонажа (Identity Lock: защита разреза глаз, носа, бороды и принтов одежды от искажений и ИИ-бьютификации)">
+                🔒 Identity Lock: ВЫКЛ
+              </button>
+              <button type="button" class="btn-save-snapshot" id="saveSnapshotBtn" title="Сохранить текущие выбранные параметры (Камера, Объектив, Свет, Стиль, Ракурс, Движение, Формат) в быструю кнопку">+ Сохранить текущую</button>
+            </div>
           </div>
           <div class="snapshots-chips-row" id="snapshotsChipsContainer"></div>
         </div>
@@ -928,6 +933,6 @@
   <div class="toast-container" id="toastContainer"></div>
 
   <!-- Scripts -->
-  <script src="app.js?v=6.4"></script>
+  <script src="app.js?v=6.5"></script>
 </body>
 </html>

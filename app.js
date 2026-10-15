@@ -1432,7 +1432,10 @@ const state = {
 
   // Snapshots State
   snapshots: JSON.parse(localStorage.getItem('promptforge_snapshots') || 'null') || [...DEFAULT_SNAPSHOTS],
-  activeSnapshotId: null
+  activeSnapshotId: null,
+
+  // Identity Lock (Face & Features Preservation)
+  identityLock: false
 };
 
 // --- DOM ELEMENTS ---
@@ -1561,6 +1564,7 @@ const el = {
 
   // Snapshots Bar
   snapshotsBar: document.getElementById('snapshotsBar'),
+  identityLockBtn: document.getElementById('identityLockBtn'),
   saveSnapshotBtn: document.getElementById('saveSnapshotBtn'),
   snapshotsChipsContainer: document.getElementById('snapshotsChipsContainer'),
 
@@ -2895,6 +2899,10 @@ function generateVeoAudio(idea, motionId) {
   };
 }
 
+// --- IDENTITY LOCK (FACIAL PRESERVATION CONSTANTS) ---
+const IDENTITY_LOCK_DIRECTIVE = 'Strict 1:1 facial identity lock to @Image1 reference: preserve exact eye shape, eyelid folds, natural under-eye contours, exact nose bridge geometry, authentic facial bone structure, and natural beard/hair density with visible skin micro-texture. Maintain frontal fill light on face and crisp locked garment typography';
+const IDENTITY_LOCK_CONSTRAINTS = 'strict facial geometry lock to @Image1, no facial beautification, no eye widening, no cheek or jaw morphing, no beard thickening, no garment text garbling';
+
 function compileImagen3(ctx) {
   const sections = [];
   if (!ctx.baseDescription && !ctx.activeCam && !ctx.activeLens && !ctx.activeLight && !ctx.activeStyle && !ctx.activeComp && !ctx.activeColor) {
@@ -2914,6 +2922,9 @@ function compileImagen3(ctx) {
   if (ctx.activeColor) masterParts.push(ctx.activeColor.prompt);
   if (ctx.activeStyle) masterParts.push(cleanBuzzwords(ctx.activeStyle.prompt));
   if (ctx.quickTags) masterParts.push(`featuring ${ctx.quickTags}`);
+  if (state.identityLock) {
+    masterParts.push('strict 1:1 facial identity lock to reference, preserving exact eye shape, nose geometry, and natural skin/beard texture without AI beautification');
+  }
   if (ctx.activeAspect) masterParts.push(`aspect ratio ${ctx.activeAspect.id}`);
 
   const masterPrompt = masterParts.length > 0 ? masterParts.join(', ') + '.' : '';
@@ -2991,6 +3002,14 @@ function compileImagen3(ctx) {
     });
   }
 
+  if (state.identityLock) {
+    sections.push({
+      uiTag: '🔒 Фиксация лица (Identity Lock)',
+      plainTag: 'Identity Lock',
+      val: 'strict 1:1 facial identity lock to reference, preserving exact eye shape, nose geometry, and natural skin/beard texture without AI beautification'
+    });
+  }
+
   return { masterPrompt, sections };
 }
 
@@ -3039,8 +3058,16 @@ function compileVeo31(ctx) {
     masterParts.push(`. Contextual details: ${ctx.quickTags}`);
   }
 
+  if (state.identityLock) {
+    masterParts.push(`. ${IDENTITY_LOCK_DIRECTIVE}`);
+  }
+
   masterParts.push(`. Audio: ${audio.fullAudioText}`);
-  masterParts.push(`. 1080p crisp master, 24fps, single unbroken take, no sudden scene cuts, no dialogue, no watermark.`);
+  if (state.identityLock) {
+    masterParts.push(`. 1080p crisp master, 24fps, single unbroken take, no sudden scene cuts, no dialogue, no watermark, ${IDENTITY_LOCK_CONSTRAINTS}.`);
+  } else {
+    masterParts.push(`. 1080p crisp master, 24fps, single unbroken take, no sudden scene cuts, no dialogue, no watermark.`);
+  }
 
   const masterPrompt = masterParts.join('');
 
@@ -3124,6 +3151,14 @@ function compileVeo31(ctx) {
     val: specParts.join(', ')
   });
 
+  if (state.identityLock) {
+    sections.push({
+      uiTag: '🔒 Фиксация лица (Identity Lock)',
+      plainTag: 'Identity Lock',
+      val: `${IDENTITY_LOCK_DIRECTIVE}. Constraints: ${IDENTITY_LOCK_CONSTRAINTS}`
+    });
+  }
+
   return { masterPrompt, sections };
 }
 
@@ -3176,11 +3211,19 @@ function compileOmniFlash(ctx) {
   // Meta-prompting directive (DeepMind Omni recommended practice)
   masterParts.push(`Consider micro-detail, natural lighting falloff, realistic physical inertia, and timing to create a rich, cohesive scene. `);
 
+  if (state.identityLock) {
+    masterParts.push(`${IDENTITY_LOCK_DIRECTIVE} (<IMAGE_REF_0>). `);
+  }
+
   // Dedicated Sound design directive
   masterParts.push(`Sound design: ${soundDesign}. `);
 
   // Negative directives supported by Omni
-  masterParts.push(`No dialogue. No scene cuts. No embellishments. No extra sound effects.`);
+  if (state.identityLock) {
+    masterParts.push(`No dialogue. No scene cuts. No embellishments. No extra sound effects. No facial drift or beautification.`);
+  } else {
+    masterParts.push(`No dialogue. No scene cuts. No embellishments. No extra sound effects.`);
+  }
 
   const masterPrompt = masterParts.join('');
 
@@ -3254,6 +3297,14 @@ function compileOmniFlash(ctx) {
     val: clipSpecs.join(', ')
   });
 
+  if (state.identityLock) {
+    sections.push({
+      uiTag: '🔒 Фиксация лица (Identity Lock)',
+      plainTag: 'Identity Lock',
+      val: `${IDENTITY_LOCK_DIRECTIVE} (<IMAGE_REF_0>). Constraints: No facial drift or beautification.`
+    });
+  }
+
   return { masterPrompt, sections };
 }
 
@@ -3270,7 +3321,10 @@ function compileMinimaxH3(ctx) {
 
   // 1. Core Concept Block (Clean concise narrative summary)
   const descClean = (ctx.baseDescription || 'Dynamic cinematic scene').trim().replace(/\.+$/, '');
-  const coreConcept = `${descClean}. High-fidelity continuous 2K take (${durStr}, ${aspectStr}, 24fps).`;
+  let coreConcept = `${descClean}. High-fidelity continuous 2K take (${durStr}, ${aspectStr}, 24fps).`;
+  if (state.identityLock) {
+    coreConcept += ` ${IDENTITY_LOCK_DIRECTIVE}.`;
+  }
 
   // 2. Structured Temporal Decomposition [Xs-Ys]
   let timeline = '';
@@ -3308,7 +3362,11 @@ function compileMinimaxH3(ctx) {
   }
 
   masterParts.push(`[Audio Environment]: Synchronized 32kHz stereo audio: ${soundscape}. `);
-  masterParts.push(`[Constraints]: Single continuous shot, no scene cuts, no morphing artifacts, no text watermark, no spoken dialogue.`);
+  if (state.identityLock) {
+    masterParts.push(`[Constraints]: Single continuous shot, no scene cuts, no morphing artifacts, no text watermark, no spoken dialogue, ${IDENTITY_LOCK_CONSTRAINTS}.`);
+  } else {
+    masterParts.push(`[Constraints]: Single continuous shot, no scene cuts, no morphing artifacts, no text watermark, no spoken dialogue.`);
+  }
 
   const masterPrompt = masterParts.join('');
 
@@ -3366,6 +3424,14 @@ function compileMinimaxH3(ctx) {
     val: specParts.join(', ')
   });
 
+  if (state.identityLock) {
+    sections.push({
+      uiTag: '🔒 Фиксация лица (Identity Lock)',
+      plainTag: 'Identity Lock',
+      val: `${IDENTITY_LOCK_DIRECTIVE}. Constraints: ${IDENTITY_LOCK_CONSTRAINTS}`
+    });
+  }
+
   return { masterPrompt, sections };
 }
 
@@ -3384,6 +3450,9 @@ function compileGeminiFlash(ctx) {
   if (ctx.activeColor) masterParts.push(ctx.activeColor.prompt);
   if (ctx.activeStyle) masterParts.push(cleanBuzzwords(ctx.activeStyle.prompt));
   if (ctx.quickTags) masterParts.push(ctx.quickTags);
+  if (state.identityLock) {
+    masterParts.push('strict 1:1 facial identity lock to reference, preserving exact eye shape, nose geometry, and natural skin/beard texture without AI beautification');
+  }
   const masterPrompt = masterParts.join(', ') + '.';
 
   sections.push({
@@ -3454,6 +3523,14 @@ function compileGeminiFlash(ctx) {
     });
   }
 
+  if (state.identityLock) {
+    sections.push({
+      uiTag: '🔒 Фиксация лица (Identity Lock)',
+      plainTag: 'Identity Lock',
+      val: 'strict 1:1 facial identity lock to reference, preserving exact eye shape, nose geometry, and natural skin/beard texture without AI beautification'
+    });
+  }
+
   return { masterPrompt, sections };
 }
 
@@ -3475,6 +3552,9 @@ function compileGptImage(ctx) {
   if (ctx.activeColor) masterParts.push(ctx.activeColor.prompt);
   if (ctx.activeStyle) masterParts.push(cleanBuzzwords(ctx.activeStyle.prompt));
   if (ctx.quickTags) masterParts.push(ctx.quickTags);
+  if (state.identityLock) {
+    masterParts.push('strict 1:1 facial identity lock to reference, preserving exact eye shape, nose geometry, and natural skin/beard texture without AI beautification');
+  }
   const masterPrompt = masterParts.join(', ') + '.';
 
   sections.push({
@@ -3541,6 +3621,14 @@ function compileGptImage(ctx) {
     });
   }
 
+  if (state.identityLock) {
+    sections.push({
+      uiTag: '🔒 Фиксация лица (Identity Lock)',
+      plainTag: 'Identity Lock',
+      val: 'strict 1:1 facial identity lock to reference, preserving exact eye shape, nose geometry, and natural skin/beard texture without AI beautification'
+    });
+  }
+
   return { masterPrompt, sections };
 }
 
@@ -3572,6 +3660,10 @@ function compileImagineFrame(ctx) {
   if (ctx.activeStyle) execParts.push(cleanBuzzwords(ctx.activeStyle.prompt));
   if (ctx.activeAspect) execParts.push(`aspect ratio ${ctx.activeAspect.id}`);
   if (execParts.length > 0) frameParts.push(`[Execution]: ${execParts.join(', ')}`);
+
+  if (state.identityLock) {
+    frameParts.push('[Identity]: strict 1:1 facial identity lock to reference, preserving exact eye shape, nose geometry, and natural skin/beard texture without AI beautification');
+  }
 
   const masterPrompt = frameParts.join('\n');
 
@@ -3618,6 +3710,14 @@ function compileImagineFrame(ctx) {
       uiTag: '⚡ [Execution] Стиль и рендер',
       plainTag: '[Execution]',
       val: execParts.join(', ')
+    });
+  }
+
+  if (state.identityLock) {
+    sections.push({
+      uiTag: '🔒 [Identity] Фиксация лица',
+      plainTag: '[Identity]',
+      val: 'strict 1:1 facial identity lock to reference, preserving exact eye shape, nose geometry, and natural skin/beard texture without AI beautification'
     });
   }
 
@@ -3908,9 +4008,14 @@ function formatHighlightedMasterPrompt(text, ctx) {
         label: 'Камера и объектив'
       },
       {
-        regex: /((?:Lighting and visual atmosphere:|Cinematography and atmosphere:)[\s\S]*?)(?=\s+(?:Contextual details:|Scene elements:|Consider micro-detail|Audio:|Sound design:|$))/gi,
+        regex: /((?:Lighting and visual atmosphere:|Cinematography and atmosphere:)[\s\S]*?)(?=\s+(?:Contextual details:|Scene elements:|Consider micro-detail|Audio:|Sound design:|Strict 1:1|$))/gi,
         cls: 'mp-seg-light',
         label: 'Свет и атмосфера'
+      },
+      {
+        regex: /(Strict 1:1 facial identity lock[\s\S]*?locked garment typography(?: \([^)]+\))?\.?)/gi,
+        cls: 'mp-seg-subject',
+        label: 'Фиксация лица Identity Lock'
       },
       {
         regex: /(Consider micro-detail[\s\S]*?cohesive scene\.)/gi,
@@ -3938,6 +4043,9 @@ function formatHighlightedMasterPrompt(text, ctx) {
   if (ctx) {
     const cleanStylePrompt = ctx.activeStyle ? cleanBuzzwords(ctx.activeStyle.prompt) : '';
     const partsToHighlight = [
+      // Фиксация лица -> Синий (🔒 Identity Lock)
+      { text: IDENTITY_LOCK_DIRECTIVE, cls: 'mp-seg-subject', label: 'Фиксация лица Identity Lock' },
+      { text: 'strict 1:1 facial identity lock to reference, preserving exact eye shape, nose geometry, and natural skin/beard texture without AI beautification', cls: 'mp-seg-subject', label: 'Фиксация лица Identity Lock' },
       // Ракурс и композиция -> Желтый (🎥 Камера/Ракурс)
       { text: ctx.activeComp?.prompt, cls: 'mp-seg-motion', label: 'Ракурс и композиция' },
       // Камера и объектив -> Голубой (📷 Оптика)
@@ -3961,6 +4069,13 @@ function formatHighlightedMasterPrompt(text, ctx) {
       const safeRegex = new RegExp(`(?![^<]*>)(?<!\\w)(${esc.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})(?![^<]*<\\/span>)`, 'g');
       html = html.replace(safeRegex, `<span class="mp-seg ${item.cls}" data-seg="${item.cls}" title="${item.label}">$1</span>`);
     });
+  }
+
+  // Гарантированная подсветка IDENTITY_LOCK_DIRECTIVE если осталась без спана
+  const escIdentity = escapeHtml(IDENTITY_LOCK_DIRECTIVE);
+  if (escIdentity && html.includes(escIdentity)) {
+    const safeRegex = new RegExp(`(?![^<]*>)(?<!\\w)(${escIdentity.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})(?![^<]*<\\/span>)`, 'g');
+    html = html.replace(safeRegex, `<span class="mp-seg mp-seg-subject" data-seg="mp-seg-subject" title="Фиксация лица Identity Lock">$1</span>`);
   }
 
   return html;
@@ -4168,6 +4283,17 @@ function attachEventListeners() {
   }
 
   // Snapshots Bar Listeners
+  if (el.identityLockBtn) {
+    el.identityLockBtn.addEventListener('click', () => {
+      state.identityLock = !state.identityLock;
+      el.identityLockBtn.classList.toggle('active', state.identityLock);
+      el.identityLockBtn.textContent = `🔒 Identity Lock: ${state.identityLock ? 'ВКЛ' : 'ВЫКЛ'}`;
+      releaseCustomDirectorPrompt();
+      updateLivePrompt();
+      showToast(state.identityLock ? 'Фиксация лица (Identity Lock) ВКЛЮЧЕНА!' : 'Фиксация лица отключена', '🔒');
+    });
+  }
+
   if (el.saveSnapshotBtn) {
     el.saveSnapshotBtn.addEventListener('click', saveCurrentSnapshot);
   }
@@ -5129,6 +5255,12 @@ function handleResetAll() {
   renderColorOptions();
   renderChips();
   renderNegativeTags();
+
+  state.identityLock = false;
+  if (el.identityLockBtn) {
+    el.identityLockBtn.classList.remove('active');
+    el.identityLockBtn.textContent = '🔒 Identity Lock: ВЫКЛ';
+  }
 
   showToast('Все параметры сброшены к значениям по умолчанию', '🧹');
 }
