@@ -11,7 +11,6 @@
   <link rel="icon" type="image/svg+xml" href="favicon.svg?v=1">
   <link rel="alternate icon" href="favicon.svg?v=1">
   <link rel="stylesheet" href="style.css?v=6.5">
-  <link rel="stylesheet" href="asset-ref-studio.css?v=1.0">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;0,900;1,400;1,500&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -29,19 +28,6 @@
         <div class="brand-title">PromptForge <span class="badge-pro">PRO</span></div>
       </div>
     </div>
-
-    <!-- Workspace Mode Navigation Tabs -->
-    <nav class="main-nav-tabs">
-      <button class="nav-tab-btn active" id="tabStudioBtn" type="button" title="Генератор кинематографических сцен и промптов">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-        <span>Студия сцен</span>
-      </button>
-      <button class="nav-tab-btn" id="tabAssetRefBtn" type="button" title="Создание графической карточки персонажа и объектов">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        <span>Карточка</span>
-        <span class="badge-tab-pro">PRO</span>
-      </button>
-    </nav>
 
     <div class="nav-actions">
       <!-- API Key Status / Connect Banner (Top Nav) -->
@@ -835,187 +821,6 @@
 
   </main>
 
-  <!-- ========================================================
-       ASSET & REFERENCE STUDIO (TOP: SLOTS, BOTTOM: CARD)
-       ======================================================== -->
-  <main class="asset-studio-container" id="assetStudioView" style="display: none;">
-    
-    <!-- TOP ZONE: REFERENCE SLOTS -->
-    <section class="asset-card asset-slots-card">
-      <div class="asset-card-header">
-        <div class="asset-card-title">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
-          <span>Слоты Карточки</span>
-        </div>
-        <div class="asset-card-actions">
-          <button class="btn btn-sample-load" id="loadSampleActorBtn" title="Загрузить тестового актера из фото">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="m9 8 3 3 3-3"/><path d="m9 16 3-3 3 3"/></svg>
-            <span>Пример</span>
-          </button>
-          <button class="btn btn-clear-all" id="clearAllSlotsBtn" title="Очистить все слоты">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-            <span>Очистить всё</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- Reference Slots Grid (4-column horizontal layout) -->
-      <div class="ref-slots-grid">
-        <!-- Slot 1: Face (1:1 1024x1024) -->
-        <div class="ref-slot-item">
-          <div class="ref-slot-header">
-            <div class="ref-slot-name">Портрет / Лицо</div>
-            <button class="btn-slot-icon btn-danger" id="clearBtn_face" title="Очистить слот">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-            </button>
-          </div>
-          <div class="ref-slot-dropzone" id="dropzone_face">
-            <div class="dropzone-empty" id="dropzoneEmpty_face">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-              <span class="dropzone-empty-text">Фото лица (анфас)</span>
-              <span class="dropzone-empty-hint">Квадрат 1:1 • Без обрезки подбородка</span>
-            </div>
-            <div class="slot-canvas-wrap" id="slotCanvasWrap_face">
-              <canvas class="slot-preview-canvas" id="slotCanvas_face"></canvas>
-              <div class="slot-guide-overlay">
-                <div class="guide-face-oval"></div>
-              </div>
-            </div>
-          </div>
-          <input type="file" id="fileInput_face" class="slot-file-input" accept="image/*">
-          <div class="ref-slot-controls">
-            <div class="slot-slider-group">
-              <span class="slot-slider-label">Зум</span>
-              <input type="range" class="slot-zoom-slider" id="zoomSlider_face" min="0.5" max="3" step="0.05" value="1.0">
-            </div>
-            <span class="ref-slot-spec">Квадрат 1024px</span>
-          </div>
-        </div>
-
-        <!-- Slot 2: Full Body (9:16) -->
-        <div class="ref-slot-item">
-          <div class="ref-slot-header">
-            <div class="ref-slot-name">Полный рост</div>
-            <button class="btn-slot-icon btn-danger" id="clearBtn_fullbody" title="Очистить слот">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-            </button>
-          </div>
-          <div class="ref-slot-dropzone" id="dropzone_fullbody">
-            <div class="dropzone-empty" id="dropzoneEmpty_fullbody">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-              <span class="dropzone-empty-text">В полный рост</span>
-              <span class="dropzone-empty-hint">Силуэт, пропорции, одежда и обувь</span>
-            </div>
-            <div class="slot-canvas-wrap" id="slotCanvasWrap_fullbody">
-              <canvas class="slot-preview-canvas" id="slotCanvas_fullbody"></canvas>
-              <div class="slot-guide-overlay">
-                <div class="guide-body-frame"></div>
-              </div>
-            </div>
-          </div>
-          <input type="file" id="fileInput_fullbody" class="slot-file-input" accept="image/*">
-          <div class="ref-slot-controls">
-            <div class="slot-slider-group">
-              <span class="slot-slider-label">Зум</span>
-              <input type="range" class="slot-zoom-slider" id="zoomSlider_fullbody" min="0.5" max="3" step="0.05" value="1.0">
-            </div>
-            <span class="ref-slot-spec">Вертикаль 9:16</span>
-          </div>
-        </div>
-
-        <!-- Slot 3: Detail / Profile (1:1) -->
-        <div class="ref-slot-item">
-          <div class="ref-slot-header">
-            <div class="ref-slot-name">Деталь / Принт / Профиль</div>
-            <button class="btn-slot-icon btn-danger" id="clearBtn_detail" title="Очистить слот">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-            </button>
-          </div>
-          <div class="ref-slot-dropzone" id="dropzone_detail">
-            <div class="dropzone-empty" id="dropzoneEmpty_detail">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="m10 15 5-3-5-3v6Z"/></svg>
-              <span class="dropzone-empty-text">Принт, аксессуар, обувь</span>
-              <span class="dropzone-empty-hint">Характерная примета или профиль</span>
-            </div>
-            <div class="slot-canvas-wrap" id="slotCanvasWrap_detail">
-              <canvas class="slot-preview-canvas" id="slotCanvas_detail"></canvas>
-            </div>
-          </div>
-          <input type="file" id="fileInput_detail" class="slot-file-input" accept="image/*">
-          <div class="ref-slot-controls">
-            <div class="slot-slider-group">
-              <span class="slot-slider-label">Зум</span>
-              <input type="range" class="slot-zoom-slider" id="zoomSlider_detail" min="0.5" max="3" step="0.05" value="1.0">
-            </div>
-            <span class="ref-slot-spec">Деталь 1:1</span>
-          </div>
-        </div>
-
-        <!-- Slot 4: Location / Environment (16:9) -->
-        <div class="ref-slot-item">
-          <div class="ref-slot-header">
-            <div class="ref-slot-name">Локация / Окружение</div>
-            <button class="btn-slot-icon btn-danger" id="clearBtn_location" title="Очистить слот">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-            </button>
-          </div>
-          <div class="ref-slot-dropzone" id="dropzone_location">
-            <div class="dropzone-empty" id="dropzoneEmpty_location">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/></svg>
-              <span class="dropzone-empty-text">Фото локации без людей</span>
-              <span class="dropzone-empty-hint">Свет, цветовая гамма и фон</span>
-            </div>
-            <div class="slot-canvas-wrap" id="slotCanvasWrap_location">
-              <canvas class="slot-preview-canvas" id="slotCanvas_location"></canvas>
-            </div>
-          </div>
-          <input type="file" id="fileInput_location" class="slot-file-input" accept="image/*">
-          <div class="ref-slot-controls">
-            <div class="slot-slider-group">
-              <span class="slot-slider-label">Зум</span>
-              <input type="range" class="slot-zoom-slider" id="zoomSlider_location" min="0.5" max="3" step="0.05" value="1.0">
-            </div>
-            <span class="ref-slot-spec">Пейзаж 16:9</span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- BOTTOM ZONE: GRAPHIC PRODUCTION CARD -->
-    <section class="asset-card asset-production-card">
-      <div class="asset-card-header">
-        <div class="asset-card-title">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
-          <span>Графическая Карточка (2K)</span>
-        </div>
-        <div class="comfy-status-pill" id="comfyStatusPill" title="Статус локального ComfyUI (порт 8188) из Minimax Studio">
-          <span class="comfy-status-dot"></span>
-          <span id="comfyStatusText">ComfyUI: Проверка</span>
-        </div>
-      </div>
-
-      <div class="card-canvas-preview-wrap">
-        <div class="card-canvas-preview-header">
-          <span>PREVIEW (2048 x 1152 PX)</span>
-          <span class="card-resolution-badge">2K CANONICAL SHEET</span>
-        </div>
-        <canvas class="card-display-canvas" id="cardDisplayCanvas"></canvas>
-      </div>
-
-      <!-- Export Actions Grid -->
-      <div class="export-actions-grid">
-        <button class="btn-export-primary" id="downloadCardBtn" type="button">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          <span>Скачать карточку (PNG)</span>
-        </button>
-        <button class="btn-export-secondary" id="downloadRefsBtn" type="button" title="Скачать отдельные чистые файлы: 1024px лицо, рост, деталь, локация">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.29 7 12 12 20.71 7"/><line x1="12" y1="22" x2="12" y2="12"/></svg>
-          <span>Скачать кадры</span>
-        </button>
-      </div>
-    </section>
-
-  </main>
   <div class="drawer-backdrop" id="galleryDrawer">
     <div class="drawer-card">
       <div class="drawer-header">
@@ -1130,6 +935,5 @@
 
   <!-- Scripts -->
   <script src="app.js?v=6.5"></script>
-  <script src="asset-ref-studio.js?v=1.0"></script>
 </body>
 </html>
