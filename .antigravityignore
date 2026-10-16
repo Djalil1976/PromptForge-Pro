@@ -1,0 +1,19 @@
+# Исключаем тяжелые медиа-файлы и демо-ролики
+assets/
+samples/
+motions/
+lighting/
+styles/
+colors/
+cameras/
+lenses/
+
+# Исключаем бинарники десктопного окружения (если проект обернут в Electron/Tauri)
+node_modules/
+dist/
+build/
+src-tauri/target/
+
+# Исключаем логи локального ComfyUI (порт 8188)
+comfy_logs/
+outputs/
