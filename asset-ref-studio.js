@@ -23,7 +23,7 @@
         aspect: 1, // 1:1 square
         outWidth: 1024,
         outHeight: 1024,
-        tag: '@Image1 // <Picture 1>',
+        tag: '',
         title: 'Портрет / Лицо (1:1, 1024px)'
       },
       fullbody: {
@@ -35,7 +35,7 @@
         aspect: 9 / 16,
         outWidth: 1080,
         outHeight: 1920,
-        tag: '@Image2 // <Picture 2>',
+        tag: '',
         title: 'Полный рост (Анфас, 9:16)'
       },
       detail: {
@@ -47,7 +47,7 @@
         aspect: 1,
         outWidth: 1024,
         outHeight: 1024,
-        tag: '@Image3 // <Picture 3>',
+        tag: '',
         title: 'Деталь / Принт / Профиль (1:1)'
       },
       location: {
@@ -59,7 +59,7 @@
         aspect: 16 / 9,
         outWidth: 1920,
         outHeight: 1080,
-        tag: '<Location 1> // @Image4',
+        tag: '',
         title: 'Локация / Окружение сцены (16:9)'
       }
     }
@@ -245,7 +245,7 @@
         renderMasterCard();
 
         if (window.showToast) {
-          window.showToast(`Референс загружен: ${ASSET_STATE.slots[slotId].tag}`, 'success');
+          window.showToast(`Фото загружено в слот: ${ASSET_STATE.slots[slotId].title}`, 'success');
         }
       };
       img.src = e.target.result;
@@ -294,7 +294,7 @@
     renderMasterCard();
 
     if (window.showToast) {
-      window.showToast('Все слоты референсов очищены', 'info');
+      window.showToast('Все слоты очищены', 'info');
     }
   }
 
@@ -366,7 +366,7 @@
           extractColorPalette();
           renderMasterCard();
           if (window.showToast) {
-            window.showToast('Демо-референсы успешно загружены во все 4 слота!', 'success');
+            window.showToast('Демо-фото успешно загружены во все 4 слота!', 'success');
           }
         }
       };
@@ -486,131 +486,52 @@
     // Corner Brackets
     drawCornerBrackets(ctx, 32, 32, 2048 - 64, 1152 - 64, 28, 4);
 
-    // 2. Header
-    ctx.fillStyle = '#f59e0b';
-    ctx.font = '700 32px "JetBrains Mono", monospace';
-    ctx.fillText('PROMPTFORGE PRO // PRODUCTION REFERENCE SHEET', 64, 88);
+    // 2. Four Prominent Reference Slots across the canvas (Vertically Centered)
+    const totalSlotH = 730;
+    const startY = Math.round((1152 - totalSlotH) / 2); // 211px
 
-    ctx.fillStyle = '#a1a1aa';
-    ctx.font = '500 17px "Roboto", sans-serif';
-    ctx.fillText('CANONICAL MULTI-ANGLE REFERENCE PACKAGE // MINIMAX H3 (REF2VA) • GOOGLE VEO 3.1 • OMNI FLASH', 64, 118);
-
-    // Header Right Meta
-    ctx.textAlign = 'right';
-    ctx.fillStyle = '#f4f4f6';
-    ctx.font = '700 24px "JetBrains Mono", monospace';
-    ctx.fillText(`ASSET ID: ${ASSET_STATE.id || 'REF_01'}`, 2048 - 64, 88);
-    ctx.fillStyle = '#d97706';
-    ctx.font = '600 16px "JetBrains Mono", monospace';
-    ctx.fillText(new Date().toISOString().split('T')[0] + ' // 2048×1152 MASTER', 2048 - 64, 116);
-    ctx.textAlign = 'left';
-
-    // Header Separator Line
-    ctx.strokeStyle = 'rgba(217, 119, 6, 0.4)';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(64, 138);
-    ctx.lineTo(2048 - 64, 138);
-    ctx.stroke();
-
-    // 3. Four Prominent Reference Slots across the canvas
     // Slot 1: Face Anchor (1:1 Square)
     const s1X = 64;
-    const s1Y = 165;
+    const s1Y = startY;
     const s1W = 540;
     const s1H = 540;
-    drawSlotOnCard(ctx, 'face', s1X, s1Y, s1W, s1H, '@Image1 // <Picture 1>', 'PORTRAIT & FACIAL GEOMETRY (1024×1024)');
+    drawSlotOnCard(ctx, 'face', s1X, s1Y, s1W, s1H, '', 'ПОРТРЕТ / ЛИЦО (1024×1024)');
 
     // Slot 1 Technical Sub-Card
     const sub1Y = s1Y + s1H + 16;
-    const sub1H = 175;
-    drawSpecBlock(ctx, s1X, sub1Y, s1W, sub1H, 'FACE RETENTION DIRECTIVE', 'Strict 1:1 facial identity lock to @Image1: preserve exact eye shape, eyelid folds, natural under-eye contours, nose bridge geometry, authentic bone structure, beard grooming and skin micro-texture without AI beautification.');
+    const sub1H = 174;
+    drawSpecBlock(ctx, s1X, sub1Y, s1W, sub1H, 'ФИКСАЦИЯ ЛИЦА (IDENTITY LOCK)', 'Strict 1:1 facial identity lock: preserve exact eye shape, eyelid folds, natural under-eye contours, nose bridge geometry, authentic bone structure, beard grooming and skin micro-texture without AI beautification.');
 
     // Slot 2: Full Body & Posture (9:16 Vertical)
     const s2X = s1X + s1W + 24; // 628
-    const s2Y = 165;
+    const s2Y = startY;
     const s2W = 410;
     const s2H = 730; // 410 * 16 / 9 ≈ 729
-    drawSlotOnCard(ctx, 'fullbody', s2X, s2Y, s2W, s2H, '@Image2 // <Picture 2>', 'FULL BODY & OUTFIT (1080×1920)');
+    drawSlotOnCard(ctx, 'fullbody', s2X, s2Y, s2W, s2H, '', 'ПОЛНЫЙ РОСТ (1080×1920)');
 
     // Slot 3: Detail / Print / Profile (1:1 Square)
     const s3X = s2X + s2W + 24; // 1062
-    const s3Y = 165;
+    const s3Y = startY;
     const s3W = 410;
     const s3H = 410;
-    drawSlotOnCard(ctx, 'detail', s3X, s3Y, s3W, s3H, '@Image3 // <Picture 3>', 'DETAIL & PRINTS (1024×1024)');
+    drawSlotOnCard(ctx, 'detail', s3X, s3Y, s3W, s3H, '', 'ДЕТАЛЬ И ПРИНТ (1024×1024)');
 
     // Slot 3 Technical Sub-Card
     const sub3Y = s3Y + s3H + 16;
     const sub3H = 304;
-    drawSpecBlock(ctx, s3X, sub3Y, s3W, sub3H, 'TEXTURE & ACCESSORIES SPECIFICATION', 'Tactile micro-detail preservation: garment cotton weave, crisp typography & graphic print geometry, wristwear/watch craftsmanship, footwear texture, natural shadow rolloff.');
+    drawSpecBlock(ctx, s3X, sub3Y, s3W, sub3H, 'ФАКТУРА И ДЕТАЛИЗАЦИЯ', 'Tactile micro-detail preservation: garment cotton weave, crisp typography & graphic print geometry, wristwear/watch craftsmanship, footwear texture, natural shadow rolloff.');
 
     // Slot 4: Location / Environment (16:9 Landscape)
     const s4X = s3X + s3W + 24; // 1496
-    const s4Y = 165;
+    const s4Y = startY;
     const s4W = 488;
     const s4H = 275; // 488 * 9 / 16 ≈ 275
-    drawSlotOnCard(ctx, 'location', s4X, s4Y, s4W, s4H, '<Location 1> // @Image4', 'ENVIRONMENT & LIGHTING (1920×1080)');
+    drawSlotOnCard(ctx, 'location', s4X, s4Y, s4W, s4H, '', 'ОКРУЖЕНИЕ И СВЕТ (1920×1080)');
 
     // Slot 4 Technical Sub-Card
     const sub4Y = s4Y + s4H + 16;
     const sub4H = 439;
-    drawSpecBlock(ctx, s4X, sub4Y, s4W, sub4H, 'CINEMATOGRAPHY & LIGHTING ARCHITECTURE', 'Spatial background geometry: directional key lighting, volumetric atmospheric falloff, authentic optical focal depth blur, organic color grading harmonized to scene references.');
-
-    // 4. Bottom Zone: Palette & Target Models (y = 930 to 1100)
-    const bottomY = 940;
-
-    // Palette Bar
-    ctx.fillStyle = '#a1a1aa';
-    ctx.font = '700 14px "JetBrains Mono", monospace';
-    ctx.fillText('COLOR PALETTE HARMONY (AUTO-EXTRACTED FROM REFS):', 64, bottomY);
-
-    ASSET_STATE.palette.forEach((color, idx) => {
-      const px = 64 + idx * 185;
-      const py = bottomY + 16;
-
-      ctx.fillStyle = color;
-      ctx.beginPath();
-      ctx.roundRect(px, py, 165, 46, 8);
-      ctx.fill();
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
-      ctx.lineWidth = 1;
-      ctx.stroke();
-
-      ctx.fillStyle = getContrastColor(color);
-      ctx.font = '700 13px "JetBrains Mono", monospace';
-      ctx.fillText(color.toUpperCase(), px + 38, py + 29);
-    });
-
-    // Model Compatibility Badges
-    const badgeStartX = 1062;
-    ctx.fillStyle = '#a1a1aa';
-    ctx.font = '700 14px "JetBrains Mono", monospace';
-    ctx.fillText('AI VIDEO MODELS REFERENCE SUPPORT:', badgeStartX, bottomY);
-
-    const badges = [
-      { name: 'MINIMAX H3 REF2VA', status: 'NATIVE 1:1' },
-      { name: 'GOOGLE VEO 3.1', status: 'ANCHOR READY' },
-      { name: 'GEMINI OMNI FLASH', status: 'COMPATIBLE' },
-      { name: 'WAN 2.1 / KLING', status: 'SUPPORTED' }
-    ];
-
-    badges.forEach((b, i) => {
-      const bx = badgeStartX + i * 228;
-      const by = bottomY + 16;
-
-      ctx.fillStyle = '#14141c';
-      ctx.beginPath();
-      ctx.roundRect(bx, by, 216, 46, 6);
-      ctx.fill();
-      ctx.strokeStyle = 'rgba(217, 119, 6, 0.45)';
-      ctx.lineWidth = 1.2;
-      ctx.stroke();
-
-      ctx.fillStyle = '#f59e0b';
-      ctx.font = '700 12px "JetBrains Mono", monospace';
-      ctx.fillText(b.name, bx + 12, by + 28);
-    });
+    drawSpecBlock(ctx, s4X, sub4Y, s4W, sub4H, 'СВЕТ И ОКРУЖЕНИЕ', 'Spatial background geometry: directional key lighting, volumetric atmospheric falloff, authentic optical focal depth blur, organic color grading harmonized to scene references.');
 
     // 5. Draw to visible preview canvas (scales responsively)
     const parentW = previewCanvas.parentElement.clientWidth || 1000;
@@ -680,7 +601,7 @@
       ctx.textAlign = 'center';
       ctx.fillText('[ СЛОТ НЕ ЗАПОЛНЕН ]', x + w / 2, y + h / 2 - 10);
       ctx.font = '400 13px "JetBrains Mono", monospace';
-      ctx.fillText('Перетащите фото в слот референса', x + w / 2, y + h / 2 + 16);
+      ctx.fillText('Перетащите фото в этот слот', x + w / 2, y + h / 2 + 16);
       ctx.textAlign = 'left';
     }
 
@@ -697,18 +618,20 @@
     ctx.lineTo(x + w / 2, y + h / 2 + 12);
     ctx.stroke();
 
-    // Top Tag Overlay Pill
-    ctx.fillStyle = 'rgba(10, 11, 16, 0.9)';
-    ctx.beginPath();
-    ctx.roundRect(x + 10, y + 10, 220, 28, 4);
-    ctx.fill();
-    ctx.strokeStyle = 'rgba(217, 119, 6, 0.5)';
-    ctx.lineWidth = 1;
-    ctx.stroke();
+    // Top Tag Overlay Pill (only rendered if tag is provided)
+    if (tag) {
+      ctx.fillStyle = 'rgba(10, 11, 16, 0.9)';
+      ctx.beginPath();
+      ctx.roundRect(x + 10, y + 10, 220, 28, 4);
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(217, 119, 6, 0.5)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
 
-    ctx.fillStyle = '#f59e0b';
-    ctx.font = '700 12px "JetBrains Mono", monospace';
-    ctx.fillText(tag, x + 18, y + 29);
+      ctx.fillStyle = '#f59e0b';
+      ctx.font = '700 12px "JetBrains Mono", monospace';
+      ctx.fillText(tag, x + 18, y + 29);
+    }
 
     // Bottom Title Bar
     ctx.fillStyle = 'rgba(10, 11, 16, 0.9)';
@@ -849,7 +772,7 @@
 
     if (downloadedCount > 0) {
       if (window.showToast) {
-        window.showToast(`Выгрузка ${downloadedCount} файлов референсов запущена!`, 'success');
+        window.showToast(`Выгрузка ${downloadedCount} файлов запущена!`, 'success');
       }
     } else {
       if (window.showToast) {
