@@ -636,8 +636,26 @@ const el = {
 
 async function init() {
   try {
-    const response = await fetch('presets.json');
-    const presets = await response.json();
+    let presets = null;
+
+    // 1. Try standard fetch (works when served over HTTP/HTTPS)
+    try {
+      const response = await fetch('presets.json');
+      if (response && response.ok) {
+        presets = await response.json();
+      }
+    } catch (fetchErr) {
+      console.warn('Local fetch("presets.json") blocked by browser CORS policy (expected under file:/// protocol). Falling back to window.PRESETS_DATA:', fetchErr);
+    }
+
+    // 2. Seamless fallback to window.PRESETS_DATA (loaded via presets.js for file:/// protocol)
+    if (!presets && typeof window !== 'undefined' && window.PRESETS_DATA) {
+      presets = window.PRESETS_DATA;
+    }
+
+    if (!presets) {
+      throw new Error('Presets data could not be loaded via fetch or window.PRESETS_DATA fallback.');
+    }
 
     CAMERA_BODIES = presets.CAMERA_BODIES || [];
     LENSES = presets.LENSES || [];
