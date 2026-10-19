@@ -1833,29 +1833,59 @@ function cleanBuzzwords(text) {
     .trim();
 }
 
+function detectDialogue(text) {
+  if (!text) return false;
+  const str = String(text);
+  if (/(?:["«“][^"»”\r\n]{3,}["»”])/.test(str)) return true;
+  if (/\b(speaks?|spoken|speaking|says?|saying|utters?|uttering|pronounces?|pronouncing|dialogue|monologue|voiceover|voice-over|recites?)\b/i.test(str)) return true;
+  if (/(произносит|говорит|скажет|речь|фразы|слова|монолог|диалог|озвучк|голос за кадром|реплик)/i.test(str)) return true;
+  if (/(?:english|phrases?|quotes?|words?|фразы|слова|речь)\s*:\s*\S+/i.test(str)) return true;
+  return false;
+}
+
 function generateOmniSoundscape(idea, motionId) {
   const text = (idea || '').toLowerCase();
-  if (text.includes('лофт') || text.includes('loft') || text.includes('ремонт') || text.includes('renovation') || text.includes('интерьер') || text.includes('interior') || text.includes('таймлапс') || text.includes('timelapse') || text.includes('living space') || text.includes('комнат') || text.includes('architectur')) {
-    return 'Natural room tone: subtle interior room acoustics, gentle synchronized timelapse assembly Foley, soft wood and metallic placement resonance, no dialogue';
+
+  // 1. Truck Stop / Heavy Highway / Logistics / Desert Roadside
+  if (/\b(trucks?|semi-trucks?|lorry|lorries|truck stop|diesel|highway|freeway|interstate|parking lot|arizona|desert|trailer)\b/i.test(text) || /(трак[а-я]*|фур[а-я]*|тягач[а-я]*|стоянк[а-я]*|грузовик[а-я]*|дизел[а-я]*|автомагистрал[а-я]*|аризон[а-я]*|пустын[а-я]*)/i.test(text)) {
+    return 'Heavy diesel engine idle rumble, low-frequency semi-truck reverberation, distant highway traffic hum, subtle desert wind rustle across open asphalt lot';
   }
-  if (text.includes('дожд') || text.includes('rain') || text.includes('луж') || text.includes('wet')) {
-    return 'Gentle rhythmic rain patter on surfaces, distant wet street tire whoosh, atmospheric binaural acoustics';
-  }
-  if (text.includes('авто') || text.includes('машин') || text.includes('car') || text.includes('highway') || text.includes('киберпанк') || text.includes('cyberpunk') || text.includes('суперкар')) {
+
+  // 2. Automotive / High-Speed / Cyberpunk
+  if (/\b(cars?|automobile\w*|vehicles?|traffic|supercars?|cyberpunk|motorcycle\w*|drift\w*|sports\s*car)\b/i.test(text) || /(автомобил[а-я]*|машин[а-я]*|суперкар[а-я]*|киберпанк[а-я]*|трафик[а-я]*|мотоцикл[а-я]*|гонк[а-я]*|дрифт[а-я]*)/i.test(text)) {
     return 'Deep throaty engine resonance, tire road friction, subtle futuristic electronic synthesizer drone, stereo panning';
   }
-  if (text.includes('лес') || text.includes('природ') || text.includes('forest') || text.includes('дерев') || text.includes('ветер') || text.includes('wind') || text.includes('листь')) {
+
+  // 3. Loft / Renovation / Interior Architecture
+  if (/\b(loft\w*|renovation\w*|interior\w*|timelapse\w*|living\s*space|architecture\w*|apartment\w*)\b/i.test(text) || /(лофт[а-я]*|ремонт[а-я]*|интерьер[а-я]*|таймлапс[а-я]*|жилое\s*пространств[а-я]*|квартир[а-я]*|архитектур[а-я]*)/i.test(text)) {
+    return 'Natural room tone: subtle interior room acoustics, gentle synchronized timelapse assembly Foley, soft wood and metallic placement resonance';
+  }
+
+  // 4. Rain / Wet Streets / Storm
+  if (/\b(rains?|raining|rainy|rainfall|downpour|puddles?|thunderstorm|stormy?)\b/i.test(text) || /(дожд[а-я]*|ливн[а-я]*|ливень\b|луж[аеиыу]\b|гроз[а-я]*|непогод[а-я]*)/i.test(text)) {
+    return 'Gentle rhythmic rain patter on surfaces, distant wet street tire whoosh, atmospheric binaural acoustics';
+  }
+
+  // 5. Nature / Forest / Foliage
+  if (/\b(forest\w*|woods?\b|jungle\w*|nature\b|trees?\b|foliage\b|leaves\b|waterfall\w*)\b/i.test(text) || /(лес\b|лесн[а-я]*|деревь[а-я]*|природ[а-я]*|джунгл[а-я]*|рощ[а-я]*|водопад[а-я]*)/i.test(text)) {
     return 'Organic nature ambiance: whispering wind rustling through foliage, crisp twigs, distant bird calls, pristine spatial acoustics';
   }
-  if (text.includes('океан') || text.includes('пляж') || text.includes('мор') || text.includes('ocean') || text.includes('sea') || text.includes('wave') || text.includes('волн')) {
+
+  // 6. Ocean / Beach / Coastal Waters (Strict word boundary to avoid matching "seats", "season", "search", "юмор")
+  if (/\b(ocean\w*|sea\b|seas\b|beach\w*|coastal\w*|coast\b|shoreline\w*|shore\b|waves?\b|surf\b|seabirds?)\b/i.test(text) || /(океан[а-я]*|море\b|моря\b|морем\b|морск[а-я]*|побережь[а-я]*|пляж[а-я]*|прибо[йя][а-я]*|морск[а-я]* волн[а-я]*)/i.test(text)) {
     return 'Rhythmic ocean surf crashing on shoreline, refreshing sea spray, distant coastal seabirds, expansive panoramic acoustics';
   }
-  if (text.includes('город') || text.includes('токио') || text.includes('street') || text.includes('city') || text.includes('улиц') || text.includes('кофейн') || text.includes('cafe')) {
+
+  // 7. City / Urban / Cafe
+  if (/\b(city\b|cities\b|urban\b|street\w*|downtown\b|tokyo\b|cafe\b|coffee\s*shop|pedestrians?)\b/i.test(text) || /(город[а-я]*|улиц[а-я]*|токио|кофейн[а-я]*|кафе\b|пешеход[а-я]*|мегаполис[а-я]*)/i.test(text)) {
     return 'Rich urban environmental soundscape: gentle city rumble, muffled passing pedestrians, distant sirens, authentic spatial reverb';
   }
-  if (/\b(outer space|deep space|cosmos|cosmic void|galaxy|interstellar|astronaut|spacesuit)\b/i.test(text) || text.includes('космос') || text.includes('планет') || text.includes('астронавт')) {
+
+  // 8. Outer Space / Cosmos
+  if (/\b(outer space|deep space|cosmos|cosmic void|galaxy|interstellar|astronaut|spacesuit)\b/i.test(text) || /(космос[а-я]*|планет[а-я]*|астронавт[а-я]*|орбит[а-я]*|галактик[а-я]*)/i.test(text)) {
     return 'Ethereal cosmic sound design: low frequency sub-bass vibration, muffled spacesuit telemetry, deep interstellar drone';
   }
+
   if (motionId === 'fpv-drone') {
     return 'High-speed dynamic audio: rushing aerodynamic wind shear, high-pitch drone turbine harmonics, rapid Doppler shifts';
   }
@@ -1865,30 +1895,34 @@ function generateOmniSoundscape(idea, motionId) {
   return 'Authentic ambient environmental acoustics, crisp synchronized Foley textures, natural acoustic presence';
 }
 
-function generateVeoAudio(idea, motionId) {
+function generateVeoAudio(idea, motionId, hasDialogue = false) {
   const text = (idea || '').toLowerCase();
   let ambient = 'ambient environmental acoustics, natural room presence';
   let sfx = 'synchronized diegetic Foley movement';
 
-  if (text.includes('лофт') || text.includes('loft') || text.includes('ремонт') || text.includes('renovation') || text.includes('интерьер') || text.includes('interior') || text.includes('таймлапс') || text.includes('timelapse') || text.includes('living space') || text.includes('комнат') || text.includes('architectur')) {
-    ambient = 'warm architectural interior room tone, subtle natural room acoustics';
-    sfx = 'rhythmic timelapse assembly Foley, soft wood and metallic placement resonance';
-  } else if (text.includes('дожд') || text.includes('rain') || text.includes('луж') || text.includes('wet')) {
-    ambient = 'steady rain patter falling on surfaces, distant wet pavement tire whoosh';
-    sfx = 'footsteps splashing through puddles, water droplets dripping from edges';
-  } else if (text.includes('авто') || text.includes('машин') || text.includes('car') || text.includes('highway') || text.includes('суперкар') || text.includes('road')) {
+  // 1. Truck Stop / Heavy Highway / Logistics / Desert Roadside
+  if (/\b(trucks?|semi-trucks?|lorry|lorries|truck stop|diesel|highway|freeway|interstate|parking lot|arizona|desert|trailer)\b/i.test(text) || /(трак[а-я]*|фур[а-я]*|тягач[а-я]*|стоянк[а-я]*|грузовик[а-я]*|дизел[а-я]*|автомагистрал[а-я]*|аризон[а-я]*|пустын[а-я]*)/i.test(text)) {
+    ambient = 'distant highway traffic whoosh, dry desert wind breeze across vast open asphalt, spacious industrial roadside ambiance';
+    sfx = 'deep throaty diesel engine idling, air brake hiss release, footsteps on dry gravel and asphalt';
+  } else if (/\b(cars?|automobile\w*|vehicles?|traffic|supercars?|cyberpunk|motorcycle\w*|drift\w*|sports\s*car)\b/i.test(text) || /(автомобил[а-я]*|машин[а-я]*|суперкар[а-я]*|киберпанк[а-я]*|трафик[а-я]*|мотоцикл[а-я]*|гонк[а-я]*|дрифт[а-я]*)/i.test(text)) {
     ambient = 'highway wind rush, distant city hum, asphalt road friction';
     sfx = 'deep throaty engine acceleration, tire screech on pavement';
-  } else if (text.includes('лес') || text.includes('природ') || text.includes('forest') || text.includes('дерев') || text.includes('ветер') || text.includes('wind') || text.includes('водопад')) {
+  } else if (/\b(loft\w*|renovation\w*|interior\w*|timelapse\w*|living\s*space|architecture\w*|apartment\w*)\b/i.test(text) || /(лофт[а-я]*|ремонт[а-я]*|интерьер[а-я]*|таймлапс[а-я]*|жилое\s*пространств[а-я]*|квартир[а-я]*|архитектур[а-я]*)/i.test(text)) {
+    ambient = 'warm architectural interior room tone, subtle natural room acoustics';
+    sfx = 'rhythmic timelapse assembly Foley, soft wood and metallic placement resonance';
+  } else if (/\b(rains?|raining|rainy|rainfall|downpour|puddles?|thunderstorm|stormy?)\b/i.test(text) || /(дожд[а-я]*|ливн[а-я]*|ливень\b|луж[аеиыу]\b|гроз[а-я]*|непогод[а-я]*)/i.test(text)) {
+    ambient = 'steady rain patter falling on surfaces, distant wet pavement tire whoosh';
+    sfx = 'footsteps splashing through puddles, water droplets dripping from edges';
+  } else if (/\b(forest\w*|woods?\b|jungle\w*|nature\b|trees?\b|foliage\b|leaves\b|waterfall\w*)\b/i.test(text) || /(лес\b|лесн[а-я]*|деревь[а-я]*|природ[а-я]*|джунгл[а-я]*|рощ[а-я]*|водопад[а-я]*)/i.test(text)) {
     ambient = 'mountain breeze rustling through leafy trees, distant bird chirps';
     sfx = 'twigs snapping underfoot, rushing waterfall cascade acoustics';
-  } else if (text.includes('океан') || text.includes('пляж') || text.includes('мор') || text.includes('ocean') || text.includes('sea') || text.includes('волна') || text.includes('волн')) {
+  } else if (/\b(ocean\w*|sea\b|seas\b|beach\w*|coastal\w*|coast\b|shoreline\w*|shore\b|waves?\b|surf\b|seabirds?)\b/i.test(text) || /(океан[а-я]*|море\b|моря\b|морем\b|морск[а-я]*|побережь[а-я]*|пляж[а-я]*|прибо[йя][а-я]*|морск[а-я]* волн[а-я]*)/i.test(text)) {
     ambient = 'rhythmic ocean surf rolling onto sand, breezy coastal atmosphere';
     sfx = 'seafoam sizzle, water spray splashing on coastal sea rocks';
-  } else if (text.includes('город') || text.includes('улиц') || text.includes('street') || text.includes('city') || text.includes('токио') || text.includes('кофейн')) {
+  } else if (/\b(city\b|cities\b|urban\b|street\w*|downtown\b|tokyo\b|cafe\b|coffee\s*shop|pedestrians?)\b/i.test(text) || /(город[а-я]*|улиц[а-я]*|токио|кофейн[а-я]*|кафе\b|пешеход[а-я]*|мегаполис[а-я]*)/i.test(text)) {
     ambient = 'bustling nocturnal city soundscape, distant sirens, low frequency city rumble';
     sfx = 'muffled pedestrian footsteps, coffee cup clinking on saucer, neon sign electrical hum';
-  } else if (/\b(outer space|deep space|cosmos|cosmic void|galaxy|interstellar|astronaut|spacesuit)\b/i.test(text) || text.includes('космос') || text.includes('планет') || text.includes('астронавт')) {
+  } else if (/\b(outer space|deep space|cosmos|cosmic void|galaxy|interstellar|astronaut|spacesuit)\b/i.test(text) || /(космос[а-я]*|планет[а-я]*|астронавт[а-я]*|орбит[а-я]*|галактик[а-я]*)/i.test(text)) {
     ambient = 'deep ethereal cosmic void drone, low sub-bass vibration';
     sfx = 'spacesuit internal telemetry beeps, pressurized air hiss';
   }
@@ -1897,10 +1931,14 @@ function generateVeoAudio(idea, motionId) {
     sfx = 'high-speed aerodynamic wind shear, high-pitch drone propeller turbine whine';
   }
 
+  const dialogueText = hasDialogue
+    ? 'Synchronized clear English speech delivery with natural vocal cadence'
+    : 'No dialogue';
+
   return {
     ambient,
     sfx,
-    fullAudioText: `Ambient soundscape: ${ambient}. Synchronized SFX: ${sfx}. Dialogue: No dialogue`
+    fullAudioText: `Ambient soundscape: ${ambient}. Synchronized SFX: ${sfx}. Dialogue: ${dialogueText}`
   };
 }
 
@@ -2024,7 +2062,8 @@ function compileVeo31(ctx) {
     return { masterPrompt: '', sections: [] };
   }
 
-  const audio = generateVeoAudio(ctx.baseDescription, ctx.activeMotion?.id);
+  const hasDialogue = detectDialogue(ctx.rawIdea) || detectDialogue(ctx.baseDescription);
+  const audio = generateVeoAudio(ctx.baseDescription, ctx.activeMotion?.id, hasDialogue);
   const durStr = ctx.activeDur ? ctx.activeDur.id : '8s';
   const aspectStr = ctx.activeAspect ? ctx.activeAspect.id : '16:9';
 
@@ -2068,10 +2107,18 @@ function compileVeo31(ctx) {
   }
 
   masterParts.push(`. Audio: ${audio.fullAudioText}`);
-  if (state.identityLock) {
-    masterParts.push(`. 1080p crisp master, 24fps, single unbroken take, no sudden scene cuts, no dialogue, no watermark, ${IDENTITY_LOCK_CONSTRAINTS}.`);
+  if (hasDialogue) {
+    if (state.identityLock) {
+      masterParts.push(`. 1080p crisp master, 24fps, single unbroken take, no sudden scene cuts, authentic lip synchronization, no watermark, ${IDENTITY_LOCK_CONSTRAINTS}.`);
+    } else {
+      masterParts.push(`. 1080p crisp master, 24fps, single unbroken take, no sudden scene cuts, authentic lip synchronization, no watermark.`);
+    }
   } else {
-    masterParts.push(`. 1080p crisp master, 24fps, single unbroken take, no sudden scene cuts, no dialogue, no watermark.`);
+    if (state.identityLock) {
+      masterParts.push(`. 1080p crisp master, 24fps, single unbroken take, no sudden scene cuts, no dialogue, no watermark, ${IDENTITY_LOCK_CONSTRAINTS}.`);
+    } else {
+      masterParts.push(`. 1080p crisp master, 24fps, single unbroken take, no sudden scene cuts, no dialogue, no watermark.`);
+    }
   }
 
   const masterPrompt = masterParts.join('');
@@ -2173,6 +2220,7 @@ function compileOmniFlash(ctx) {
     return { masterPrompt: '', sections: [] };
   }
 
+  const hasDialogue = detectDialogue(ctx.rawIdea) || detectDialogue(ctx.baseDescription);
   const soundDesign = generateOmniSoundscape(ctx.baseDescription, ctx.activeMotion?.id);
   const durStr = ctx.activeDur ? ctx.activeDur.id : '8s';
   const aspectStr = ctx.activeAspect ? ctx.activeAspect.id : '16:9';
@@ -2221,13 +2269,20 @@ function compileOmniFlash(ctx) {
   }
 
   // Dedicated Sound design directive
-  masterParts.push(`Sound design: ${soundDesign}. `);
-
-  // Negative directives supported by Omni
-  if (state.identityLock) {
-    masterParts.push(`No dialogue. No scene cuts. No embellishments. No extra sound effects. No facial drift or beautification.`);
+  if (hasDialogue) {
+    masterParts.push(`Sound design: Clear synchronized English dialogue with authentic vocal presence, layered with ${soundDesign}. `);
+    if (state.identityLock) {
+      masterParts.push(`Natural synchronized dialogue and speech cadence. No scene cuts. No embellishments. No extra sound effects. No facial drift or beautification.`);
+    } else {
+      masterParts.push(`Natural synchronized dialogue and speech cadence. No scene cuts. No embellishments. No extra sound effects.`);
+    }
   } else {
-    masterParts.push(`No dialogue. No scene cuts. No embellishments. No extra sound effects.`);
+    masterParts.push(`Sound design: ${soundDesign}. `);
+    if (state.identityLock) {
+      masterParts.push(`No dialogue. No scene cuts. No embellishments. No extra sound effects. No facial drift or beautification.`);
+    } else {
+      masterParts.push(`No dialogue. No scene cuts. No embellishments. No extra sound effects.`);
+    }
   }
 
   const masterPrompt = masterParts.join('');
@@ -2266,7 +2321,9 @@ function compileOmniFlash(ctx) {
   sections.push({
     uiTag: '🔊 Саунд-дизайн (Sound Design Block)',
     plainTag: 'Sound Design',
-    val: `Sound design: ${soundDesign}. No dialogue.`
+    val: hasDialogue
+      ? `Sound design: Clear synchronized English dialogue with authentic vocal presence, layered with ${soundDesign}.`
+      : `Sound design: ${soundDesign}. No dialogue.`
   });
 
   const cineParts = [];
@@ -2322,6 +2379,7 @@ function compileMinimaxH3(ctx) {
   const durStr = ctx.activeDur ? ctx.activeDur.id : '8s';
   const aspectStr = ctx.activeAspect ? ctx.activeAspect.id : '16:9';
   const durSec = parseInt(durStr, 10) || 8;
+  const hasDialogue = detectDialogue(ctx.rawIdea) || detectDialogue(ctx.baseDescription);
   const soundscape = generateOmniSoundscape(ctx.baseDescription, ctx.activeMotion?.id);
 
   // 1. Core Concept Block (Clean concise narrative summary)
@@ -2366,11 +2424,20 @@ function compileMinimaxH3(ctx) {
     masterParts.push(`[Scene Elements]: ${ctx.quickTags}. `);
   }
 
-  masterParts.push(`[Audio Environment]: Synchronized 32kHz stereo audio: ${soundscape}. `);
-  if (state.identityLock) {
-    masterParts.push(`[Constraints]: Single continuous shot, no scene cuts, no morphing artifacts, no text watermark, no spoken dialogue, ${IDENTITY_LOCK_CONSTRAINTS}.`);
+  if (hasDialogue) {
+    masterParts.push(`[Audio Environment]: Synchronized 32kHz stereo audio: natural English spoken dialogue with authentic vocal cadence and lip sync, paired with ${soundscape}. `);
+    if (state.identityLock) {
+      masterParts.push(`[Constraints]: Single continuous shot, no scene cuts, no morphing artifacts, no text watermark, natural lip synchronization, ${IDENTITY_LOCK_CONSTRAINTS}.`);
+    } else {
+      masterParts.push(`[Constraints]: Single continuous shot, no scene cuts, no morphing artifacts, no text watermark, natural lip synchronization.`);
+    }
   } else {
-    masterParts.push(`[Constraints]: Single continuous shot, no scene cuts, no morphing artifacts, no text watermark, no spoken dialogue.`);
+    masterParts.push(`[Audio Environment]: Synchronized 32kHz stereo audio: ${soundscape}. `);
+    if (state.identityLock) {
+      masterParts.push(`[Constraints]: Single continuous shot, no scene cuts, no morphing artifacts, no text watermark, no spoken dialogue, ${IDENTITY_LOCK_CONSTRAINTS}.`);
+    } else {
+      masterParts.push(`[Constraints]: Single continuous shot, no scene cuts, no morphing artifacts, no text watermark, no spoken dialogue.`);
+    }
   }
 
   const masterPrompt = masterParts.join('');
@@ -2413,7 +2480,9 @@ function compileMinimaxH3(ctx) {
   sections.push({
     uiTag: '🔊 Нативный звук 32kHz (Embedded Audio)',
     plainTag: 'Native 32kHz Audio',
-    val: `32kHz stereo soundscape: ${soundscape}. Synchronized diegetic audio cues.`
+    val: hasDialogue
+      ? `32kHz stereo audio: natural English dialogue with synchronized lip delivery, layered with ${soundscape}.`
+      : `32kHz stereo soundscape: ${soundscape}. Synchronized diegetic audio cues.`
   });
 
   sections.push({
@@ -3028,12 +3097,12 @@ function formatHighlightedMasterPrompt(text, ctx) {
         label: 'Директива детализации'
       },
       {
-        regex: /((?:Audio|Sound design):[\s\S]*?)(?=\s+(?:1080p crisp master|No dialogue\.\s*No scene cuts)|$)/gi,
+        regex: /((?:Audio|Sound design):[\s\S]*?)(?=\s+(?:1080p crisp master|No dialogue\.\s*No scene cuts|Natural synchronized dialogue)|$)/gi,
         cls: 'mp-seg-audio',
         label: 'Саунд-дизайн'
       },
       {
-        regex: /((?:1080p crisp master|No dialogue\.\s*No scene cuts)[\s\S]*$)/gi,
+        regex: /((?:1080p crisp master|No dialogue\.\s*No scene cuts|Natural synchronized dialogue)[\s\S]*$)/gi,
         cls: 'mp-seg-spec',
         label: 'Тех. контроль и мастер'
       }
