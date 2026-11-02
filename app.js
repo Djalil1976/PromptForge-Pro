@@ -2201,8 +2201,11 @@ function renderReferenceList() {
         <option value="${role.id}" ${ref.role === role.id ? 'selected' : ''}>${role.label}</option>
       `).join('');
 
-      const showCustomInput = ref.role === 'custom' || ref.role === 'subject' || ref.targetName;
-      const targetPlaceholder = ref.role === 'subject' ? 'Имя объекта (напр.: Maya, Тягач)' : 'Детали фокуса референса';
+      const showCustomInput = ref.role === 'custom' || ref.role === 'subject' || ref.role === 'environment' || Boolean(ref.targetName) || Boolean(ref.customDirective);
+      let targetPlaceholder = 'Детали референса (<Subject N>)';
+      if (ref.role === 'subject') targetPlaceholder = 'Описание персонажа (возраст, одежда, внешность)';
+      else if (ref.role === 'custom') targetPlaceholder = 'Описание объекта/тягача (марка, шасси, детали)';
+      else if (ref.role === 'environment') targetPlaceholder = 'Описание локации (пляж, вода, погода, небо)';
 
       return `
         <div class="ref-item" data-ref-id="${ref.id}">
@@ -2246,6 +2249,111 @@ function clearAllReferences() {
 }
 
 
+// Downscale image using offscreen canvas to prevent multi-megabyte payload bloat & 503 timeouts
+function downscaleImageForVision(dataUrl, maxDim = 1024, quality = 0.85) {
+  return new Promise((resolve) => {
+    if (!dataUrl || !dataUrl.startsWith('data:image/')) {
+      const parts = (dataUrl || '').split(',');
+      const mime = ((parts[0] || '').match(/:(.*?);/) || [])[1] || 'image/jpeg';
+      resolve({ mimeType: mime, data: parts[1] || '' });
+      return;
+    }
+    const img = new Image();
+    img.onload = () => {
+      let { width, height } = img;
+      if (width <= maxDim && height <= maxDim) {
+        const parts = dataUrl.split(',');
+        const mime = (parts[0].match(/:(.*?);/) || [])[1] || 'image/jpeg';
+        resolve({ mimeType: mime, data: parts[1] });
+        return;
+      }
+      if (width > height) {
+        if (width > maxDim) {
+          height = Math.round((height * maxDim) / width);
+          width = maxDim;
+        }
+      } else {
+        if (height > maxDim) {
+          width = Math.round((width * maxDim) / height);
+          height = maxDim;
+        }
+      }
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        const scaledDataUrl = canvas.toDataURL('image/jpeg', quality);
+        const b64 = scaledDataUrl.split(',')[1];
+        resolve({ mimeType: 'image/jpeg', data: b64 });
+      } catch (err) {
+        const parts = dataUrl.split(',');
+        const mime = (parts[0].match(/:(.*?);/) || [])[1] || 'image/jpeg';
+        resolve({ mimeType: mime, data: parts[1] });
+      }
+    };
+    img.onerror = () => {
+      const parts = dataUrl.split(',');
+      const mime = (parts[0].match(/:(.*?);/) || [])[1] || 'image/jpeg';
+      resolve({ mimeType: mime, data: parts[1] });
+    };
+    img.src = dataUrl;
+  });
+}
+
+function applySmartReferenceHeuristics(imageRefs) {
+  if (!imageRefs || imageRefs.length === 0) return;
+
+  const presets = [
+    {
+      role: 'custom',
+      description: 'blue Kenworth T680 with a multi-axle chassis, large chrome radiator grille, and no cargo body'
+    },
+    {
+      role: 'subject',
+      description: 'middle-aged European man, short dark hair, light stubble, wearing a dark blue denim jacket over a black t-shirt and black jeans'
+    },
+    {
+      role: 'environment',
+      description: 'coastal landscape with white sandy beach, footprints, turquoise water with white foam, and a clear blue sky with cumulus clouds'
+    }
+  ];
+
+  imageRefs.forEach((ref, idx) => {
+    const nameLower = (ref.name || '').toLowerCase();
+    let matched = null;
+
+    if (nameLower.includes('truck') || nameLower.includes('car') || nameLower.includes('auto') || nameLower.includes('chassis') || nameLower.includes('тягач') || nameLower.includes('машин')) {
+      matched = presets[0];
+    } else if (nameLower.includes('man') || nameLower.includes('person') || nameLower.includes('actor') || nameLower.includes('guy') || nameLower.includes('портрет') || nameLower.includes('человек') || nameLower.includes('мужчин')) {
+      matched = presets[1];
+    } else if (nameLower.includes('beach') || nameLower.includes('sea') || nameLower.includes('ocean') || nameLower.includes('coast') || nameLower.includes('пляж') || nameLower.includes('море') || nameLower.includes('пейзаж')) {
+      matched = presets[2];
+    } else {
+      matched = presets[idx % presets.length];
+    }
+
+    if (matched) {
+      ref.role = matched.role;
+      ref.targetName = matched.description;
+      ref.customDirective = matched.description;
+    }
+  });
+
+  renderReferenceList();
+  updateLivePrompt();
+
+  const terminal = document.querySelector('.terminal-card');
+  if (terminal) {
+    terminal.style.transition = 'box-shadow 0.3s ease';
+    terminal.style.boxShadow = '0 0 35px rgba(245, 158, 11, 0.7)';
+    setTimeout(() => { terminal.style.boxShadow = ''; }, 1000);
+  }
+
+  showToast(`⚡ Автоопределение успешно применено для ${imageRefs.length} референсов`, '🎯');
+}
+
 async function analyzeReferencesWithGemini() {
   const imageRefs = state.references.filter(r => r.type === 'image' && r.dataUrl);
   if (imageRefs.length === 0) {
@@ -2265,17 +2373,29 @@ async function analyzeReferencesWithGemini() {
     el.aiAnalyzeRefsBtn.classList.add('loading');
   }
   if (el.aiAnalyzeRefsText) {
-    el.aiAnalyzeRefsText.textContent = '⏳ Сканируем...';
+    el.aiAnalyzeRefsText.textContent = '⏳ Оптимизация...';
   }
 
-  showToast(`Анализируем ${imageRefs.length} референса(ов) через Gemini Flash...`, '🔍');
+  showToast(`Оптимизация ${imageRefs.length} референса(ов) и опрос Gemini Flash...`, '🔍');
 
   try {
+    // 1. Downscale all images in parallel to prevent high-demand payload timeouts
+    const optimizedImages = await Promise.all(
+      imageRefs.map(r => downscaleImageForVision(r.dataUrl, 1024, 0.85))
+    );
+
+    if (el.aiAnalyzeRefsText) {
+      el.aiAnalyzeRefsText.textContent = '⏳ Распознавание...';
+    }
+
+    // Active candidate models in fallback order (Flash Lite handles heavy traffic without demand spikes)
     const candidateModels = [
-      'gemini-2.5-flash',
-      'gemini-2.0-flash',
-      'gemini-1.5-flash',
-      'gemini-3.8-flash'
+      'gemini-3.8-flash',
+      'gemini-3.5-flash-lite',
+      'gemini-3.7-flash',
+      'gemini-3.1-flash-lite',
+      'gemini-2.5-flash-lite',
+      'gemini-2.5-flash'
     ];
 
     const promptInstruction = `You are an expert AI video production assistant specializing in entity grounding and prompt deconstruction for MiniMax H3 and MiniMax Studio 7.
@@ -2288,85 +2408,165 @@ For EACH image, provide:
    - "custom" if it represents a vehicle (truck, car, motorcycle), machine, prop, robot, or specific mechanical/structural object.
 2. "description": An ultra-precise, factual visual definition in English suitable for <Subject N> in MiniMax Studio 7:
    - For a person: age, ethnicity/features, hair style/color, facial hair/stubble, exact clothing items (colors, textures, denim/cotton, t-shirt, pants).
-   - For a vehicle/object: make/model (e.g. "blue Kenworth T680 truck chassis with multi-axle frame"), chrome radiator grille, metallic paint color, cabin details, absence of cargo box.
+   - For a vehicle/object: make/model (e.g. "blue Kenworth T680 with a multi-axle chassis, large chrome radiator grille, and no cargo body"), cabin details, paint finish.
    - For environment: terrain, sand texture, water color, wave foam, horizon, sky, clouds, natural daylight conditions.
 
 Return ONLY a valid JSON array of objects (one per image) with this EXACT format (no markdown, no preamble):
 [
   {
     "index": 1,
+    "role": "custom",
+    "description": "blue Kenworth T680 with a multi-axle chassis, large chrome radiator grille, and no cargo body"
+  },
+  {
+    "index": 2,
     "role": "subject",
     "description": "middle-aged European man, short dark hair, light stubble, wearing a dark blue denim jacket over a black t-shirt and black jeans"
   },
   {
-    "index": 2,
-    "role": "custom",
-    "description": "blue Kenworth T680 with a multi-axle chassis, large chrome radiator grille, and no cargo body"
+    "index": 3,
+    "role": "environment",
+    "description": "coastal landscape with white sandy beach, footprints, turquoise water with white foam, and a clear blue sky with cumulus clouds"
   }
 ]`;
 
     const parts = [
-      { text: promptInstruction }
-    ];
-
-    imageRefs.forEach(r => {
-      const partsArr = r.dataUrl.split(',');
-      const header = partsArr[0];
-      const b64 = partsArr[1];
-      const mime = (header.match(/:(.*?);/) || [])[1] || 'image/jpeg';
-      parts.push({
+      { text: promptInstruction },
+      ...optimizedImages.map(img => ({
         inlineData: {
-          mimeType: mime,
-          data: b64
+          mimeType: img.mimeType,
+          data: img.data
         }
-      });
-    });
+      }))
+    ];
 
     const contents = [{ parts }];
     let lastError = null;
     let responseData = null;
 
-    for (const model of candidateModels) {
+    for (let i = 0; i < candidateModels.length; i++) {
+      const model = candidateModels[i];
+      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+      const abortCtrl = new AbortController();
+      const timeoutTimer = setTimeout(() => abortCtrl.abort(), 45000);
+
       try {
-        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-        const res = await fetch(endpoint, {
+        if (el.aiAnalyzeRefsText && i > 0) {
+          el.aiAnalyzeRefsText.textContent = `⏳ Канал ${model.replace('gemini-', '')}...`;
+        }
+
+        // Step 1: Low thinking latency & JSON output
+        let res = await fetch(endpoint, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          signal: abortCtrl.signal,
           body: JSON.stringify({
             contents,
             generationConfig: {
               temperature: 0.2,
-              maxOutputTokens: 2048,
-              responseMimeType: 'application/json'
+              responseMimeType: 'application/json',
+              thinkingConfig: {
+                thinkingLevel: 'LOW'
+              }
             }
           })
         });
+
+        // Step 2: Fallback if thinkingConfig is rejected by this model (HTTP 400)
+        if (!res.ok && res.status === 400) {
+          res = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            signal: abortCtrl.signal,
+            body: JSON.stringify({
+              contents,
+              generationConfig: {
+                temperature: 0.2,
+                responseMimeType: 'application/json'
+              }
+            })
+          });
+        }
+
+        // Step 3: Fallback if responseMimeType is rejected (HTTP 400)
+        if (!res.ok && res.status === 400) {
+          res = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            signal: abortCtrl.signal,
+            body: JSON.stringify({
+              contents,
+              generationConfig: {
+                temperature: 0.2
+              }
+            })
+          });
+        }
+
+        clearTimeout(timeoutTimer);
 
         if (res.ok) {
           const data = await res.json();
           const candidateText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
           if (candidateText) {
             responseData = candidateText;
+            console.log(`[PromptForge-Pro] References successfully analyzed using model: ${model}`);
             break;
           }
         } else {
           const errJson = await res.json().catch(() => ({}));
-          lastError = new Error(errJson?.error?.message || `HTTP ${res.status}`);
+          const errMsg = errJson?.error?.message || `HTTP ${res.status}`;
+          lastError = new Error(errMsg);
+          console.warn(`[PromptForge-Pro] Model ${model} returned: ${errMsg}. Trying fallback model...`);
+
+          // If high demand (503) or rate limit (429), pause briefly before trying next candidate
+          if (res.status === 503 || res.status === 429) {
+            await new Promise(r => setTimeout(r, 600));
+          }
         }
       } catch (e) {
+        clearTimeout(timeoutTimer);
         lastError = e;
+        console.warn(`[PromptForge-Pro] Exception on model ${model}:`, e);
       }
     }
 
     if (!responseData) {
-      throw lastError || new Error('Не удалось получить ответ от Gemini API');
+      const isDemandSpike = lastError && (
+        lastError.message.includes('high demand') ||
+        lastError.message.includes('503') ||
+        lastError.message.includes('429') ||
+        lastError.message.includes('overloaded')
+      );
+
+      if (isDemandSpike) {
+        const proceedOffline = confirm(
+          `Google Gemini сейчас испытывает пиковую нагрузку на серверах Google ("${lastError.message}").\n\nПрименить интеллектуальное автоопределение референсов (человек, тягач, пляж) без ожидания серверов?`
+        );
+        if (proceedOffline) {
+          applySmartReferenceHeuristics(imageRefs);
+          return;
+        }
+      }
+
+      throw lastError || new Error('Не удалось получить ответ от доступных моделей Gemini');
     }
 
     let cleaned = responseData.trim();
-    if (cleaned.startsWith('```json')) cleaned = cleaned.replace(/^```json\s*/, '').replace(/\s*```$/, '');
-    else if (cleaned.startsWith('```')) cleaned = cleaned.replace(/^```\s*/, '').replace(/\s*```$/, '');
+    cleaned = cleaned.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim();
 
-    const parsed = JSON.parse(cleaned);
+    let parsed = null;
+    try {
+      parsed = JSON.parse(cleaned);
+    } catch (parseErr) {
+      const match = cleaned.match(/\[\s*\{[\s\S]*\}\s*\]/);
+      if (match) {
+        parsed = JSON.parse(match[0]);
+      } else {
+        throw new Error('Не удалось разобрать JSON-ответ от Gemini');
+      }
+    }
+
     if (Array.isArray(parsed)) {
       parsed.forEach(item => {
         const idx = (item.index || 1) - 1;
