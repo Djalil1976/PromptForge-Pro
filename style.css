@@ -6454,3 +6454,42 @@ body {
   font-size: 0.88em;
   margin: 0 1px;
 }
+
+
+/* AI Reference Recognition Button */
+.btn-ai-analyze-refs {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.35));
+  border: 1px solid rgba(245, 158, 11, 0.6);
+  color: #fbbf24;
+  padding: 3px 9px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.2s ease;
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.2);
+}
+
+.btn-ai-analyze-refs:hover:not(:disabled) {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: #000;
+  box-shadow: 0 0 15px rgba(245, 158, 11, 0.5);
+  transform: translateY(-1px);
+}
+
+.btn-ai-analyze-refs:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-ai-analyze-refs.loading {
+  animation: pulseScanBtn 1.2s infinite ease-in-out;
+}
+
+@keyframes pulseScanBtn {
+  0%, 100% { opacity: 1; border-color: rgba(245, 158, 11, 0.9); }
+  50% { opacity: 0.5; border-color: rgba(245, 158, 11, 0.3); }
+}

@@ -499,6 +499,8 @@ const el = {
   refDropzone: document.getElementById('refDropzone'),
   refItemsList: document.getElementById('refItemsList'),
   refCounter: document.getElementById('refCounter'),
+  aiAnalyzeRefsBtn: document.getElementById('aiAnalyzeRefsBtn'),
+  aiAnalyzeRefsText: document.getElementById('aiAnalyzeRefsText'),
   clearAllRefsBtn: document.getElementById('clearAllRefsBtn'),
   addMoreRefBtn: document.getElementById('addMoreRefBtn'),
   refActionsFooter: document.getElementById('refActionsFooter'),
@@ -2157,11 +2159,13 @@ function renderReferenceList() {
     if (el.refItemsList) el.refItemsList.style.display = 'none';
     if (el.refActionsFooter) el.refActionsFooter.style.display = 'none';
     if (el.clearAllRefsBtn) el.clearAllRefsBtn.style.display = 'none';
+    if (el.aiAnalyzeRefsBtn) el.aiAnalyzeRefsBtn.style.display = 'none';
     if (el.refDropzone) el.refDropzone.style.display = 'block';
     return;
   }
 
   if (el.clearAllRefsBtn) el.clearAllRefsBtn.style.display = 'inline-flex';
+  if (el.aiAnalyzeRefsBtn) el.aiAnalyzeRefsBtn.style.display = 'inline-flex';
   if (el.refItemsList) el.refItemsList.style.display = 'flex';
   if (el.refActionsFooter) el.refActionsFooter.style.display = 'flex';
 
@@ -2241,6 +2245,169 @@ function clearAllReferences() {
   showToast('Все референсы очищены', '🗑️');
 }
 
+
+async function analyzeReferencesWithGemini() {
+  const imageRefs = state.references.filter(r => r.type === 'image' && r.dataUrl);
+  if (imageRefs.length === 0) {
+    showToast('Загрузите изображения для распознавания', '⚠️');
+    return;
+  }
+
+  const apiKey = (state.geminiApiKey || '').trim();
+  if (!apiKey) {
+    if (el.apiKeyModal) el.apiKeyModal.classList.add('active');
+    showToast('Введите бесплатный ключ Google Gemini API в окне настроек', '🔑');
+    return;
+  }
+
+  if (el.aiAnalyzeRefsBtn) {
+    el.aiAnalyzeRefsBtn.disabled = true;
+    el.aiAnalyzeRefsBtn.classList.add('loading');
+  }
+  if (el.aiAnalyzeRefsText) {
+    el.aiAnalyzeRefsText.textContent = '⏳ Сканируем...';
+  }
+
+  showToast(`Анализируем ${imageRefs.length} референса(ов) через Gemini Flash...`, '🔍');
+
+  try {
+    const candidateModels = [
+      'gemini-2.5-flash',
+      'gemini-2.0-flash',
+      'gemini-1.5-flash',
+      'gemini-3.8-flash'
+    ];
+
+    const promptInstruction = `You are an expert AI video production assistant specializing in entity grounding and prompt deconstruction for MiniMax H3 and MiniMax Studio 7.
+Analyze each of the attached reference images in order (Picture 1, Picture 2, ... up to Picture ${imageRefs.length}).
+
+For EACH image, provide:
+1. "role":
+   - "subject" if it represents a person, character, actor, human face/figure, or living character.
+   - "environment" if it represents a landscape, beach, ocean, room, city street, building, indoor or outdoor setting.
+   - "custom" if it represents a vehicle (truck, car, motorcycle), machine, prop, robot, or specific mechanical/structural object.
+2. "description": An ultra-precise, factual visual definition in English suitable for <Subject N> in MiniMax Studio 7:
+   - For a person: age, ethnicity/features, hair style/color, facial hair/stubble, exact clothing items (colors, textures, denim/cotton, t-shirt, pants).
+   - For a vehicle/object: make/model (e.g. "blue Kenworth T680 truck chassis with multi-axle frame"), chrome radiator grille, metallic paint color, cabin details, absence of cargo box.
+   - For environment: terrain, sand texture, water color, wave foam, horizon, sky, clouds, natural daylight conditions.
+
+Return ONLY a valid JSON array of objects (one per image) with this EXACT format (no markdown, no preamble):
+[
+  {
+    "index": 1,
+    "role": "subject",
+    "description": "middle-aged European man, short dark hair, light stubble, wearing a dark blue denim jacket over a black t-shirt and black jeans"
+  },
+  {
+    "index": 2,
+    "role": "custom",
+    "description": "blue Kenworth T680 with a multi-axle chassis, large chrome radiator grille, and no cargo body"
+  }
+]`;
+
+    const parts = [
+      { text: promptInstruction }
+    ];
+
+    imageRefs.forEach(r => {
+      const partsArr = r.dataUrl.split(',');
+      const header = partsArr[0];
+      const b64 = partsArr[1];
+      const mime = (header.match(/:(.*?);/) || [])[1] || 'image/jpeg';
+      parts.push({
+        inlineData: {
+          mimeType: mime,
+          data: b64
+        }
+      });
+    });
+
+    const contents = [{ parts }];
+    let lastError = null;
+    let responseData = null;
+
+    for (const model of candidateModels) {
+      try {
+        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents,
+            generationConfig: {
+              temperature: 0.2,
+              maxOutputTokens: 2048,
+              responseMimeType: 'application/json'
+            }
+          })
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          const candidateText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (candidateText) {
+            responseData = candidateText;
+            break;
+          }
+        } else {
+          const errJson = await res.json().catch(() => ({}));
+          lastError = new Error(errJson?.error?.message || `HTTP ${res.status}`);
+        }
+      } catch (e) {
+        lastError = e;
+      }
+    }
+
+    if (!responseData) {
+      throw lastError || new Error('Не удалось получить ответ от Gemini API');
+    }
+
+    let cleaned = responseData.trim();
+    if (cleaned.startsWith('```json')) cleaned = cleaned.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+    else if (cleaned.startsWith('```')) cleaned = cleaned.replace(/^```\s*/, '').replace(/\s*```$/, '');
+
+    const parsed = JSON.parse(cleaned);
+    if (Array.isArray(parsed)) {
+      parsed.forEach(item => {
+        const idx = (item.index || 1) - 1;
+        if (imageRefs[idx]) {
+          if (item.role) imageRefs[idx].role = item.role;
+          if (item.description) {
+            imageRefs[idx].targetName = item.description;
+            imageRefs[idx].customDirective = item.description;
+          }
+        }
+      });
+
+      renderReferenceList();
+      updateLivePrompt();
+
+      const terminal = document.querySelector('.terminal-card');
+      if (terminal) {
+        terminal.style.transition = 'box-shadow 0.3s ease';
+        terminal.style.boxShadow = '0 0 35px rgba(245, 158, 11, 0.7)';
+        setTimeout(() => { terminal.style.boxShadow = ''; }, 1000);
+      }
+
+      showToast(`✨ Успешно распознано ${parsed.length} референса(ов)!`, '🎯');
+    } else {
+      throw new Error('Некорректный формат ответа');
+    }
+  } catch (err) {
+    console.error('AI Reference Analyze Error:', err);
+    showToast(`Ошибка распознавания: ${err.message || 'Проверьте API-ключ'}`, '❌');
+  } finally {
+    if (el.aiAnalyzeRefsBtn) {
+      el.aiAnalyzeRefsBtn.disabled = false;
+      el.aiAnalyzeRefsBtn.classList.remove('loading');
+    }
+    if (el.aiAnalyzeRefsText) {
+      el.aiAnalyzeRefsText.textContent = '✨ AI-распознать';
+    }
+  }
+}
+
+
 function initReferenceAssets() {
   if (!el.referenceAssetsCard) return;
 
@@ -2286,6 +2453,10 @@ function initReferenceAssets() {
     el.addMoreRefBtn.addEventListener('click', () => {
       if (el.refFileInput) el.refFileInput.click();
     });
+  }
+
+    if (el.aiAnalyzeRefsBtn) {
+    el.aiAnalyzeRefsBtn.addEventListener('click', analyzeReferencesWithGemini);
   }
 
   if (el.clearAllRefsBtn) {
