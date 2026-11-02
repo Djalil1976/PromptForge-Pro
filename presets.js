@@ -950,10 +950,9 @@ window.PRESETS_DATA = {
     {
       "id": "4s",
       "label": "4 секунды (Быстрый план)",
-      "desc": "Короткий динамичный план. Поддерживается Veo 3.1 (720p) и Omni 1.1 Flash.",
+      "desc": "Короткий динамичный план. Поддерживается Omni 1.1 Flash.",
       "prompt": "clip duration 4 seconds",
       "supportedModels": [
-        "veo-3.1",
         "omni-1.1-flash"
       ]
     },
@@ -970,10 +969,9 @@ window.PRESETS_DATA = {
     {
       "id": "6s",
       "label": "6 секунд (Короткая сцена)",
-      "desc": "Сбалансированная длительность для развертывания движения. Поддерживается Veo 3.1, Omni 1.1 Flash и MiniMax-H3.",
+      "desc": "Сбалансированная длительность для развертывания движения. Поддерживается Omni 1.1 Flash и MiniMax-H3.",
       "prompt": "clip duration 6 seconds",
       "supportedModels": [
-        "veo-3.1",
         "omni-1.1-flash",
         "minimax-h3"
       ]
@@ -981,10 +979,9 @@ window.PRESETS_DATA = {
     {
       "id": "8s",
       "label": "8 секунд (Киносцена • 1080p / 4K / 2K)",
-      "desc": "Флагманский хронометраж Veo 3.1 (1080p/4K), Omni 1.1 Flash и MiniMax-H3 (2K).",
+      "desc": "Флагманский хронометраж Omni 1.1 Flash и MiniMax-H3 (2K).",
       "prompt": "clip duration 8 seconds",
       "supportedModels": [
-        "veo-3.1",
         "omni-1.1-flash",
         "minimax-h3"
       ]
@@ -1013,7 +1010,7 @@ window.PRESETS_DATA = {
     {
       "id": "24fps cinematic",
       "label": "24 fps (Кинематограф)",
-      "desc": "Все модели Veo 3.1 и Gemini Omni генерируют видео в 24fps — стандарт кинематографа с натуральным смазом движения (motion blur).",
+      "desc": "Все модели Gemini Omni и MiniMax генерируют видео в 24fps — стандарт кинематографа с натуральным смазом движения (motion blur).",
       "prompt": "captured in 24fps cinematic film frame rate with natural motion blur"
     }
   ],
@@ -1179,7 +1176,7 @@ window.PRESETS_DATA = {
       "color": "warm-kodak",
       "aspect": "16:9",
       "duration": "8s",
-      "model": "veo-3.1"
+      "model": "omni-1.1-flash"
     },
     {
       "title": "Аниме закат Синкая",
@@ -1293,18 +1290,6 @@ window.PRESETS_DATA = {
       "tipDesc": "Imagen 3 выдает эталонную физическую оптику и микротекстуры. Промпт автоматически очищается от мусорных buzzwords (8K, photorealistic) и собирается с акцентом на оптику, свет и материалы."
     },
     {
-      "id": "veo-3.1",
-      "name": "Veo 3.1",
-      "displayName": "Veo 3.1",
-      "displaySpec": "cinematic video & audio",
-      "mediaType": "video",
-      "badge": "Google DeepMind • Кинематографичное 4K видео",
-      "iconClass": "icon-google",
-      "logoSvg": "<svg viewBox=\"0 0 24 24\" width=\"18\" height=\"18\" fill=\"none\"><path fill=\"#4285F4\" d=\"M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17Z\"/><path fill=\"#34A853\" d=\"M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24Z\"/><path fill=\"#FBBC05\" d=\"M5.28 14.27A7.17 7.17 0 0 1 4.9 12c0-.79.14-1.57.38-2.27V6.58H1.25A11.967 11.967 0 0 0 0 12c0 1.92.45 3.74 1.25 5.42l4.03-3.15Z\"/><path fill=\"#EA4335\" d=\"M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98Z\"/></svg>",
-      "tipTitle": "Оптимизация под Google Veo 3.1",
-      "tipDesc": "Veo 3.1 генерирует кинокадры 1080p/4K при 24fps с нативным синхронизированным звуком. Промпт форматируется в кинематографический нарратив с четким описанием объекта, действия, движения камеры (Dolly, Pan, Orbit), освещения, ракурса и звуковой среды (шумы, фоли, диалог)."
-    },
-    {
       "id": "omni-1.1-flash",
       "name": "Omni 1.1 Flash",
       "displayName": "Omni 1.1 Flash",
@@ -1365,30 +1350,42 @@ window.PRESETS_DATA = {
       "tipDesc": "Флагманская модель xAI (Grok Imagine). Промпт форматируется в строгом соответствии со стандартом FRAME: [Focus], [Realm], [Angle], [Mood] и [Execution]."
     }
   ],
-  "NEGATIVE_QUICK_TAGS": [
+  "AUDIO_QUICK_TAGS": [
     {
-      "id": "blur",
-      "text": "blur, out of focus"
+      "id": "city",
+      "label": "Город / Трафик",
+      "ru": "шум города, гул машин, шаги прохожих, отдаленные сирены",
+      "en": "urban city rumble, passing vehicles, pedestrian footsteps, distant sirens"
     },
     {
-      "id": "hands",
-      "text": "deformed hands, bad anatomy, extra fingers"
+      "id": "nature",
+      "label": "Природа / Ветер",
+      "ru": "шелест ветра в кронах деревьев, хруст веток, щебет птиц",
+      "en": "whispering wind rustling through leafy trees, crisp twigs, distant bird chirps"
     },
     {
-      "id": "quality",
-      "text": "low quality, jpeg artifacts, pixelated"
+      "id": "rain",
+      "label": "Дождь / Гроза",
+      "ru": "ритмичный шум дождя, плеск капель по лужам, влажный асфальт",
+      "en": "steady rain patter falling on surfaces, wet pavement tire whoosh, water droplets"
     },
     {
-      "id": "watermark",
-      "text": "watermark, signature, username, text"
+      "id": "truck",
+      "label": "Траки / Трасса",
+      "ru": "рокот дизельного мотора на холостых, шипение пневмотормозов, ветер над асфальтом",
+      "en": "deep throaty diesel engine idling, air brake hiss release, highway wind rush across asphalt"
     },
     {
-      "id": "oversaturated",
-      "text": "oversaturated, fake colors, plastic skin"
+      "id": "interior",
+      "label": "Интерьер / Комната",
+      "ru": "тихая комнатная акустика, скрип пола, приглушенное дыхание",
+      "en": "subtle interior room acoustics, gentle floorboard creak, soft breathing, quiet room tone"
     },
     {
-      "id": "cartoon",
-      "text": "cartoon, 3d render, doll, anime"
+      "id": "space",
+      "label": "Космос / Эмбиент",
+      "ru": "глубокий низкочастотный гул вакуума, суб-басовая вибрация, телеметрия",
+      "en": "deep ethereal cosmic void drone, low sub-bass vibration, muffled telemetry beeps"
     }
   ]
 };

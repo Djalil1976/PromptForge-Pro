@@ -1,80 +1,17 @@
 /**
- * PromptForge PRO — Google AI Studio (Imagen 3 & Veo 2)
+ * PromptForge PRO — AI Prompt Studio (Omni 1.1 Flash, MiniMax-H3 & Imagen 3)
  * Core Application Logic & Live Prompt Engine
  */
 
 // --- DATA DICTIONARIES & PRESETS ---
 
-let CAMERA_BODIES = [], LENSES = [], LIGHTING = [], STYLES = [], COMPOSITIONS = [], VIDEO_MOTIONS = [], COLOR_PALETTES = [], CLIP_DURATIONS = [], CLIP_FRAMERATES = [], ASPECT_RATIOS = [], QUICK_TAGS = [], PRESET_RECIPES = [], RANDOM_IDEAS = [], DEFAULT_SNAPSHOTS = [], AI_MODELS = [], NEGATIVE_QUICK_TAGS = [];
+let CAMERA_BODIES = [], LENSES = [], LIGHTING = [], STYLES = [], COMPOSITIONS = [], VIDEO_MOTIONS = [], COLOR_PALETTES = [], CLIP_DURATIONS = [], CLIP_FRAMERATES = [], ASPECT_RATIOS = [], QUICK_TAGS = [], PRESET_RECIPES = [], RANDOM_IDEAS = [], DEFAULT_SNAPSHOTS = [], AI_MODELS = [], AUDIO_QUICK_TAGS = [];
 
 // ==========================================================================
 // AI MODEL SKILLS & SPECIFICATIONS ENGINE
 // ==========================================================================
 
 const DEFAULT_MODEL_SKILLS = {
-  'veo-3.1': {
-    modelId: 'veo-3.1',
-    fileName: 'veo-3-1.md',
-    title: 'Google Veo 3.1',
-    mediaType: '🎬 Видео + Звук',
-    ruleCount: '4 правила',
-    description: 'Спецификация кинематографического видео и звука для Google Veo 3.1 (1080p/4K 24fps). Непрерывный план, точная физика оптики, синхронная аудиосреда.',
-    rules: [
-      '✔ Непрерывный кинематографический план (Continuous Unbroken Shot)',
-      '✔ Оптика ARRI/Cooke, фокусные расстояния и глубина резкости',
-      '✔ Встроенный нативный синхронный саунд-дизайн и фоли',
-      '✔ Физическая динамика среды, частиц и материалов'
-    ],
-    content: `---
-name: veo-3-1-cinematic
-model: veo-3.1
-description: Спецификация генерации кинематографического видео и звука для Google Veo 3.1 (1080p/4K 24fps). Непрерывный план, точная физика оптики, синхронизированная аудиосреда и фоли.
-version: 1.0.0
-media_type: video
----
-
-# Google Veo 3.1 — Cinematic Video & Audio Specification
-
-## 1. Базовые параметры модели
-- **Модель:** Google DeepMind Veo 3.1 (\`veo-3.1\`)
-- **Разрешение:** До 4K (1080p / 2160p)
-- **Частота кадров:** 24 fps (кинематографический стандарт)
-- **Длительность:** 4–10 секунд (оптимально 8 секунд)
-- **Аудио:** Встроенный нативный синхронный саунд-дизайн (дистанционные шумы, фоли, акустика помещения, речевые паттерны)
-- **Поддерживаемые форматы кадра:** 16:9 (кино / ландшафт), 9:16 (вертикальный рилс/шортс), 2.39:1 (анаморфот), 4:3, 1:1
-
----
-
-## 2. Архитектура и структура промпта
-
-Для получения максимального фотореализма и плавности движения каждый промпт для Veo 3.1 формируется по следующей кинематографической формуле:
-
-\`\`\`
-[Объект и центральное действие] + [Окружение, архитектура и физика среды] + [Оптика, камера и траектория движения] + [Светотеневой рисунок и цветокоррекция] + [Синхронный звуковой дизайн (Audio Foley)]
-\`\`\`
-
-### Пример идеальной структуры:
-> "A master craftsman in his 50s carefully examines an antique brass mechanical clock with intricate gears under warm workbench illumination. The camera performs a smooth, continuous dolly-in on an ARRI Alexa with an anamorphic 50mm T1.5 lens, producing creamy bokeh and shallow depth-of-field. Subtle dust motes float through the volumetric tungsten rays. Authentic fluid micro-movements, realistic skin subsurface scattering. Audio: delicate metallic ticking, faint creak of wooden floorboards, soft breathing, distant city hum outside."
-
----
-
-## 3. Ключевые правила и ограничения (Hard Rules)
-
-1. **Единый непрерывный план (Continuous Unbroken Shot):**
-   - Veo 3.1 идеально удерживает один непрерывный кадр. Никогда не используйте фразы "cuts to", "then switches to", "fast montage". Вместо склеек используйте внутрикадровый монтаж (панорама, наезд, переход фокуса).
-2. **Точная терминология движения камеры:**
-   - Используйте профессиональные термины: Smooth Dolly In, Slow Tracking Shot, Orbit Arc 45°, Pan Right, Handheld Shaky-Cam, Crane Boom Down, FPV Glide.
-3. **Физическая оптика вместо "мусорных слов":**
-   - Запрещены слова-паразиты: photorealistic, 8k, hyper-detailed, masterpiece, trending on artstation.
-   - Вместо них указывайте оптику: ARRI Alexa Mini LF, 35mm Anamorphic, Cooke S4/i prime, f/1.8 aperture, natural chromatic aberration, realistic optical flare.
-4. **Синхронизированное аудио:**
-   - Всегда описывайте акустику пространства: эхо в зале, шуршание гравия, плеск воды, глухой бас мотора.
-
----
-
-## 4. Негативные ограничения по умолчанию
-- unnatural morphing, sudden camera cuts, multiple scenes, floating disjointed limbs, flickering artifacts, oversaturated digital glow, CGI plastic look, amateur shutter speed`
-  },
   'omni-1.1-flash': {
     modelId: 'omni-1.1-flash',
     fileName: 'omni-1-1-flash.md',
@@ -379,8 +316,9 @@ const state = {
   selectedColor: '',
   selectedModel: 'imagen-3',
   activeQuickTags: new Set(),
-  activeNegativeTags: new Set(),
-  customNegative: '',
+  activeSoundTags: new Set(),
+  customSound: '',
+  onlineTranslatedSound: '',
   history: JSON.parse(localStorage.getItem('promptforge_history') || '[]'),
   
   // Reverse Video AI & LLM API Keys
@@ -408,7 +346,7 @@ const state = {
   isDirectorGenerating: false,
 
   // AI Model Skills & Specifications State
-  activeSkillModelId: 'veo-3.1',
+  activeSkillModelId: 'omni-1.1-flash',
   customModelSkills: JSON.parse(localStorage.getItem('promptforge_model_skills') || '{}'),
 
   // Snapshots State
@@ -602,8 +540,8 @@ const el = {
   colorSelectedText: document.getElementById('colorSelectedText'),
   colorSelectedTooltip: document.getElementById('colorSelectedTooltip'),
   colorOptionsList: document.getElementById('colorOptionsList'),
-  negativeTagsContainer: document.getElementById('negativeTagsContainer'),
-  negativeCustomInput: document.getElementById('negativeCustomInput'),
+  soundTagsContainer: document.getElementById('soundTagsContainer'),
+  soundCustomInput: document.getElementById('soundCustomInput'),
 
   // Models & Result
   modelsGrid: document.getElementById('modelsGrid'),
@@ -614,8 +552,6 @@ const el = {
   resultCharCount: document.getElementById('resultCharCount'),
   strengthPill: document.getElementById('strengthPill'),
   strengthText: document.getElementById('strengthText'),
-  negativePromptDisplay: document.getElementById('negativePromptDisplay'),
-  negativePromptText: document.getElementById('negativePromptText'),
   promptLangSelect: document.getElementById('promptLangSelect'),
   quickCopyBtn: document.getElementById('quickCopyBtn'),
   copyPromptBtn: document.getElementById('copyPromptBtn'),
@@ -672,7 +608,7 @@ async function init() {
     RANDOM_IDEAS = presets.RANDOM_IDEAS || [];
     DEFAULT_SNAPSHOTS = presets.DEFAULT_SNAPSHOTS || [];
     AI_MODELS = presets.AI_MODELS || [];
-    NEGATIVE_QUICK_TAGS = presets.NEGATIVE_QUICK_TAGS || [];
+    AUDIO_QUICK_TAGS = presets.AUDIO_QUICK_TAGS || [];
 
     if (!Array.isArray(state.snapshots) || state.snapshots.length === 0) {
       state.snapshots = [...DEFAULT_SNAPSHOTS];
@@ -693,7 +629,7 @@ async function init() {
     renderColorOptions();
     renderChips();
     renderAspectRatios();
-    renderNegativeTags();
+    renderSoundTags();
     initModelSkills();
     initAiDirector();
     initVideoAnalyzer();
@@ -1525,12 +1461,41 @@ function renderAspectRatios() {
   }
 }
 
-function renderNegativeTags() {
-  el.negativeTagsContainer.innerHTML = NEGATIVE_QUICK_TAGS.map(n => `
-    <button class="neg-tag ${state.activeNegativeTags.has(n.id) ? 'active' : ''}" data-neg="${n.id}">
-      ${n.text.split(',')[0]}
+function renderSoundTags() {
+  if (!el.soundTagsContainer) return;
+  el.soundTagsContainer.innerHTML = AUDIO_QUICK_TAGS.map(t => `
+    <button type="button" class="sound-tag ${state.activeSoundTags.has(t.id) ? 'active' : ''}" data-sound="${t.id}" title="${t.ru || t.label}">
+      ${t.label}
     </button>
   `).join('');
+}
+
+let soundTranslateTimer = null;
+function scheduleOnlineSoundTranslation(text) {
+  if (!text || !text.trim()) {
+    state.onlineTranslatedSound = '';
+    state.onlineSoundSource = '';
+    updateLivePrompt();
+    return;
+  }
+  const clean = text.trim();
+  if (/^[\x00-\x7F]+$/.test(clean)) {
+    state.onlineTranslatedSound = clean;
+    state.onlineSoundSource = clean;
+    updateLivePrompt();
+    return;
+  }
+  if (soundTranslateTimer) clearTimeout(soundTranslateTimer);
+  soundTranslateTimer = setTimeout(async () => {
+    try {
+      const translated = await fetchGoogleTranslate(clean);
+      if (translated && state.customSound && state.customSound.trim() === clean) {
+        state.onlineTranslatedSound = translated;
+        state.onlineSoundSource = clean;
+        updateLivePrompt();
+      }
+    } catch (_) {}
+  }, 120);
 }
 
 function renderModelsGrid() {
@@ -1913,53 +1878,6 @@ function generateOmniSoundscape(idea, motionId) {
   return 'Authentic ambient environmental acoustics, crisp synchronized Foley textures, natural acoustic presence';
 }
 
-function generateVeoAudio(idea, motionId, hasDialogue = false) {
-  const text = (idea || '').toLowerCase();
-  let ambient = 'ambient environmental acoustics, natural room presence';
-  let sfx = 'synchronized diegetic Foley movement';
-
-  // 1. Truck Stop / Heavy Highway / Logistics / Desert Roadside
-  if (/\b(trucks?|semi-trucks?|lorry|lorries|truck stop|diesel|highway|freeway|interstate|parking lot|arizona|desert|trailer)\b/i.test(text) || /(трак[а-я]*|фур[а-я]*|тягач[а-я]*|стоянк[а-я]*|грузовик[а-я]*|дизел[а-я]*|автомагистрал[а-я]*|аризон[а-я]*|пустын[а-я]*)/i.test(text)) {
-    ambient = 'distant highway traffic whoosh, dry desert wind breeze across vast open asphalt, spacious industrial roadside ambiance';
-    sfx = 'deep throaty diesel engine idling, air brake hiss release, footsteps on dry gravel and asphalt';
-  } else if (/\b(cars?|automobile\w*|vehicles?|traffic|supercars?|cyberpunk|motorcycle\w*|drift\w*|sports\s*car)\b/i.test(text) || /(автомобил[а-я]*|машин[а-я]*|суперкар[а-я]*|киберпанк[а-я]*|трафик[а-я]*|мотоцикл[а-я]*|гонк[а-я]*|дрифт[а-я]*)/i.test(text)) {
-    ambient = 'highway wind rush, distant city hum, asphalt road friction';
-    sfx = 'deep throaty engine acceleration, tire screech on pavement';
-  } else if (/\b(loft\w*|renovation\w*|interior\w*|timelapse\w*|living\s*space|architecture\w*|apartment\w*)\b/i.test(text) || /(лофт[а-я]*|ремонт[а-я]*|интерьер[а-я]*|таймлапс[а-я]*|жилое\s*пространств[а-я]*|квартир[а-я]*|архитектур[а-я]*)/i.test(text)) {
-    ambient = 'warm architectural interior room tone, subtle natural room acoustics';
-    sfx = 'rhythmic timelapse assembly Foley, soft wood and metallic placement resonance';
-  } else if (/\b(rains?|raining|rainy|rainfall|downpour|puddles?|thunderstorm|stormy?)\b/i.test(text) || /(дожд[а-я]*|ливн[а-я]*|ливень\b|луж[аеиыу]\b|гроз[а-я]*|непогод[а-я]*)/i.test(text)) {
-    ambient = 'steady rain patter falling on surfaces, distant wet pavement tire whoosh';
-    sfx = 'footsteps splashing through puddles, water droplets dripping from edges';
-  } else if (/\b(forest\w*|woods?\b|jungle\w*|nature\b|trees?\b|foliage\b|leaves\b|waterfall\w*)\b/i.test(text) || /(лес\b|лесн[а-я]*|деревь[а-я]*|природ[а-я]*|джунгл[а-я]*|рощ[а-я]*|водопад[а-я]*)/i.test(text)) {
-    ambient = 'mountain breeze rustling through leafy trees, distant bird chirps';
-    sfx = 'twigs snapping underfoot, rushing waterfall cascade acoustics';
-  } else if (/\b(ocean\w*|sea\b|seas\b|beach\w*|coastal\w*|coast\b|shoreline\w*|shore\b|waves?\b|surf\b|seabirds?)\b/i.test(text) || /(океан[а-я]*|море\b|моря\b|морем\b|морск[а-я]*|побережь[а-я]*|пляж[а-я]*|прибо[йя][а-я]*|морск[а-я]* волн[а-я]*)/i.test(text)) {
-    ambient = 'rhythmic ocean surf rolling onto sand, breezy coastal atmosphere';
-    sfx = 'seafoam sizzle, water spray splashing on coastal sea rocks';
-  } else if (/\b(city\b|cities\b|urban\b|street\w*|downtown\b|tokyo\b|cafe\b|coffee\s*shop|pedestrians?)\b/i.test(text) || /(город[а-я]*|улиц[а-я]*|токио|кофейн[а-я]*|кафе\b|пешеход[а-я]*|мегаполис[а-я]*)/i.test(text)) {
-    ambient = 'bustling nocturnal city soundscape, distant sirens, low frequency city rumble';
-    sfx = 'muffled pedestrian footsteps, coffee cup clinking on saucer, neon sign electrical hum';
-  } else if (/\b(outer space|deep space|cosmos|cosmic void|galaxy|interstellar|astronaut|spacesuit)\b/i.test(text) || /(космос[а-я]*|планет[а-я]*|астронавт[а-я]*|орбит[а-я]*|галактик[а-я]*)/i.test(text)) {
-    ambient = 'deep ethereal cosmic void drone, low sub-bass vibration';
-    sfx = 'spacesuit internal telemetry beeps, pressurized air hiss';
-  }
-
-  if (motionId === 'fpv-drone') {
-    sfx = 'high-speed aerodynamic wind shear, high-pitch drone propeller turbine whine';
-  }
-
-  const dialogueText = hasDialogue
-    ? 'Synchronized clear English speech delivery with natural vocal cadence'
-    : 'No dialogue';
-
-  return {
-    ambient,
-    sfx,
-    fullAudioText: `Ambient soundscape: ${ambient}. Synchronized SFX: ${sfx}. Dialogue: ${dialogueText}`
-  };
-}
-
 // --- IDENTITY LOCK (FACIAL PRESERVATION CONSTANTS) ---
 const IDENTITY_LOCK_DIRECTIVE = 'Strict 1:1 facial identity lock to @Image1 reference: preserve exact eye shape, eyelid folds, natural under-eye contours, exact nose bridge geometry, authentic facial bone structure, and natural beard/hair density with visible skin micro-texture. Maintain frontal fill light on face and crisp locked garment typography';
 const IDENTITY_LOCK_CONSTRAINTS = 'strict facial geometry lock to @Image1, no facial beautification, no eye widening, no cheek or jaw morphing, no beard thickening, no garment text garbling';
@@ -2074,164 +1992,6 @@ function compileImagen3(ctx) {
   return { masterPrompt, sections };
 }
 
-function compileVeo31(ctx) {
-  const sections = [];
-  if (!ctx.baseDescription && !ctx.activeMotion && !ctx.activeCam && !ctx.activeLens && !ctx.activeLight && !ctx.activeStyle && !ctx.activeComp && !ctx.activeColor) {
-    return { masterPrompt: '', sections: [] };
-  }
-
-  const hasDialogue = detectDialogue(ctx.rawIdea) || detectDialogue(ctx.baseDescription);
-  const audio = generateVeoAudio(ctx.baseDescription, ctx.activeMotion?.id, hasDialogue);
-  const durStr = ctx.activeDur ? ctx.activeDur.id : '8s';
-  const aspectStr = ctx.activeAspect ? ctx.activeAspect.id : '16:9';
-
-  // Build Master Cohesive Narrative Prompt (Veo 3.1)
-  const masterParts = [];
-  const compPrefix = ctx.activeComp ? ctx.activeComp.prompt : 'Cinematic establishing shot';
-  masterParts.push(`A continuous, unbroken ${durStr} cinematic shot (${compPrefix}, aspect ratio ${aspectStr})`);
-
-  if (ctx.baseDescription) {
-    masterParts.push(` of ${ctx.baseDescription}`);
-  }
-
-  if (ctx.activeMotion) {
-    const motionClean = ctx.activeMotion.prompt.trim().replace(/\.+$/, '');
-    masterParts.push(`. The camera performs a ${motionClean}, maintaining a steady cinematic trajectory with natural optical motion blur at 24fps`);
-  } else {
-    masterParts.push(`. The camera maintains steady cinematic framing with natural optical motion blur at 24fps`);
-  }
-
-  const opticsList = [];
-  if (ctx.activeCam) opticsList.push(ctx.activeCam.prompt);
-  if (ctx.activeLens) opticsList.push(ctx.activeLens.prompt);
-  if (opticsList.length > 0) {
-    masterParts.push(`. Optics & Camera: ${opticsList.join(', ')} with authentic optical focal depth.`);
-  }
-
-  const moodList = [];
-  if (ctx.activeLight) moodList.push(ctx.activeLight.prompt);
-  if (ctx.activeColor) moodList.push(ctx.activeColor.prompt);
-  if (ctx.activeStyle) moodList.push(cleanBuzzwords(ctx.activeStyle.prompt));
-  if (moodList.length > 0) {
-    masterParts.push(`. Lighting and visual atmosphere: ${moodList.join(', ')}`);
-  }
-
-  if (ctx.quickTags) {
-    masterParts.push(`. Contextual details: ${ctx.quickTags}`);
-  }
-
-  if (state.identityLock) {
-    masterParts.push(`. ${IDENTITY_LOCK_DIRECTIVE}`);
-  }
-
-  masterParts.push(`. Audio: ${audio.fullAudioText}`);
-  if (hasDialogue) {
-    if (state.identityLock) {
-      masterParts.push(`. 1080p crisp master, 24fps, single unbroken take, no sudden scene cuts, authentic lip synchronization, no watermark, ${IDENTITY_LOCK_CONSTRAINTS}.`);
-    } else {
-      masterParts.push(`. 1080p crisp master, 24fps, single unbroken take, no sudden scene cuts, authentic lip synchronization, no watermark.`);
-    }
-  } else {
-    if (state.identityLock) {
-      masterParts.push(`. 1080p crisp master, 24fps, single unbroken take, no sudden scene cuts, no dialogue, no watermark, ${IDENTITY_LOCK_CONSTRAINTS}.`);
-    } else {
-      masterParts.push(`. 1080p crisp master, 24fps, single unbroken take, no sudden scene cuts, no dialogue, no watermark.`);
-    }
-  }
-
-  const masterPrompt = masterParts.join('');
-
-  // Structured Sections
-  sections.push({
-    uiTag: '🎬 Мастер-промпт (Veo 3.1 Master)',
-    plainTag: 'Veo 3.1 Master Prompt',
-    val: masterPrompt
-  });
-
-  if (ctx.baseDescription) {
-    sections.push({
-      uiTag: '💡 Объект и сцена (Subject & Scene)',
-      plainTag: 'Subject & Scene',
-      val: ctx.baseDescription
-    });
-  }
-
-  if (ctx.quickTags) {
-    sections.push({
-      uiTag: '🏷️ Ключевые слова (Keywords)',
-      plainTag: 'Keywords',
-      val: ctx.quickTags
-    });
-  }
-
-  if (ctx.activeMotion) {
-    sections.push({
-      uiTag: '🎥 Движение камеры (Camera Motion)',
-      plainTag: 'Camera Motion',
-      val: `${ctx.activeMotion.prompt}, steady trajectory with organic 24fps optical motion blur`
-    });
-  }
-
-  const rigParts = [];
-  if (ctx.activeCam) rigParts.push(ctx.activeCam.prompt);
-  if (ctx.activeLens) rigParts.push(ctx.activeLens.prompt);
-  if (ctx.activeComp) rigParts.push(ctx.activeComp.prompt);
-  if (rigParts.length > 0) {
-    sections.push({
-      uiTag: '📷 Операторский сетап (Cinematography & Lens)',
-      plainTag: 'Cinematography & Rig',
-      val: rigParts.join(', ')
-    });
-  }
-
-  if (ctx.activeLight) {
-    sections.push({
-      uiTag: '💡 Освещение (Lighting Architecture)',
-      plainTag: 'Lighting & Atmosphere',
-      val: ctx.activeLight.prompt
-    });
-  }
-
-  if (ctx.activeColor) {
-    sections.push({
-      uiTag: '🌈 Цветокоррекция (Color Grading)',
-      plainTag: 'Color Grading',
-      val: ctx.activeColor.prompt
-    });
-  }
-
-  sections.push({
-    uiTag: '🔊 Нативный звук (Veo 3.1 Audio: Ambient & SFX)',
-    plainTag: 'Synchronized Audio',
-    val: audio.fullAudioText
-  });
-
-  if (ctx.activeStyle) {
-    sections.push({
-      uiTag: '🎨 Киностиль (Production Style)',
-      plainTag: 'Production Style',
-      val: cleanBuzzwords(ctx.activeStyle.prompt)
-    });
-  }
-
-  const specParts = [`duration ${durStr}`, '24fps cinematic', `aspect ratio ${aspectStr}`, 'native resolution 1080p / 4K'];
-  sections.push({
-    uiTag: '⏱ Спецификация клипа (Clip Specs)',
-    plainTag: 'Clip Specifications',
-    val: specParts.join(', ')
-  });
-
-  if (state.identityLock) {
-    sections.push({
-      uiTag: '🔒 Фиксация лица (Identity Lock)',
-      plainTag: 'Identity Lock',
-      val: `${IDENTITY_LOCK_DIRECTIVE}. Constraints: ${IDENTITY_LOCK_CONSTRAINTS}`
-    });
-  }
-
-  return { masterPrompt, sections };
-}
-
 function compileOmniFlash(ctx) {
   const sections = [];
   if (!ctx.baseDescription && !ctx.activeMotion && !ctx.activeCam && !ctx.activeLens && !ctx.activeLight && !ctx.activeStyle && !ctx.activeComp && !ctx.activeColor) {
@@ -2239,7 +1999,7 @@ function compileOmniFlash(ctx) {
   }
 
   const hasDialogue = detectDialogue(ctx.rawIdea) || detectDialogue(ctx.baseDescription);
-  const soundDesign = generateOmniSoundscape(ctx.baseDescription, ctx.activeMotion?.id);
+  const soundDesign = ctx.customSoundEn || generateOmniSoundscape(ctx.baseDescription, ctx.activeMotion?.id);
   const durStr = ctx.activeDur ? ctx.activeDur.id : '8s';
   const aspectStr = ctx.activeAspect ? ctx.activeAspect.id : '16:9';
 
@@ -2398,7 +2158,7 @@ function compileMinimaxH3(ctx) {
   const aspectStr = ctx.activeAspect ? ctx.activeAspect.id : '16:9';
   const durSec = parseInt(durStr, 10) || 8;
   const hasDialogue = detectDialogue(ctx.rawIdea) || detectDialogue(ctx.baseDescription);
-  const soundscape = generateOmniSoundscape(ctx.baseDescription, ctx.activeMotion?.id);
+  const soundscape = ctx.customSoundEn || generateOmniSoundscape(ctx.baseDescription, ctx.activeMotion?.id);
 
   // 1. Core Concept Block (Clean concise narrative summary)
   const descClean = (ctx.baseDescription || 'Dynamic cinematic scene').trim().replace(/\.+$/, '');
@@ -2862,7 +2622,42 @@ function compilePrompt() {
     }
   }
 
+  // Sound Environment Assembly
+  const soundTagEn = [];
+  const soundTagRu = [];
+  state.activeSoundTags.forEach(tagId => {
+    const item = AUDIO_QUICK_TAGS.find(n => n.id === tagId);
+    if (item) {
+      if (item.en) soundTagEn.push(item.en);
+      if (item.ru || item.label) soundTagRu.push(item.ru || item.label);
+    }
+  });
+
+  const customSoundRaw = (state.customSound || '').trim();
+  let customSoundEn = '';
+  if (customSoundRaw) {
+    if (/^[\x00-\x7F]+$/.test(customSoundRaw)) {
+      customSoundEn = customSoundRaw;
+    } else {
+      customSoundEn = (state.onlineTranslatedSound && state.onlineSoundSource === customSoundRaw)
+        ? state.onlineTranslatedSound
+        : translateRussianIdea(customSoundRaw);
+    }
+  }
+
+  const soundEnList = [];
+  if (soundTagEn.length > 0) soundEnList.push(soundTagEn.join(', '));
+  if (customSoundEn) soundEnList.push(customSoundEn);
+  const finalSoundEn = soundEnList.join(', ');
+
+  const soundRuList = [];
+  if (soundTagRu.length > 0) soundRuList.push(soundTagRu.join(', '));
+  if (customSoundRaw) soundRuList.push(customSoundRaw);
+  const finalSoundRu = soundRuList.join(', ');
+
   const ctx = {
+    customSoundEn: finalSoundEn,
+    customSoundRu: finalSoundRu,
     rawIdea,
     baseDescription,
     activeCam,
@@ -2885,9 +2680,6 @@ function compilePrompt() {
   switch (modelId) {
     case 'imagen-3':
       compiledResult = compileImagen3(ctx);
-      break;
-    case 'veo-3.1':
-      compiledResult = compileVeo31(ctx);
       break;
     case 'omni-1.1-flash':
       compiledResult = compileOmniFlash(ctx);
@@ -2912,16 +2704,7 @@ function compilePrompt() {
   const { masterPrompt, sections } = compiledResult;
   const hasContent = (masterPrompt && masterPrompt.trim().length > 0) || (sections && sections.length > 0);
 
-  // Negative Prompt Assembly
-  const negativeList = [];
-  state.activeNegativeTags.forEach(tagId => {
-    const item = NEGATIVE_QUICK_TAGS.find(n => n.id === tagId);
-    if (item) negativeList.push(item.text);
-  });
-  if (state.customNegative.trim()) {
-    negativeList.push(state.customNegative.trim());
-  }
-  const finalNegativeText = negativeList.join(', ');
+
 
   // Output formatting based on format toggle
   let plainPrompt = '';
@@ -3008,7 +2791,6 @@ function compilePrompt() {
     prompt: plainPrompt,
     masterPrompt: masterPrompt,
     html: htmlPrompt,
-    negative: finalNegativeText,
     hasContent: hasContent
   };
 }
@@ -3249,7 +3031,7 @@ function updateLivePrompt() {
     `;
     el.finalPromptDisplay.innerHTML = htmlPrompt;
     el.resultCharCount.textContent = `${state.customDirectorPrompt.length} симв.`;
-    if (el.negativePromptDisplay) el.negativePromptDisplay.style.display = 'none';
+
 
     el.strengthText.textContent = `Сила 100%`;
     const strengthDot = el.strengthPill ? el.strengthPill.querySelector('.strength-dot') : null;
@@ -3289,13 +3071,7 @@ function updateLivePrompt() {
     el.resultCharCount.textContent = `0 симв.`;
   }
 
-  // Negative prompt display
-  if (compiled.negative) {
-    el.negativePromptDisplay.style.display = 'block';
-    el.negativePromptText.textContent = compiled.negative;
-  } else {
-    el.negativePromptDisplay.style.display = 'none';
-  }
+
 
   // Calculate Strength
   const strength = calculateStrength(compiled.prompt);
@@ -3924,27 +3700,32 @@ function attachEventListeners() {
     });
   }
 
-  // Negative Tags
-  el.negativeTagsContainer.addEventListener('click', (e) => {
-    const tag = e.target.closest('.neg-tag');
-    if (!tag) return;
-    const negId = tag.dataset.neg;
-    if (state.activeNegativeTags.has(negId)) {
-      state.activeNegativeTags.delete(negId);
-      tag.classList.remove('active');
-    } else {
-      state.activeNegativeTags.add(negId);
-      tag.classList.add('active');
-    }
-    releaseCustomDirectorPrompt();
-    updateLivePrompt();
-  });
+  // Sound Environment Tags & Custom Sound Input
+  if (el.soundTagsContainer) {
+    el.soundTagsContainer.addEventListener('click', (e) => {
+      const tag = e.target.closest('.sound-tag');
+      if (!tag) return;
+      const soundId = tag.dataset.sound;
+      if (state.activeSoundTags.has(soundId)) {
+        state.activeSoundTags.delete(soundId);
+        tag.classList.remove('active');
+      } else {
+        state.activeSoundTags.add(soundId);
+        tag.classList.add('active');
+      }
+      releaseCustomDirectorPrompt();
+      updateLivePrompt();
+    });
+  }
 
-  el.negativeCustomInput.addEventListener('input', (e) => {
-    state.customNegative = e.target.value;
-    releaseCustomDirectorPrompt();
-    updateLivePrompt();
-  });
+  if (el.soundCustomInput) {
+    el.soundCustomInput.addEventListener('input', (e) => {
+      state.customSound = e.target.value;
+      releaseCustomDirectorPrompt();
+      scheduleOnlineSoundTranslation(state.customSound);
+      updateLivePrompt();
+    });
+  }
 
   // Model Grid Cards
   el.modelsGrid.addEventListener('click', (e) => {
@@ -4089,7 +3870,7 @@ function setMode(mode) {
     // If current model is an image-only model, switch to video model
     const currentModel = AI_MODELS.find(m => m.id === state.selectedModel);
     if (!currentModel || currentModel.mediaType === 'image') {
-      state.selectedModel = 'veo-3.1';
+      state.selectedModel = 'omni-1.1-flash';
     }
 
     // Ensure video mode defaults
@@ -4224,7 +4005,7 @@ async function handleAiEnhance() {
 
     if (state.openRouterApiKey) {
       try {
-        const mediaContext = state.mode === 'video' ? 'generative video (Google Veo, Omni Flash)' : 'photorealistic image generation (Imagen 3)';
+        const mediaContext = state.mode === 'video' ? 'generative video (Gemini Omni 1.1 Flash, MiniMax-H3)' : 'photorealistic image generation (Imagen 3)';
         const activeSkill = getActiveSkill(state.selectedModel);
         const skillSystemRule = activeSkill && activeSkill.content 
           ? `\n\nSTRICT ACTIVE MODEL SKILL SPECIFICATION (${activeSkill.fileName}):\n${activeSkill.content.slice(0, 1500)}` 
@@ -4253,8 +4034,8 @@ async function handleAiEnhance() {
         } else if (state.selectedModel === 'minimax-h3') {
           enhanced = `${translated}, structured temporal progression, continuous 2K camera trajectory, authentic physical momentum, rich environmental depth, and synchronized 32kHz diegetic acoustics`;
         } else {
-          // Veo 3.1
-          enhanced = `${translated}, natural physical dynamics, authentic fluid movement, subtle particulate atmosphere, crisp focal separation, lifelike material textures`;
+          // Omni 1.1 Flash default
+          enhanced = `${translated}, captured in continuous unbroken motion, real-time kinetic progression, volumetric atmospheric haze, authentic physical mass and environmental responsiveness`;
         }
       } else {
         // Image mode
@@ -4288,9 +4069,7 @@ function copyPromptToClipboard() {
       return;
     }
     textToCopy = compiled.prompt;
-    if (compiled.negative) {
-      textToCopy += `\n\nNegative Prompt: ${compiled.negative}`;
-    }
+
   }
 
   navigator.clipboard.writeText(textToCopy).then(() => {
@@ -4337,16 +4116,17 @@ function handleResetAll() {
   state.selectedFramerate = '24fps cinematic';
   state.selectedAspect = '9:16';
   state.selectedColor = '';
-  state.selectedModel = state.mode === 'video' ? 'veo-3.1' : 'imagen-3';
-  state.customNegative = '';
-  state.activeNegativeTags.clear();
-  if (el.negativeCustomInput) el.negativeCustomInput.value = '';
+  state.selectedModel = state.mode === 'video' ? 'omni-1.1-flash' : 'imagen-3';
+  state.customSound = '';
+  state.onlineTranslatedSound = '';
+  state.activeSoundTags.clear();
+  if (el.soundCustomInput) el.soundCustomInput.value = '';
 
   setMode(state.mode || 'image');
 
   renderColorOptions();
   renderChips();
-  renderNegativeTags();
+  renderSoundTags();
 
   state.identityLock = false;
   if (el.identityLockBtn) {
@@ -4560,7 +4340,6 @@ const SKILLS_BY_MODE = {
     { id: 'imagine-image-2', label: 'Grok Imagine 2.0 (FRAME спецификация)' }
   ],
   video: [
-    { id: 'veo-3.1', label: 'Google Veo 3.1 (Кинематографичное 4K видео)' },
     { id: 'omni-1.1-flash', label: 'Gemini Omni 1.1 Flash (Быстрое видео со звуком)' },
     { id: 'minimax-h3', label: 'MiniMax-H3 (2K Open-Weight со звуком)' },
     { id: 'seedance-2.5', label: 'Seedance 2.5 (30s Arc • Опционально)' }
@@ -4590,7 +4369,7 @@ function renderSkillModelOptions() {
 }
 
 function getActiveSkill(modelId) {
-  const targetId = modelId || state.selectedModel || 'veo-3.1';
+  const targetId = modelId || state.selectedModel || 'omni-1.1-flash';
   const custom = state.customModelSkills ? state.customModelSkills[targetId] : null;
   if (custom && custom.content) {
     return {
@@ -4606,7 +4385,7 @@ function getActiveSkill(modelId) {
     };
   }
 
-  const fallback = DEFAULT_MODEL_SKILLS[targetId] || DEFAULT_MODEL_SKILLS['veo-3.1'];
+  const fallback = DEFAULT_MODEL_SKILLS[targetId] || DEFAULT_MODEL_SKILLS['omni-1.1-flash'];
   return {
     ...fallback,
     isCustom: false
@@ -4614,7 +4393,7 @@ function getActiveSkill(modelId) {
 }
 
 function updateSkillManagerUI(modelId) {
-  const targetId = modelId || state.selectedModel || 'veo-3.1';
+  const targetId = modelId || state.selectedModel || 'omni-1.1-flash';
   state.activeSkillModelId = targetId;
 
   if (el.skillModelSelect && el.skillModelSelect.value !== targetId) {
@@ -5100,7 +4879,7 @@ async function handleDirectorGenerate() {
 
     if (hasKey) {
       // Live OpenRouter Generation
-      const systemPrompt = 'You are an elite Hollywood Director and Master Cinematographer. Your task is to generate ultra-vivid, highly cinematic, physically grounded video/image generation prompts optimized for state-of-the-art generative video models (Google Veo 3.1, Omni 1.1 Flash, Sora, Kling, MiniMax). Write prompts in rich English with precise optical language, camera movements, lighting, and textures. Always respond directly with the formatted content without meta-commentary, introductory remarks, or conversational filler.';
+      const systemPrompt = 'You are an elite Hollywood Director and Master Cinematographer. Your task is to generate ultra-vivid, highly cinematic, physically grounded video/image generation prompts optimized for state-of-the-art generative video models (Gemini Omni 1.1 Flash, MiniMax-H3, Sora, Kling). Write prompts in rich English with precise optical language, camera movements, lighting, and textures. Always respond directly with the formatted content without meta-commentary, introductory remarks, or conversational filler.';
 
       let userPrompt = '';
       if (mode === 'scene') {
@@ -5798,7 +5577,7 @@ async function callGeminiVisionAPI(apiKey, frames) {
     'gemini-3.5-flash-lite'
   ];
 
-  const systemInstruction = `You are a world-class Hollywood Director of Photography, Cinematographer, and AI Video Generation Prompt Master (expert in Google Veo 3.1, Gemini Omni 1.1, MiniMax-H3, Runway Gen-3, Sora, and Kling).
+  const systemInstruction = `You are a world-class Hollywood Director of Photography, Cinematographer, and AI Video Generation Prompt Master (expert in Gemini Omni 1.1 Flash, MiniMax-H3, Runway Gen-3, Sora, and Kling).
 Carefully analyze all the provided video keyframes in chronological sequence.
 Deconstruct what is ACTUALLY happening in the video: the exact environment/room, objects, architectural details, transformation/renovation progress, camera movement trajectory, focal length, lighting architecture, colors, and physical dynamics.
 
@@ -5818,7 +5597,7 @@ You MUST respond ONLY with a raw JSON object with this EXACT structure (no markd
   "style": "photorealistic",
   "composition": "medium-shot",
   "motion": "dolly-in",
-  "director_prompt": "A comprehensive, production-ready English text-to-video master prompt specifically engineered for Veo 3.1 / Gemini Omni / MiniMax-H3 / Runway Gen-3 / Sora. Describe the exact scene, subject, architecture, materials, lighting, fluid transformation dynamics, camera move, and physics in a continuous unbroken shot without any cuts or watermarks.",
+  "director_prompt": "A comprehensive, production-ready English text-to-video master prompt specifically engineered for Gemini Omni 1.1 Flash / MiniMax-H3 / Runway Gen-3 / Sora. Describe the exact scene, subject, architecture, materials, lighting, fluid transformation dynamics, camera move, and physics in a continuous unbroken shot without any cuts or watermarks.",
   "sound_design": "Specific ambient audio and synchronized diegetic sound matching this actual scene"
 }
 

@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
-  <title>PromptForge PRO — AI Prompt Studio (Veo 3.1 • Omni 1.1 Flash • Imagen 3)</title>
-  <meta name="description" content="PromptForge PRO — Профессиональная студия генерации кинематографических мастер-промптов для Google Veo 3.1, Omni 1.1 Flash, MiniMax-H3 и Imagen 3.">
+  <title>PromptForge PRO — AI Prompt Studio (Omni 1.1 Flash • MiniMax-H3 • Imagen 3)</title>
+  <meta name="description" content="PromptForge PRO — Профессиональная студия генерации кинематографических мастер-промптов для Gemini Omni 1.1 Flash, MiniMax-H3 и Imagen 3.">
   <meta name="theme-color" content="#090a10">
   <link rel="icon" type="image/svg+xml" href="favicon.svg?v=1">
   <link rel="alternate icon" href="favicon.svg?v=1">
@@ -642,12 +642,12 @@
           </div>
         </div>
 
-        <!-- ACCORDION: ASPECT RATIO, COLOR PALETTE & NEGATIVE PROMPT (IN ONE ROW) -->
-        <div class="accordion-item open" id="accordionFormatColorNegative">
+        <!-- ACCORDION: ASPECT RATIO, COLOR PALETTE & SOUND ENVIRONMENT (IN ONE ROW) -->
+        <div class="accordion-item open" id="accordionFormatColorSound">
           <div class="accordion-header">
             <div class="accordion-title">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="14" x="2" y="5" rx="2"/></svg>
-              <span>СООТНОШЕНИЕ СТОРОН, ЦВЕТ И ИСКЛЮЧЕНИЯ</span>
+              <span>СООТНОШЕНИЕ СТОРОН, ЦВЕТ И ЗВУКОВОЕ ОКРУЖЕНИЕ</span>
             </div>
             <div class="accordion-chevron">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m18 15-6-6-6 6"/></svg>
@@ -688,16 +688,16 @@
                 </div>
               </div>
 
-              <!-- Column 3: Negative Prompt & Exclusions -->
+              <!-- Column 3: Sound Environment -->
               <div class="inline-select-col">
                 <div class="field-sublabel">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 14.14 14.14"/></svg>
-                  <span>Исключения (Negative Prompt)</span>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+                  <span>Звуковое окружение</span>
                 </div>
-                <div class="negative-inline-row">
-                  <input type="text" id="negativeCustomInput" class="custom-input negative-compact-input" placeholder="Исключения (например: cartoon, blur, bad anatomy)">
-                  <div class="negative-tags-container" id="negativeTagsContainer">
-                    <!-- Quick negative tags -->
+                <div class="sound-inline-row">
+                  <input type="text" id="soundCustomInput" class="custom-input sound-compact-input" placeholder="Звуки на русском (например: рокот дизеля, шум ветра)">
+                  <div class="sound-tags-container" id="soundTagsContainer">
+                    <!-- Quick sound tags -->
                   </div>
                 </div>
               </div>
@@ -767,12 +767,6 @@
               <!-- Live compiled prompt goes here -->
               <span class="placeholder-text">Заполните идею или выберите параметры слева для сборки промпта...</span>
             </div>
-          </div>
-
-          <!-- Negative Prompt Display (if any) -->
-          <div class="negative-prompt-display" id="negativePromptDisplay" style="display: none;">
-            <div class="neg-label">NEGATIVE PROMPT:</div>
-            <div class="neg-text" id="negativePromptText"></div>
           </div>
 
           <!-- Action Buttons -->
@@ -900,7 +894,7 @@
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
             <span id="skillEditorTitle">Спецификация модели</span>
           </div>
-          <span class="skill-editor-meta" id="skillEditorMeta">veo-3-1.md (Встроенная)</span>
+          <span class="skill-editor-meta" id="skillEditorMeta">omni-1-1-flash.md (Встроенная)</span>
         </div>
         <button class="modal-close" id="closeSkillEditorBtn" aria-label="Закрыть">&times;</button>
       </div>
@@ -935,6 +929,6 @@
 
   <!-- Scripts -->
   <script src="presets.js"></script>
-  <script src="app.js?v=6.7"></script>
+  <script src="app.js?v=6.8"></script>
 </body>
 </html>

@@ -1,9 +1,9 @@
 @echo off
-title PromptForge PRO - Google AI Studio (Veo 3.1 & Omni 1.1 Flash)
+title PromptForge PRO - AI Prompt Studio (Omni 1.1 Flash, MiniMax-H3 & Imagen 3)
 cd /d "%~dp0"
 echo ========================================================
-echo   PromptForge PRO - Google AI Studio Prompt Generator
-echo   Models: Google Veo 3.1, Omni 1.1 Flash & Imagen 3
+echo   PromptForge PRO - AI Prompt Studio Generator
+echo   Models: Gemini Omni 1.1 Flash, MiniMax-H3 & Imagen 3
 echo ========================================================
 echo.
 
