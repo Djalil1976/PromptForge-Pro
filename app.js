@@ -426,6 +426,7 @@ description: Specialized video generation using the Seedance 2.5 model with hard
 const state = {
   mode: 'video', // 'image' or 'video'
   references: [], // Reference assets for Omni / First-Last Frame
+  h3Dialect: 'studio7', // 'studio7' (ComfyUI / Subject Definitions) or 'canonical' (H3 Omni API)
   promptFormat: 'master', // 'master' (ready-to-use cohesive prompt) or 'structured' (spec tags)
   promptDisplayLang: 'en', // 'en' or 'ru'
   idea: '',
@@ -502,6 +503,9 @@ const el = {
   addMoreRefBtn: document.getElementById('addMoreRefBtn'),
   refActionsFooter: document.getElementById('refActionsFooter'),
   refModeBadge: document.getElementById('refModeBadge'),
+  h3DialectToggle: document.getElementById('h3DialectToggle'),
+  h3DialectStudioBtn: document.getElementById('h3DialectStudioBtn'),
+  h3DialectApiBtn: document.getElementById('h3DialectApiBtn'),
 
   // Reverse Video AI (Analyzer)
   videoAnalyzerCard: document.getElementById('videoAnalyzerCard'),
@@ -2173,19 +2177,19 @@ function renderReferenceList() {
       if (ref.type === 'video') {
         thumbHtml = `
           <video src="${ref.dataUrl}" class="ref-thumb" muted></video>
-          <span class="ref-token-pill">${ref.token}</span>
+          <span class="ref-token-pill">${(state.selectedModel === 'minimax-h3' && state.h3Dialect === 'studio7') ? (ref.token + ' • <Pic ' + (state.references.indexOf(ref) + 1) + '>') : ref.token}</span>
         `;
       } else if (ref.type === 'audio') {
         thumbHtml = `
           <div class="ref-thumb" style="display:flex; align-items:center; justify-content:center; background:#18181b;">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
           </div>
-          <span class="ref-token-pill">${ref.token}</span>
+          <span class="ref-token-pill">${(state.selectedModel === 'minimax-h3' && state.h3Dialect === 'studio7') ? (ref.token + ' • <Pic ' + (state.references.indexOf(ref) + 1) + '>') : ref.token}</span>
         `;
       } else {
         thumbHtml = `
           <img src="${ref.dataUrl}" class="ref-thumb" alt="${ref.token}">
-          <span class="ref-token-pill">${ref.token}</span>
+          <span class="ref-token-pill">${(state.selectedModel === 'minimax-h3' && state.h3Dialect === 'studio7') ? (ref.token + ' • <Pic ' + (state.references.indexOf(ref) + 1) + '>') : ref.token}</span>
         `;
       }
 
@@ -2337,6 +2341,26 @@ function initReferenceAssets() {
       handleReferenceFiles(e.clipboardData.files);
     }
   });
+
+    if (el.h3DialectStudioBtn) {
+    el.h3DialectStudioBtn.addEventListener('click', () => {
+      state.h3Dialect = 'studio7';
+      el.h3DialectStudioBtn.classList.add('active');
+      if (el.h3DialectApiBtn) el.h3DialectApiBtn.classList.remove('active');
+      renderReferenceList();
+      updateLivePrompt();
+    });
+  }
+
+  if (el.h3DialectApiBtn) {
+    el.h3DialectApiBtn.addEventListener('click', () => {
+      state.h3Dialect = 'canonical';
+      el.h3DialectApiBtn.classList.add('active');
+      if (el.h3DialectStudioBtn) el.h3DialectStudioBtn.classList.remove('active');
+      renderReferenceList();
+      updateLivePrompt();
+    });
+  }
 
   renderReferenceList();
 }
@@ -2638,7 +2662,223 @@ function compileOmniFlash(ctx) {
   return { masterPrompt, sections };
 }
 
-function compileMinimaxH3(ctx) {
+
+function compileMinimaxStudio7(ctx) {
+  const sections = [];
+  const refs = ctx.references || state.references || [];
+  const hasRefs = refs.length > 0;
+
+  if (!ctx.baseDescription && !ctx.activeMotion && !ctx.activeCam && !ctx.activeLens && !ctx.activeLight && !ctx.activeStyle && !ctx.activeComp && !ctx.activeColor && !hasRefs) {
+    return { masterPrompt: '', sections: [] };
+  }
+
+  const durStr = ctx.activeDur ? ctx.activeDur.id : '6s';
+  const durSec = parseInt(durStr, 10) || 6;
+  const descClean = (ctx.baseDescription || 'A dynamic cinematic scene').trim().replace(/\.+$/, '');
+  const customSound = (ctx.customSoundEn || '').trim();
+
+  // 1. subject_definitions:
+  const subDefLines = [];
+  subDefLines.push('subject_definitions:');
+
+  const subjectMap = [];
+  let subjectPersonToken = '';
+  let subjectObjectToken = '';
+  let subjectEnvToken = '';
+
+  if (hasRefs) {
+    refs.forEach((ref, idx) => {
+      const subNum = idx + 1;
+      const subToken = `<Subject ${subNum}>`;
+      const picToken = `<Picture ${subNum}>`;
+      const role = ref.role || 'subject';
+      let desc = (ref.targetName || ref.customDirective || '').trim();
+
+      if (!desc) {
+        if (role === 'subject') {
+          desc = 'defined central protagonist with distinct facial features, hair, physique, and wardrobe';
+        } else if (role === 'environment') {
+          desc = 'cohesive landscape environment with authentic spatial geometry and materials';
+        } else if (role === 'first_frame') {
+          desc = 'foundational initial frame composition, subject placement, and lighting';
+        } else if (role === 'last_frame') {
+          desc = 'culmination final frame composition and resolution';
+        } else if (role === 'motion') {
+          desc = 'reference for body mechanics, kinetic timing, and camera rhythm';
+        } else {
+          desc = 'focal object with structural form, materials, and metallic surfaces';
+        }
+      }
+
+      let roleLabel = 'subject';
+      if (role === 'subject') {
+        roleLabel = 'the person/character';
+        if (!subjectPersonToken) subjectPersonToken = subToken;
+      } else if (role === 'environment') {
+        roleLabel = 'the environment/setting';
+        if (!subjectEnvToken) subjectEnvToken = subToken;
+      } else if (role === 'first_frame') {
+        roleLabel = 'the initial camera frame';
+      } else if (role === 'last_frame') {
+        roleLabel = 'the culmination frame';
+      } else {
+        roleLabel = 'the focal object/element';
+        if (!subjectObjectToken) subjectObjectToken = subToken;
+      }
+
+      subDefLines.push(`${subToken} is ${roleLabel} in ${picToken} — ${desc}.`);
+      subjectMap.push({ subToken, picToken, role, desc });
+    });
+  } else {
+    subDefLines.push('<Subject 1> is the central protagonist — defined character identity and attire.');
+    subjectPersonToken = '<Subject 1>';
+  }
+
+  // 2. summary:
+  const summaryLines = [];
+  summaryLines.push('summary:');
+
+  let summaryAction = descClean;
+  if (hasRefs) {
+    // If we have subjects, integrate them into the summary
+    if (subjectPersonToken && subjectObjectToken && subjectEnvToken) {
+      summaryLines.push(`[reference generation] ${subjectPersonToken} interacts with ${subjectObjectToken} at ${subjectEnvToken}, ${summaryAction.replace(/^(a|the)\s+(man|woman|person|actor)\s+/i, '')}.`);
+    } else if (subjectPersonToken && subjectEnvToken) {
+      summaryLines.push(`[reference generation] ${subjectPersonToken} at ${subjectEnvToken}, ${summaryAction.replace(/^(a|the)\s+(man|woman|person|actor)\s+/i, '')}.`);
+    } else if (subjectPersonToken) {
+      summaryLines.push(`[reference generation] ${subjectPersonToken} — ${summaryAction}.`);
+    } else {
+      const allTokens = subjectMap.map(s => s.subToken).join(', ');
+      summaryLines.push(`[reference generation] ${allTokens} in scene: ${summaryAction}.`);
+    }
+  } else {
+    summaryLines.push(`[reference generation] ${summaryAction}.`);
+  }
+
+  // 3. retention_analysis:
+  const retentionLines = [];
+  retentionLines.push('retention_analysis:');
+
+  if (hasRefs) {
+    subjectMap.forEach(s => {
+      let retained = 'facial features, body proportions, and wardrobe retained';
+      if (s.role === 'environment') {
+        retained = 'environmental architecture, terrain materials, and atmospheric lighting retained';
+      } else if (s.role === 'first_frame' || s.role === 'last_frame') {
+        retained = 'exact frame composition, perspective, and object positions retained';
+      } else if (s.role !== 'subject') {
+        retained = 'structural form, surface materials, and metallic details retained';
+      }
+      retentionLines.push(`${s.subToken} ([Shot 1]): fully_preserved — ${retained}.`);
+    });
+  } else {
+    retentionLines.push('<Subject 1> ([Shot 1]): fully_preserved — character facial features, identity, and attire retained.');
+  }
+
+  // 4. detailed_description:
+  const detailLines = [];
+  detailLines.push('detailed_description:');
+
+  const locClause = subjectEnvToken ? ` at ${subjectEnvToken}` : '';
+  let camAction = 'The camera performs a smooth, steady move keeping the horizon level';
+  if (ctx.activeMotion) {
+    const rawMotion = ctx.activeMotion.prompt.trim().replace(/\.+$/, '');
+    camAction = `The camera performs a ${rawMotion}, keeping the horizon level and maintaining stable perspective geometry`;
+  }
+
+  const opticsClause = [];
+  if (ctx.activeLens) opticsClause.push(`a cinematic bokeh effect from a ${ctx.activeLens.prompt}`);
+  else opticsClause.push('a cinematic bokeh effect from a 50mm prime lens');
+  if (ctx.activeCam) opticsClause.push(`shot on ${ctx.activeCam.prompt}`);
+
+  const lightClause = [];
+  if (ctx.activeLight) lightClause.push(ctx.activeLight.prompt);
+  else lightClause.push('natural daylight with soft shadows and subtle rim light');
+  if (ctx.activeColor) lightClause.push(ctx.activeColor.prompt);
+
+  let inFrameDesc = descClean;
+  if (subjectPersonToken && subjectObjectToken) {
+    inFrameDesc = `${subjectPersonToken} is framed in dynamic relation to ${subjectObjectToken}, ${descClean.replace(/^(a|the)\s+(man|woman|person|actor)\s+/i, '')}`;
+  } else if (subjectPersonToken) {
+    inFrameDesc = `${subjectPersonToken} is framed in the shot, ${descClean.replace(/^(a|the)\s+(man|woman|person|actor)\s+/i, '')}`;
+  }
+
+  detailLines.push(`[Shot 1] (0s-${durSec}s) A continuous cinematic shot${locClause}. ${camAction}. In the frame, ${inFrameDesc}. The lighting is ${lightClause.join(', ')}. The visual atmosphere features authentic surface textures, realistic physical depth, and ${opticsClause.join(' ')}. High-fidelity skin micro-textures and tactile authentic materials are visible.`);
+
+  // 5. overall_soundscape:
+  const soundLines = [];
+  soundLines.push('overall_soundscape:');
+  if (customSound) {
+    soundLines.push(`${customSound}.`);
+  } else {
+    soundLines.push('Synchronized 32kHz stereo audio: natural ambient room presence, subtle environmental acoustics.');
+  }
+
+  // 6. non_diegetic_music:
+  const musicLines = [];
+  musicLines.push('non_diegetic_music:');
+  musicLines.push('N/A');
+
+  // Assembly
+  const masterParts = [
+    subDefLines.join('\n'),
+    summaryLines.join('\n'),
+    retentionLines.join('\n'),
+    detailLines.join('\n'),
+    soundLines.join('\n'),
+    musicLines.join('\n')
+  ];
+
+  const masterPrompt = masterParts.join('\n\n');
+
+  // Structured Sections for Terminal
+  sections.push({
+    uiTag: '⚡ MiniMax Studio 7 Master (ComfyUI Format)',
+    plainTag: 'MiniMax Studio 7 Master Prompt',
+    val: masterPrompt
+  });
+
+  sections.push({
+    uiTag: '🎯 Определение сущностей (subject_definitions)',
+    plainTag: 'subject_definitions',
+    val: subDefLines.slice(1).join('\n')
+  });
+
+  sections.push({
+    uiTag: '📌 Краткое резюме (summary)',
+    plainTag: 'summary',
+    val: summaryLines.slice(1).join('\n')
+  });
+
+  sections.push({
+    uiTag: '🔒 Анализ сохранения (retention_analysis)',
+    plainTag: 'retention_analysis',
+    val: retentionLines.slice(1).join('\n')
+  });
+
+  sections.push({
+    uiTag: '🎬 Детальный кадр (detailed_description)',
+    plainTag: 'detailed_description',
+    val: detailLines.slice(1).join('\n')
+  });
+
+  sections.push({
+    uiTag: '🔊 Саундскейп (overall_soundscape)',
+    plainTag: 'overall_soundscape',
+    val: soundLines.slice(1).join('\n')
+  });
+
+  sections.push({
+    uiTag: '🚫 Фоновая музыка (non_diegetic_music)',
+    plainTag: 'non_diegetic_music',
+    val: musicLines.slice(1).join('\n')
+  });
+
+  return { masterPrompt, sections };
+}
+
+
+function compileMinimaxCanonical(ctx) {
   const sections = [];
   const refs = ctx.references || state.references || [];
   const hasRefs = refs.length > 0;
@@ -2805,7 +3045,6 @@ function compileMinimaxH3(ctx) {
 
   const masterPrompt = masterBlocks.join('\n\n');
 
-  // Terminal UI Sections Breakdown
   sections.push({
     uiTag: '🎬 Мастер-промпт (MiniMax-H3 Production Spec)',
     plainTag: 'MiniMax-H3 Production Master Prompt',
@@ -2868,6 +3107,14 @@ function compileMinimaxH3(ctx) {
 
   return { masterPrompt, sections };
 }
+
+function compileMinimaxH3(ctx) {
+  if (state.h3Dialect === 'studio7') {
+    return compileMinimaxStudio7(ctx);
+  }
+  return compileMinimaxCanonical(ctx);
+}
+
 
 function compileGeminiFlash(ctx) {
   const sections = [];
@@ -3382,6 +3629,47 @@ function formatHighlightedMasterPrompt(text, ctx) {
   if (!text) return '';
   let html = escapeHtml(text);
 
+  // MiniMax Studio 7 (ComfyUI Format) Highlighter
+  if (html.includes('subject_definitions:') || html.includes('detailed_description:')) {
+    const s7SectionMap = {
+      'subject_definitions:': { cls: 'mp-seg-spec', label: 'Определение сущностей' },
+      'summary:': { cls: 'mp-seg-subject', label: 'Краткое резюме' },
+      'retention_analysis:': { cls: 'mp-seg-subject', label: 'Анализ удержания' },
+      'detailed_description:': { cls: 'mp-seg-motion', label: 'Детальный кинематографический кадр' },
+      'overall_soundscape:': { cls: 'mp-seg-audio', label: 'Саундскейп и окружение' },
+      'non_diegetic_music:': { cls: 'mp-seg-spec', label: 'Фоновая музыка' }
+    };
+
+    const s7Regex = /(subject_definitions:|summary:|retention_analysis:|detailed_description:|overall_soundscape:|non_diegetic_music:)/g;
+    const s7Matches = [...html.matchAll(s7Regex)];
+
+    if (s7Matches.length > 0) {
+      let resultHtml = '';
+      let lastIdx = 0;
+
+      for (let i = 0; i < s7Matches.length; i++) {
+        const match = s7Matches[i];
+        const tagName = match[1];
+        const startIdx = match.index;
+        const endIdx = (i + 1 < s7Matches.length) ? s7Matches[i + 1].index : html.length;
+
+        if (startIdx > lastIdx) resultHtml += html.slice(lastIdx, startIdx);
+
+        let chunk = html.slice(startIdx, endIdx).trim();
+        const cfg = s7SectionMap[tagName] || { cls: 'mp-seg-subject', label: tagName };
+
+        // Highlight <Subject N>, <Picture N>, [Shot N] pills
+        chunk = chunk.replace(/(&lt;Subject \d+&gt;|<Subject \d+>)/g, '<span class="mp-subject-pill">$1</span>');
+        chunk = chunk.replace(/(&lt;Picture \d+&gt;|<Picture \d+>)/g, '<span class="mp-picture-pill">$1</span>');
+        chunk = chunk.replace(/(\[Shot \d+\])/g, '<span class="mp-shot-pill">$1</span>');
+
+        resultHtml += `<span class="mp-seg ${cfg.cls}" data-seg="${cfg.cls}" title="${cfg.label}">${chunk}</span><br><br>`;
+        lastIdx = endIdx;
+      }
+      return resultHtml.trim();
+    }
+  }
+
   // MiniMax-H3 Production Tags Highlighter
   if (/\[(REFERENCE USE|IDENTITY \/ CONTINUITY LOCKS|SCENE|DIALOGUE|CAMERA|LIGHT AND IMAGE|PRODUCTION SOUND|NEGATIVES)\]/.test(html)) {
     const sectionMapH3 = {
@@ -3611,6 +3899,10 @@ function releaseCustomDirectorPrompt() {
 
 function updateLivePrompt() {
   const currentModel = AI_MODELS.find(m => m.id === state.selectedModel) || AI_MODELS[0];
+
+  if (el.h3DialectToggle) {
+    el.h3DialectToggle.style.display = (state.selectedModel === 'minimax-h3') ? 'flex' : 'none';
+  }
 
   if (el.terminalModelBadge) {
     el.terminalModelBadge.innerHTML = `

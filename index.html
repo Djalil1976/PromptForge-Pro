@@ -802,6 +802,12 @@
                 <span class="terminal-model-name">Imagen 3</span>
               </div>
               <div class="terminal-actions">
+                <!-- MiniMax H3 Dialect Toggle (Studio 7 ComfyUI vs Canonical API) -->
+                <div class="h3-dialect-pill-toggle" id="h3DialectToggle" title="Формат MiniMax H3" style="display: flex;">
+                  <button class="h3-dialect-btn active" id="h3DialectStudioBtn" data-dialect="studio7" title="Формат MiniMax Studio 7 (ComfyUI / Subject Definitions)">⚡ Studio 7</button>
+                  <button class="h3-dialect-btn" id="h3DialectApiBtn" data-dialect="canonical" title="Канонический формат API H3 ([SCENE], [CAMERA])">🎬 H3 API</button>
+                </div>
+
                 <div class="format-pill-toggle" id="formatPillToggle" title="Формат отображения промпта">
                   <button class="format-pill-btn active" id="formatMasterBtn" data-format="master" title="Цельный кинематографический текст для генератора">Мастер-промпт</button>
                   <button class="format-pill-btn" id="formatStructuredBtn" data-format="structured" title="Структурированный список тегов и спецификаций">Структура</button>
