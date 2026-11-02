@@ -121,42 +121,167 @@ media_type: image
   'minimax-h3': {
     modelId: 'minimax-h3',
     fileName: 'minimax-h3.md',
-    title: 'MiniMax-H3 (Hailuo)',
+    title: 'MiniMax-H3 (Hailuo / Omni)',
     mediaType: '🎬 2K Видео + Звук',
-    ruleCount: '4 правила',
-    description: 'Спецификация 2K видео и 32kHz звука для MiniMax-H3 (Hailuo): трехблочная архитектура, импульс движения и саундскейп.',
+    ruleCount: '5 правил',
+    description: 'Официальная спецификация MiniMax H3: Omni Reference (до 9 фото/3 видео/3 аудио), First/Last Frame, токены Image1..9, границы исключений и 32kHz звук.',
     rules: [
-      '✔ 2K 24fps кинематографическая физика движения',
-      '✔ Трехблочная архитектура промпта',
-      '✔ Стереозвук 32 кГц с пространственным позиционированием',
-      '✔ Поддержка референсных тегов (@Image1, @Video1)'
+      '✔ Токены Image1..9, Video1..3, Audio1..3 без @',
+      '✔ Обязательные границы исключения (Exclusion Boundaries)',
+      '✔ Иерархия секций: [REFERENCE USE], [SCENE], [CAMERA], [PRODUCTION SOUND]',
+      '✔ Бюджеты темпа (0–4s, 4–9s) с фиксацией финального состояния',
+      '✔ Нативный 32kHz звук, диалоги в кавычках и чистые негативы'
     ],
     content: `---
-name: minimax-h3-cinematic
-model: minimax-h3
-description: Спецификация 2K кинематографического видео и 32kHz синхронизированного аудио для MiniMax-H3 (Hailuo). Трехблочная архитектура, таймкоды, физический импульс и референсы.
-version: 1.0.0
-media_type: video
+name: minimax-h3-reference-prompts
+description: Create, rewrite, or audit MiniMax H3 video prompts with image, video, or audio references. Use for H3 Omni Reference, First/Last Frame, text-to-video, identity, performance, motion, camera, voice, dialogue, editing, VFX replacement, and continuity.
 ---
 
-# MiniMax-H3 — 2K Video & 32kHz Synchronized Audio Specification
+# Create MiniMax H3 videos
 
-## 1. Базовые параметры модели
-- **Модель:** MiniMax-H3 (\`minimax-h3\` / Hailuo)
-- **Разрешение:** Родные 2K (2048x1080) при 24fps
-- **Аудио:** 32 кГц кристально чистый синхронизированный стереозвук (шумы, диалоги, фоли, эмбиент)
-- **Поддержка референсов:** Теги @Image1, @Video1 для точного удержания персонажа и окружения
+Turn a scene brief and ordered media into one copy-ready MiniMax H3 prompt. This is a self-contained skill: do not look for companion files.
 
----
+## Authority and execution
 
-## 2. Формула промпта
-Промпт MiniMax-H3 строится по 3 ключевым блокам:
-1. **[Core Action & Subject]:** Ядро сцены, персонаж или объект, физическое действие и импульс.
-2. **[Camera Dynamics & Atmosphere]:** Траектория движения камеры, глубина резкости, освещение и частицы.
-3. **[Soundscape]:** Детализированный звуковой слой.
+- Use this skill only for MiniMax H3.
+- Inspect the live endpoint or generation interface before execution. Its exact mode, tokens, limits, duration, aspect ratio, prompt ceiling, and media constraints override this file.
+- Write, format, rewrite, or audit prompts without running a model. Submit one job only when the user explicitly asks to generate; never add an automatic proof, batch, or retry.
+- Ask only when a missing fact changes reference order, identity ownership, source master, exact dialogue, or story outcome. Infer harmless production detail.
 
-### Пример:
-> "Medium tracking shot following a runner through a rain-slicked neon alley in Tokyo. Camera glides alongside at waist height on a stabilized gimbal. Cinematic 2K anamorphic lighting with cyan and magenta lens flares reflecting in wet puddles. Pacing accelerates smoothly. Synchronized audio: rhythmic sneaker splashes in standing water, heavy breathing, muffled distant bass rhythm from an underground club, gentle rainfall patter on metal awnings."`
+## Select the smallest mode
+
+| Intent | Use |
+| --- | --- |
+| No media references | Text-to-video |
+| One or two boundary images | First/Last Frame |
+| Several reference assets | Omni Reference |
+| Source video is the authoritative timeline | Edit / replacement |
+| Source video supplies acting, motion, or camera | Performance or camera transfer |
+| Audio supplies a target voice | Voice transfer |
+
+Fallback provider snapshot when no live contract is supplied: 4–15 seconds at 24 FPS; text prompts up to 7,000 characters; text ratios \`21:9\`, \`16:9\`, \`4:3\`, \`1:1\`, \`3:4\`, \`9:16\`; Omni also supports Auto. Omni accepts up to 9 images, 3 videos, and 3 audio files (12 total); each video/audio is 2–15 seconds and each modality totals at most 15 seconds. Audio needs at least one image or video. Images are JPG/JPEG/PNG/WEBP/HEIC/HEIF (≤30 MB); video is H.264/H.265 with AAC/MP3 audio (≤50 MB); audio is WAV/MP3 (≤15 MB). Never loosen a live interface constraint to match this fallback.
+
+## Map references exactly
+
+Use the interface-provided ordered binding map. H3 normally uses compact tokens with no \`@\` and no spaces:
+
+\`\`\`text
+Image1  Image2  Video1  Audio1
+\`\`\`
+
+Each token is its upload-order slot. Do not infer it from a library label, filename, or UUID; do not renumber it. Give every asset one bounded job and name what it must not contribute:
+
+\`\`\`text
+Image1 defines Maya's face, hair, body, and wardrobe only. Ignore its background and pose.
+Image2 defines the studio layout, materials, and lighting only. Ignore its people.
+Video1 defines only body motion, performance timing, and camera rhythm. Do not inherit its actors, wardrobe, or location.
+Audio1 defines Maya's voice timbre, accent, cadence, and delivery only.
+\`\`\`
+
+Use separate named roles for identity, wardrobe, prop, scene, style, motion, performance, camera, edit rhythm, voice, music, and sound. Never rely on “use the references” or “respectively.”
+
+## Write in production order
+
+Use only the sections that materially constrain the result:
+
+\`\`\`text
+[REFERENCE USE]
+[IDENTITY / CONTINUITY LOCKS]
+[SCENE]
+[DIALOGUE]
+[SCREEN GEOGRAPHY]
+[SHOT LIST]
+[ACTING]
+[LIGHT AND IMAGE]
+[CAMERA]
+[PRODUCTION SOUND]
+[NEGATIVES]
+\`\`\`
+
+Stable truth comes before action. Lock subject count, identity, wardrobe, prop ownership, voice ownership, left/right positions, eyelines, and screen direction only where continuity needs it. Give actors objectives and observable behavior—gaze, posture, breath, interrupted movement, or listening—rather than generic emotion labels.
+
+For one continuous action, write natural chronological prose. For more than one beat, use consecutive non-overlapping time ranges inside the requested duration. Each range gets one primary visible event and a usable end state:
+
+\`\`\`text
+0–4s — medium two-shot on a 40 mm lens; slow push-in; Maya opens the case and says, “We begin now.” End with the device lit in her left hand.
+4–9s — over-the-shoulder close-up; hold the axis; Jon watches the light, then nods. End with both characters facing the device.
+\`\`\`
+
+Treat ranges as pacing budgets, not frame-accurate edit points. Reserve time for natural dialogue and reactions.
+
+Put exact dialogue in double quotes, bind it to one speaker, and state language/delivery when useful. Keep the audio-reference role separate from the final mix:
+
+\`\`\`text
+Maya speaks in natural conversational American English, quiet but firm: “We begin now.”
+Native stereo studio tone and the case latch remain under clear dialogue. No music or subtitles.
+\`\`\`
+
+Keep negatives short and observable: no extra people, identity drift, wardrobe or voice swaps, broken eyelines, duplicate props, position reversals, subtitles, unmotivated cuts, or unwanted music.
+
+## Mode clauses
+
+### Performance or camera transfer
+
+State precisely what the source video controls and exclude everything else:
+
+\`\`\`text
+Video1 defines only the body mechanics, expression order, interaction rhythm, and camera movement. Do not inherit its people, clothing, or location.
+Recreate its action order with Maya from Image1. Preserve every handoff, pause, contact, occlusion, direction change, and final position.
+\`\`\`
+
+### Voice transfer
+
+Bind one audio reference to one target and line. Require lip sync and voice ownership; keep room tone/effects separate:
+
+\`\`\`text
+Audio1 defines only Maya's voice timbre, accent, cadence, and emotional delivery.
+Maya says exactly: “We begin now.” Preserve accurate lip sync and native stereo room tone.
+\`\`\`
+
+### First/Last Frame
+
+Use the dedicated image fields, not an Omni array. State the exact observable boundary states and the single causal motion between them:
+
+\`\`\`text
+Image1 is the exact first frame; preserve its subject count, identity, composition, lighting, and object positions.
+Image2 is the exact last frame; arrive naturally at its composition, lighting, and object positions.
+No hard cut, teleportation, duplicate subject, prop swap, or discontinuous light.
+\`\`\`
+
+### Targeted edit or replacement
+
+One source video is the sole master. Name the exact change and preserve all else:
+
+\`\`\`text
+[SOURCE MASTER]
+Video1 is the sole editing master for subjects, performance, scene, timeline, camera, occlusions, dialogue, ambience, and event order.
+
+[REFERENCE USE]
+Image1 defines only the replacement object's appearance, structure, material, and color. Ignore its background and pose.
+
+[EDIT]
+Replace only <source target> with <replacement>. Keep exactly one instance. It inherits the source's motion path, contact, occlusion, rotation, scale, speed, and visibility.
+
+[PRESERVE]
+Do not change any other subject, object, action, background, light, camera, cut, dialogue, sound effect, ambience, or duration.
+\`\`\`
+
+For environment/VFX replacement, preserve foreground identity, hair/fabric edges, performance, camera, timing, and occlusions; require coherent parallax, relighting, shadow, reflection, and interaction.
+
+## Validate and return
+
+Before returning or submitting, confirm:
+
+- The endpoint/mode and all tokens match the live interface and attachment order.
+- Every reference has one named authority and an exclusion boundary.
+- Identity, props, voice, subject count, wardrobe, screen geography, and source-master ownership cannot swap.
+- Timing is realistic, consecutive, and within the active duration limit.
+- Dialogue fits its time budget and is assigned to one speaker.
+- Camera, acting, light, sound, and negatives do not contradict the references.
+- An edit names one master, one exact target, and its preserved content.
+
+Return a brief \`Reference map\` for two or more assets, then one final prompt in a single plain-text code block. Include assumptions only when they matter. Never claim a job, result, URL, or file exists unless it was actually created.
+`
   },
   'gemini-flash': {
     modelId: 'gemini-flash',
@@ -300,6 +425,7 @@ description: Specialized video generation using the Seedance 2.5 model with hard
 
 const state = {
   mode: 'video', // 'image' or 'video'
+  references: [], // Reference assets for Omni / First-Last Frame
   promptFormat: 'master', // 'master' (ready-to-use cohesive prompt) or 'structured' (spec tags)
   promptDisplayLang: 'en', // 'en' or 'ru'
   idea: '',
@@ -365,6 +491,17 @@ const el = {
   statusText: document.getElementById('statusText'),
   openGalleryBtn: document.getElementById('openGalleryBtn'),
   clearAllBtn: document.getElementById('clearAllBtn'),
+
+    // Reference Assets (MiniMax H3 Omni / Multi-modal)
+  referenceAssetsCard: document.getElementById('referenceAssetsCard'),
+  refFileInput: document.getElementById('refFileInput'),
+  refDropzone: document.getElementById('refDropzone'),
+  refItemsList: document.getElementById('refItemsList'),
+  refCounter: document.getElementById('refCounter'),
+  clearAllRefsBtn: document.getElementById('clearAllRefsBtn'),
+  addMoreRefBtn: document.getElementById('addMoreRefBtn'),
+  refActionsFooter: document.getElementById('refActionsFooter'),
+  refModeBadge: document.getElementById('refModeBadge'),
 
   // Reverse Video AI (Analyzer)
   videoAnalyzerCard: document.getElementById('videoAnalyzerCard'),
@@ -633,6 +770,7 @@ async function init() {
     initModelSkills();
     initAiDirector();
     initVideoAnalyzer();
+    initReferenceAssets();
     console.log('PromptForge Google AI Studio successfully initialized!');
   } catch (err) {
     console.error('PromptForge Init Error:', err);
@@ -1830,6 +1968,380 @@ function detectDialogue(text) {
 const IDENTITY_LOCK_DIRECTIVE = 'Strict 1:1 facial identity lock to @Image1 reference: preserve exact eye shape, eyelid folds, natural under-eye contours, exact nose bridge geometry, authentic facial bone structure, and natural beard/hair density with visible skin micro-texture. Maintain frontal fill light on face and crisp locked garment typography';
 const IDENTITY_LOCK_CONSTRAINTS = 'strict facial geometry lock to @Image1, no facial beautification, no eye widening, no cheek or jaw morphing, no beard thickening, no garment text garbling';
 
+
+// ==========================================================================
+// REFERENCE ASSETS ENGINE (MINIMAX H3 OMNI / MULTI-MODAL / FIRST-LAST FRAME)
+// ==========================================================================
+
+const REFERENCE_ROLES = [
+  {
+    id: 'subject',
+    label: '👤 Персонаж / Внешность (Лицо, тело, одежда)',
+    getDirective: (token, target) => `${token} defines ${target || "the subject"}'s face, hair, body, and wardrobe only. Ignore its background and pose.`
+  },
+  {
+    id: 'environment',
+    label: '🏞 Окружение / Локация (Свет, материалы)',
+    getDirective: (token) => `${token} defines the scene layout, materials, and lighting only. Ignore its people.`
+  },
+  {
+    id: 'first_frame',
+    label: '🎬 Первый кадр (First Frame)',
+    getDirective: (token) => `${token} is the exact first frame; preserve its subject count, identity, composition, lighting, and object positions.`
+  },
+  {
+    id: 'last_frame',
+    label: '🏁 Последний кадр (Last Frame)',
+    getDirective: (token) => `${token} is the exact last frame; arrive naturally at its composition, lighting, and object positions.`
+  },
+  {
+    id: 'motion',
+    label: '🏃 Движение / Камера (Motion transfer)',
+    getDirective: (token) => `${token} defines only body motion, performance timing, and camera rhythm. Do not inherit its actors, wardrobe, or location.`
+  },
+  {
+    id: 'voice',
+    label: '🎙 Голос / Тембр (Voice transfer)',
+    getDirective: (token, target) => `${token} defines ${target || "the subject"}'s voice timbre, accent, cadence, and delivery only.`
+  },
+  {
+    id: 'style',
+    label: '✨ Стиль / Цветокоррекция',
+    getDirective: (token) => `${token} defines visual aesthetic, color grading, and lighting only. Ignore its subjects.`
+  },
+  {
+    id: 'custom',
+    label: '✏️ Свой фокус / Описание',
+    getDirective: (token, target, customText) => `${token} defines ${customText || target || "custom reference details"}.`
+  }
+];
+
+function recalcReferenceTokens() {
+  let imgCount = 0;
+  let vidCount = 0;
+  let audCount = 0;
+
+  state.references.forEach(ref => {
+    if (ref.type === 'video') {
+      vidCount++;
+      ref.token = `Video${vidCount}`;
+    } else if (ref.type === 'audio') {
+      audCount++;
+      ref.token = `Audio${audCount}`;
+    } else {
+      imgCount++;
+      ref.token = `Image${imgCount}`;
+    }
+  });
+}
+
+function handleReferenceFiles(files) {
+  if (!files || files.length === 0) return;
+
+  const validFiles = Array.from(files);
+  let addedCount = 0;
+
+  validFiles.forEach(file => {
+    const isVid = file.type.startsWith('video/');
+    const isAud = file.type.startsWith('audio/');
+    const isImg = file.type.startsWith('image/');
+
+    const currentImgs = state.references.filter(r => r.type === 'image').length;
+    const currentVids = state.references.filter(r => r.type === 'video').length;
+    const currentAuds = state.references.filter(r => r.type === 'audio').length;
+
+    if (isImg && currentImgs >= 9) {
+      showToast('Достигнут лимит: максимум 9 изображений для Omni', '⚠️');
+      return;
+    }
+    if (isVid && currentVids >= 3) {
+      showToast('Достигнут лимит: максимум 3 видео для Omni', '⚠️');
+      return;
+    }
+    if (isAud && currentAuds >= 3) {
+      showToast('Достигнут лимит: максимум 3 аудио для Omni', '⚠️');
+      return;
+    }
+
+    if (isImg && file.size > 30 * 1024 * 1024) {
+      showToast(`Файл ${file.name} превышает 30 МБ`, '⚠️');
+      return;
+    }
+    if (isVid && file.size > 50 * 1024 * 1024) {
+      showToast(`Видео ${file.name} превышает 50 МБ`, '⚠️');
+      return;
+    }
+    if (isAud && file.size > 15 * 1024 * 1024) {
+      showToast(`Аудио ${file.name} превышает 15 МБ`, '⚠️');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const dataUrl = e.target.result;
+      const refType = isVid ? 'video' : (isAud ? 'audio' : 'image');
+
+      let defaultRole = 'subject';
+      if (refType === 'video') defaultRole = 'motion';
+      else if (refType === 'audio') defaultRole = 'voice';
+      else if (currentImgs === 1) defaultRole = 'environment';
+
+      state.references.push({
+        id: 'ref_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+        type: refType,
+        name: file.name,
+        size: file.size,
+        dataUrl,
+        token: '',
+        role: defaultRole,
+        targetName: '',
+        customDirective: ''
+      });
+
+      recalcReferenceTokens();
+      renderReferenceList();
+      updateLivePrompt();
+    };
+
+    reader.readAsDataURL(file);
+    addedCount++;
+  });
+
+  if (addedCount > 0) {
+    showToast(`Загрузка референсов (${addedCount} шт)...`, '📎');
+  }
+}
+
+function addFrameAsReference(dataUrl, label) {
+  const currentImgs = state.references.filter(r => r.type === 'image').length;
+  if (currentImgs >= 9) {
+    showToast('Достигнут лимит: максимум 9 изображений для Omni', '⚠️');
+    return;
+  }
+
+  const hasFirst = state.references.some(r => r.role === 'first_frame');
+  const hasLast = state.references.some(r => r.role === 'last_frame');
+  let defaultRole = 'subject';
+  if (!hasFirst) defaultRole = 'first_frame';
+  else if (!hasLast) defaultRole = 'last_frame';
+
+  state.references.push({
+    id: 'ref_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+    type: 'image',
+    name: label || `Кадр #${currentImgs + 1}`,
+    size: 0,
+    dataUrl,
+    token: '',
+    role: defaultRole,
+    targetName: '',
+    customDirective: ''
+  });
+
+  recalcReferenceTokens();
+  renderReferenceList();
+  updateLivePrompt();
+  showToast(`Кадр добавлен в референсы (${state.references[state.references.length - 1].token})`, '🎯');
+}
+
+function renderReferenceList() {
+  const count = state.references.length;
+  if (el.refCounter) {
+    el.refCounter.textContent = `${count} / 9`;
+  }
+
+  if (count === 0) {
+    if (el.refItemsList) el.refItemsList.style.display = 'none';
+    if (el.refActionsFooter) el.refActionsFooter.style.display = 'none';
+    if (el.clearAllRefsBtn) el.clearAllRefsBtn.style.display = 'none';
+    if (el.refDropzone) el.refDropzone.style.display = 'block';
+    return;
+  }
+
+  if (el.clearAllRefsBtn) el.clearAllRefsBtn.style.display = 'inline-flex';
+  if (el.refItemsList) el.refItemsList.style.display = 'flex';
+  if (el.refActionsFooter) el.refActionsFooter.style.display = 'flex';
+
+  if (count >= 2) {
+    if (el.refDropzone) el.refDropzone.style.display = 'none';
+  } else {
+    if (el.refDropzone) el.refDropzone.style.display = 'block';
+  }
+
+  if (el.refItemsList) {
+    el.refItemsList.innerHTML = state.references.map(ref => {
+      let thumbHtml = '';
+      if (ref.type === 'video') {
+        thumbHtml = `
+          <video src="${ref.dataUrl}" class="ref-thumb" muted></video>
+          <span class="ref-token-pill">${ref.token}</span>
+        `;
+      } else if (ref.type === 'audio') {
+        thumbHtml = `
+          <div class="ref-thumb" style="display:flex; align-items:center; justify-content:center; background:#18181b;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
+          </div>
+          <span class="ref-token-pill">${ref.token}</span>
+        `;
+      } else {
+        thumbHtml = `
+          <img src="${ref.dataUrl}" class="ref-thumb" alt="${ref.token}">
+          <span class="ref-token-pill">${ref.token}</span>
+        `;
+      }
+
+      const optionsHtml = REFERENCE_ROLES.map(role => `
+        <option value="${role.id}" ${ref.role === role.id ? 'selected' : ''}>${role.label}</option>
+      `).join('');
+
+      const showCustomInput = ref.role === 'custom' || ref.role === 'subject' || ref.targetName;
+      const targetPlaceholder = ref.role === 'subject' ? 'Имя объекта (напр.: Maya, Тягач)' : 'Детали фокуса референса';
+
+      return `
+        <div class="ref-item" data-ref-id="${ref.id}">
+          <div class="ref-thumb-wrapper">
+            ${thumbHtml}
+          </div>
+          <div class="ref-info-col">
+            <div class="ref-row-top">
+              <span class="ref-filename" title="${ref.name}">${ref.name}</span>
+              <button type="button" class="btn-remove-ref" data-ref-id="${ref.id}" title="Удалить референс">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+            <div class="ref-role-selector-wrap">
+              <select class="ref-role-select" data-ref-id="${ref.id}">
+                ${optionsHtml}
+              </select>
+            </div>
+            <div class="ref-target-wrap" style="display: ${showCustomInput ? 'block' : 'none'};">
+              <input type="text" class="ref-target-input" data-ref-id="${ref.id}" placeholder="${targetPlaceholder}" value="${escapeHtml(ref.targetName || ref.customDirective || '')}">
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+}
+
+function removeReference(id) {
+  state.references = state.references.filter(r => r.id !== id);
+  recalcReferenceTokens();
+  renderReferenceList();
+  updateLivePrompt();
+}
+
+function clearAllReferences() {
+  state.references = [];
+  renderReferenceList();
+  updateLivePrompt();
+  showToast('Все референсы очищены', '🗑️');
+}
+
+function initReferenceAssets() {
+  if (!el.referenceAssetsCard) return;
+
+  if (el.refDropzone) {
+    el.refDropzone.addEventListener('click', () => {
+      if (el.refFileInput) el.refFileInput.click();
+    });
+
+    ['dragenter', 'dragover'].forEach(evt => {
+      el.refDropzone.addEventListener(evt, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        el.refDropzone.classList.add('dragover');
+      });
+    });
+
+    ['dragleave', 'drop'].forEach(evt => {
+      el.refDropzone.addEventListener(evt, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        el.refDropzone.classList.remove('dragover');
+      });
+    });
+
+    el.refDropzone.addEventListener('drop', (e) => {
+      const dt = e.dataTransfer;
+      if (dt && dt.files && dt.files.length > 0) {
+        handleReferenceFiles(dt.files);
+      }
+    });
+  }
+
+  if (el.refFileInput) {
+    el.refFileInput.addEventListener('change', (e) => {
+      if (e.target.files && e.target.files.length > 0) {
+        handleReferenceFiles(e.target.files);
+        e.target.value = '';
+      }
+    });
+  }
+
+  if (el.addMoreRefBtn) {
+    el.addMoreRefBtn.addEventListener('click', () => {
+      if (el.refFileInput) el.refFileInput.click();
+    });
+  }
+
+  if (el.clearAllRefsBtn) {
+    el.clearAllRefsBtn.addEventListener('click', () => {
+      clearAllReferences();
+    });
+  }
+
+  if (el.refItemsList) {
+    el.refItemsList.addEventListener('change', (e) => {
+      const select = e.target.closest('.ref-role-select');
+      if (select) {
+        const refId = select.dataset.refId;
+        const ref = state.references.find(r => r.id === refId);
+        if (ref) {
+          ref.role = select.value;
+          renderReferenceList();
+          updateLivePrompt();
+        }
+      }
+    });
+
+    el.refItemsList.addEventListener('input', (e) => {
+      const input = e.target.closest('.ref-target-input');
+      if (input) {
+        const refId = input.dataset.refId;
+        const ref = state.references.find(r => r.id === refId);
+        if (ref) {
+          if (ref.role === 'custom') {
+            ref.customDirective = input.value;
+          } else {
+            ref.targetName = input.value;
+          }
+          updateLivePrompt();
+        }
+      }
+    });
+
+    el.refItemsList.addEventListener('click', (e) => {
+      const btn = e.target.closest('.btn-remove-ref');
+      if (btn) {
+        const refId = btn.dataset.refId;
+        removeReference(refId);
+      }
+    });
+  }
+
+  document.addEventListener('paste', (e) => {
+    const activeTag = document.activeElement ? document.activeElement.tagName.toLowerCase() : '';
+    if (activeTag === 'textarea' || activeTag === 'input') return;
+
+    if (e.clipboardData && e.clipboardData.files && e.clipboardData.files.length > 0) {
+      handleReferenceFiles(e.clipboardData.files);
+    }
+  });
+
+  renderReferenceList();
+}
+
+
 function compileImagen3(ctx) {
   const sections = [];
   if (!ctx.baseDescription && !ctx.activeCam && !ctx.activeLens && !ctx.activeLight && !ctx.activeStyle && !ctx.activeComp && !ctx.activeColor) {
@@ -1988,6 +2500,24 @@ function compileOmniFlash(ctx) {
   }
 
   // Meta-prompting directive (DeepMind Omni recommended practice)
+    const refs = ctx.references || state.references || [];
+  if (refs.length > 0) {
+    const firstRef = refs.find(r => r.role === 'first_frame');
+    const lastRef = refs.find(r => r.role === 'last_frame');
+    const otherRefs = refs.filter(r => r.role !== 'first_frame' && r.role !== 'last_frame');
+
+    const omniTagList = [];
+    if (firstRef) omniTagList.push(`<FIRST_FRAME> (anchors initial frame)`);
+    if (lastRef) omniTagList.push(`<LAST_FRAME> (anchors final frame)`);
+    otherRefs.forEach((r, idx) => {
+      omniTagList.push(`<IMAGE_REF_${idx}> (${r.role === 'subject' ? 'character identity' : (r.role === 'environment' ? 'environment' : 'reference')})`);
+    });
+
+    if (omniTagList.length > 0) {
+      masterParts.push(`Reference binding: ${omniTagList.join(', ')}. `);
+    }
+  }
+
   masterParts.push(`Consider micro-detail, natural lighting falloff, realistic physical inertia, and timing to create a rich, cohesive scene. `);
 
   if (state.identityLock) {
@@ -2110,7 +2640,10 @@ function compileOmniFlash(ctx) {
 
 function compileMinimaxH3(ctx) {
   const sections = [];
-  if (!ctx.baseDescription && !ctx.activeMotion && !ctx.activeCam && !ctx.activeLens && !ctx.activeLight && !ctx.activeStyle && !ctx.activeComp && !ctx.activeColor) {
+  const refs = ctx.references || state.references || [];
+  const hasRefs = refs.length > 0;
+
+  if (!ctx.baseDescription && !ctx.activeMotion && !ctx.activeCam && !ctx.activeLens && !ctx.activeLight && !ctx.activeStyle && !ctx.activeComp && !ctx.activeColor && !hasRefs) {
     return { masterPrompt: '', sections: [] };
   }
 
@@ -2120,141 +2653,218 @@ function compileMinimaxH3(ctx) {
   const hasDialogue = detectDialogue(ctx.rawIdea) || detectDialogue(ctx.baseDescription);
   const customSound = (ctx.customSoundEn || '').trim();
 
-  // 1. Core Concept Block (Clean concise narrative summary)
+  // Mode detection based on references
+  const firstFrameRef = refs.find(r => r.role === 'first_frame');
+  const lastFrameRef = refs.find(r => r.role === 'last_frame');
+  const isFirstLastMode = Boolean(firstFrameRef && lastFrameRef);
+  const subjectRefs = refs.filter(r => r.role === 'subject');
+  const envRefs = refs.filter(r => r.role === 'environment');
+  const motionRefs = refs.filter(r => r.role === 'motion');
+  const voiceRefs = refs.filter(r => r.role === 'voice');
+
+  // 1. [REFERENCE USE]
+  const refUseLines = [];
+  if (hasRefs) {
+    refs.forEach(r => {
+      const roleDef = REFERENCE_ROLES.find(ro => ro.id === r.role) || REFERENCE_ROLES[0];
+      const line = roleDef.getDirective(r.token, r.targetName, r.customDirective);
+      refUseLines.push(line);
+    });
+  }
+
+  // 2. [IDENTITY / CONTINUITY LOCKS]
+  const continuityLocks = [];
+  if (subjectRefs.length > 0) {
+    const tokens = subjectRefs.map(r => r.token).join(', ');
+    const names = subjectRefs.map(r => r.targetName || 'Subject').join(', ');
+    continuityLocks.push(`Subject identity, facial features, body proportions, and wardrobe locked strictly to ${tokens} (${names}) without drift across all frames.`);
+  } else if (state.identityLock) {
+    continuityLocks.push(`Subject facial features and appearance locked consistently without drift across all frames.`);
+  }
+  if (envRefs.length > 0) {
+    const tokens = envRefs.map(r => r.token).join(', ');
+    continuityLocks.push(`Scene architecture, materials, and spatial lighting locked strictly to ${tokens}.`);
+  }
+
+  // 3. [SCENE] (Idea narrative + Temporal pacing budgets)
   const descClean = (ctx.baseDescription || 'Dynamic cinematic scene').trim().replace(/\.+$/, '');
-  let coreConcept = `${descClean}. High-fidelity continuous 2K take (${durStr}, ${aspectStr}, 24fps).`;
-  if (state.identityLock) {
-    coreConcept += ` ${IDENTITY_LOCK_DIRECTIVE}.`;
-  }
+  const sceneLines = [];
 
-  // 2. Structured Temporal Decomposition [Xs-Ys]
-  let timeline = '';
-  const motionDesc = ctx.activeMotion ? ctx.activeMotion.prompt.trim().replace(/\.+$/, '') : 'smooth forward dolly push';
-  if (durSec <= 6) {
-    const half = Math.floor(durSec / 2);
-    timeline = `[0s-${half}s] Initiating composition: camera executes a ${motionDesc}, establishing scene elements with pristine optical depth. [${half}s-${durSec}s] Kinetic progression develops with realistic physical inertia, natural lighting highlights, and cohesive settling into the final frame.`;
-  } else if (durSec <= 10) {
-    timeline = `[0s-3s] Initiating sequence: camera begins a ${motionDesc}, anchoring subject geometry with authentic perspective parallax. [3s-6s] Action deepens with rich atmospheric interaction, continuous kinetic flow, and authentic physical mass. [6s-${durSec}s] Sequence achieves smooth cinematic resolution with realistic optical motion blur and cohesive environment settling.`;
+  if (isFirstLastMode) {
+    sceneLines.push(`${firstFrameRef.token} is the exact first frame; sequence advances with continuous physical inertia and causal progression to arrive seamlessly at ${lastFrameRef.token}.`);
+    sceneLines.push(`Action narrative: ${descClean}.`);
   } else {
-    // 15s epic take
-    timeline = `[0s-4s] Opening framing: camera executes a steady ${motionDesc}, revealing the architectural space and focal subjects. [4s-10s] Dynamic central arc: nuanced physical interactions unfold with rich ambient lighting falloff and environmental depth. [10s-${durSec}s] Epic cinematic culmination: smooth controlled deceleration, subtle spatial reverberation, and seamless narrative resolution.`;
+    let subjectBinding = '';
+    if (subjectRefs.length > 0 && envRefs.length > 0) {
+      subjectBinding = `Feature ${subjectRefs[0].targetName || 'subject'} from ${subjectRefs[0].token} inside the environment established by ${envRefs[0].token}. `;
+    } else if (subjectRefs.length > 0) {
+      subjectBinding = `Feature ${subjectRefs[0].targetName || 'subject'} from ${subjectRefs[0].token} as the central focus. `;
+    }
+
+    const motionDesc = ctx.activeMotion ? ctx.activeMotion.prompt.trim().replace(/\.+$/, '') : 'smooth forward camera move';
+
+    if (durSec <= 6) {
+      const half = Math.floor(durSec / 2);
+      sceneLines.push(`${subjectBinding}${descClean}.`);
+      sceneLines.push(`0–${half}s — composition establishes subject geometry and focal presence; camera initiates ${motionDesc}. End with subject anchored.`);
+      sceneLines.push(`${half}–${durSec}s — kinetic progression develops with authentic physical weight and lighting interaction. End with stable narrative frame.`);
+    } else if (durSec <= 10) {
+      sceneLines.push(`${subjectBinding}${descClean}.`);
+      sceneLines.push(`0–3s — opening framing: camera executes a ${motionDesc}, anchoring scene geography with authentic perspective parallax. End with primary action established.`);
+      sceneLines.push(`3–6s — dynamic central arc: nuanced physical interactions unfold with rich atmospheric lighting falloff. End with gesture held.`);
+      sceneLines.push(`6–${durSec}s — kinetic resolution: controlled deceleration and cohesive environment settling. End with complete frame stability.`);
+    } else {
+      sceneLines.push(`${subjectBinding}${descClean}.`);
+      sceneLines.push(`0–4s — wide establishing framing on a cinema lens; camera begins steady ${motionDesc}. End with spatial geometry anchored.`);
+      sceneLines.push(`4–10s — nuanced continuous physical interaction unfolds with authentic environmental depth and lighting highlights. End with central story beat delivered.`);
+      sceneLines.push(`10–${durSec}s — narrative culmination: smooth deceleration and cinematic resolution. End with cohesive final composition.`);
+    }
   }
 
-  // 3. Cinematography and optics
-  const opticsList = [];
-  if (ctx.activeCam) opticsList.push(ctx.activeCam.prompt);
-  if (ctx.activeLens) opticsList.push(ctx.activeLens.prompt);
-  if (ctx.activeComp) opticsList.push(ctx.activeComp.prompt);
-  if (ctx.activeLight) opticsList.push(ctx.activeLight.prompt);
-  if (ctx.activeColor) opticsList.push(ctx.activeColor.prompt);
-  if (ctx.activeStyle) opticsList.push(cleanBuzzwords(ctx.activeStyle.prompt));
-
-  // 4. Master Prompt Assembly (Following MiniMax-H3 official 3-block formula)
-  const masterParts = [];
-  masterParts.push(`[Core Concept]: ${coreConcept} `);
-  masterParts.push(`[Temporal Progression]: ${timeline} `);
-
-  if (opticsList.length > 0) {
-    masterParts.push(`[Cinematography & Atmosphere]: ${opticsList.join(', ')}. True 2K clarity, volumetric atmospheric haze, natural optical bokeh. `);
-  }
-
-  if (ctx.quickTags) {
-    masterParts.push(`[Scene Elements]: ${ctx.quickTags}. `);
-  }
-
+  // Dialogue if detected
+  let dialogueLine = '';
   if (hasDialogue) {
-    if (customSound) {
-      masterParts.push(`[Audio Environment]: Synchronized 32kHz stereo audio: natural English spoken dialogue with authentic vocal cadence and lip sync, paired with ${customSound}. `);
-    } else {
-      masterParts.push(`[Audio Environment]: Synchronized 32kHz stereo audio: natural English spoken dialogue with authentic vocal cadence and lip sync. `);
-    }
-    if (state.identityLock) {
-      masterParts.push(`[Constraints]: Single continuous shot, no scene cuts, no morphing artifacts, no text watermark, natural lip synchronization, ${IDENTITY_LOCK_CONSTRAINTS}.`);
-    } else {
-      masterParts.push(`[Constraints]: Single continuous shot, no scene cuts, no morphing artifacts, no text watermark, natural lip synchronization.`);
-    }
-  } else {
-    if (customSound) {
-      masterParts.push(`[Audio Environment]: Synchronized 32kHz stereo audio: ${customSound}. `);
-    } else {
-      masterParts.push(`[Audio Environment]: Synchronized 32kHz stereo audio: natural ambient room presence, subtle environmental acoustics. `);
-    }
-    if (state.identityLock) {
-      masterParts.push(`[Constraints]: Single continuous shot, no scene cuts, no morphing artifacts, no text watermark, no spoken dialogue, ${IDENTITY_LOCK_CONSTRAINTS}.`);
-    } else {
-      masterParts.push(`[Constraints]: Single continuous shot, no scene cuts, no morphing artifacts, no text watermark, no spoken dialogue.`);
+    const rawQuoteMatch = (ctx.rawIdea || '').match(/["«]([^"»]+)["»]/);
+    const quoteText = rawQuoteMatch ? rawQuoteMatch[1] : 'Spoken line';
+    const speaker = subjectRefs.length > 0 && subjectRefs[0].targetName ? subjectRefs[0].targetName : 'Speaker';
+    dialogueLine = `${speaker} speaks in natural delivery: "${quoteText}". Accurate lip sync maintained with vocal cadence.`;
+    if (voiceRefs.length > 0) {
+      dialogueLine += ` Spoken voice timbre locked to ${voiceRefs[0].token}.`;
     }
   }
 
-  const masterPrompt = masterParts.join('');
+  // 4. [CAMERA]
+  const camParts = [];
+  if (ctx.activeCam) camParts.push(ctx.activeCam.prompt);
+  if (ctx.activeLens) camParts.push(ctx.activeLens.prompt);
+  if (ctx.activeComp) camParts.push(ctx.activeComp.prompt);
+  if (ctx.activeMotion) camParts.push(ctx.activeMotion.prompt);
+  camParts.push(`continuous unbroken take (${durStr}, ${aspectStr}, 24fps)`);
+  if (motionRefs.length > 0) {
+    camParts.push(`camera rhythm and kinetic pacing inherited strictly from ${motionRefs[0].token}`);
+  }
+  const cameraLine = camParts.join(', ');
 
-  // 5. Structured Sections for UI Terminal
+  // 5. [LIGHT AND IMAGE]
+  const lightParts = [];
+  if (ctx.activeLight) lightParts.push(ctx.activeLight.prompt);
+  if (ctx.activeColor) lightParts.push(ctx.activeColor.prompt);
+  if (ctx.activeStyle) lightParts.push(cleanBuzzwords(ctx.activeStyle.prompt));
+  lightParts.push('true 2K optical texture, realistic depth of field, natural motion blur');
+  const lightLine = lightParts.join(', ');
+
+  // 6. [PRODUCTION SOUND]
+  let soundLine = '';
+  if (customSound) {
+    soundLine = `Synchronized 32kHz stereo audio: ${customSound}. Native stereo room presence, clear acoustics under dialogue. No unwanted music, no subtitles.`;
+  } else if (hasDialogue) {
+    soundLine = `Synchronized 32kHz stereo audio: natural spoken dialogue delivery with authentic acoustic room resonance. No music, no subtitles.`;
+  } else {
+    soundLine = `Synchronized 32kHz stereo audio: natural ambient room presence, subtle environmental acoustics. No music, no subtitles.`;
+  }
+
+  // 7. [NEGATIVES]
+  const negParts = [
+    'no extra people',
+    'no identity drift',
+    'no wardrobe or voice swaps',
+    'no morphing artifacts',
+    'no broken eyelines',
+    'no position reversals',
+    'no duplicate subjects',
+    'no unmotivated cuts',
+    'no subtitles',
+    'no watermarks',
+    'no unwanted background music'
+  ];
+  if (hasRefs) {
+    negParts.unshift(`no background or pose contamination from ${refs.map(r => r.token).join(', ')}`);
+  }
+  if (isFirstLastMode) {
+    negParts.unshift('no hard cuts', 'no teleportation', 'no discontinuous lighting');
+  }
+  const negativesLine = negParts.join(', ') + '.';
+
+  // Master Prompt Assembly (Canonical Section Tagging from MiniMax-H3 spec)
+  const masterBlocks = [];
+
+  if (refUseLines.length > 0) {
+    masterBlocks.push(`[REFERENCE USE]\n${refUseLines.join('\n')}`);
+  }
+  if (continuityLocks.length > 0) {
+    masterBlocks.push(`[IDENTITY / CONTINUITY LOCKS]\n${continuityLocks.join('\n')}`);
+  }
+  masterBlocks.push(`[SCENE]\n${sceneLines.join('\n')}`);
+  if (dialogueLine) {
+    masterBlocks.push(`[DIALOGUE]\n${dialogueLine}`);
+  }
+  masterBlocks.push(`[CAMERA]\n${cameraLine}.`);
+  masterBlocks.push(`[LIGHT AND IMAGE]\n${lightLine}.`);
+  masterBlocks.push(`[PRODUCTION SOUND]\n${soundLine}`);
+  masterBlocks.push(`[NEGATIVES]\n${negativesLine}`);
+
+  const masterPrompt = masterBlocks.join('\n\n');
+
+  // Terminal UI Sections Breakdown
   sections.push({
-    uiTag: '🎬 Мастер-промпт (MiniMax-H3 Master)',
-    plainTag: 'MiniMax-H3 Master Prompt',
+    uiTag: '🎬 Мастер-промпт (MiniMax-H3 Production Spec)',
+    plainTag: 'MiniMax-H3 Production Master Prompt',
     val: masterPrompt
   });
 
-  sections.push({
-    uiTag: '🎯 Концепт сцены (Core Concept)',
-    plainTag: 'Core Concept',
-    val: coreConcept
-  });
-
-  sections.push({
-    uiTag: '⏱ Темпоральная декомпозиция (Temporal Progression)',
-    plainTag: 'Temporal Progression',
-    val: timeline
-  });
-
-  if (ctx.activeMotion) {
+  if (refUseLines.length > 0) {
     sections.push({
-      uiTag: '🎥 Кинематика камеры (Camera Motion)',
-      plainTag: 'Camera Motion',
-      val: `${ctx.activeMotion.prompt}, physical momentum with 24fps optical motion blur`
+      uiTag: '📎 Использование референсов (Reference Use)',
+      plainTag: 'Reference Use',
+      val: refUseLines.join('\n')
     });
   }
 
-  if (opticsList.length > 0) {
+  if (continuityLocks.length > 0) {
     sections.push({
-      uiTag: '📷 Операторский сетап (Cinematography & Rig)',
-      plainTag: 'Cinematography',
-      val: opticsList.join(', ')
+      uiTag: '🔒 Фиксация идентичности (Continuity Locks)',
+      plainTag: 'Continuity Locks',
+      val: continuityLocks.join(' ')
     });
   }
 
   sections.push({
-    uiTag: '🔊 Нативное аудио 32kHz (Embedded Audio)',
-    plainTag: 'Native 32kHz Audio',
-    val: hasDialogue
-      ? (customSound
-          ? `32kHz stereo audio: natural English dialogue with synchronized lip delivery, layered with ${customSound}.`
-          : `32kHz stereo audio: natural English dialogue with synchronized lip delivery.`)
-      : (customSound
-          ? `32kHz stereo soundscape: ${customSound}. Synchronized diegetic audio cues.`
-          : `32kHz stereo soundscape: Natural ambient room presence, subtle environmental acoustics.`)
+    uiTag: '🎯 Сцена и тайминг (Scene & Timeline)',
+    plainTag: 'Scene & Timeline',
+    val: sceneLines.join(' ')
   });
 
-  sections.push({
-    uiTag: '🏷️ Метки референсов H3 (Reference Tags)',
-    plainTag: 'H3 Reference Taxonomy',
-    val: '@Image1 (Subject reference) | @Video1 (Camera trajectory reference) | @Audio1 (Acoustic style reference)'
-  });
-
-  const specParts = [`duration ${durStr}`, '24fps cinematic', `aspect ratio ${aspectStr}`, 'native resolution 2K (open-weight)'];
-  sections.push({
-    uiTag: '⏱ Спецификация клипа (Clip Specs)',
-    plainTag: 'Clip Specifications',
-    val: specParts.join(', ')
-  });
-
-  if (state.identityLock) {
+  if (dialogueLine) {
     sections.push({
-      uiTag: '🔒 Фиксация лица (Identity Lock)',
-      plainTag: 'Identity Lock',
-      val: `${IDENTITY_LOCK_DIRECTIVE}. Constraints: ${IDENTITY_LOCK_CONSTRAINTS}`
+      uiTag: '💬 Диалог (Dialogue)',
+      plainTag: 'Dialogue',
+      val: dialogueLine
     });
   }
+
+  sections.push({
+    uiTag: '🎥 Кинематография и оптика (Camera & Optics)',
+    plainTag: 'Camera & Optics',
+    val: `${cameraLine}.`
+  });
+
+  sections.push({
+    uiTag: '💡 Освещение и стиль (Light & Image)',
+    plainTag: 'Light & Image',
+    val: `${lightLine}.`
+  });
+
+  sections.push({
+    uiTag: '🔊 Саунд-дизайн (Production Sound 32kHz)',
+    plainTag: 'Production Sound',
+    val: soundLine
+  });
+
+  sections.push({
+    uiTag: '⛔ Исключения и ограничения (Negatives)',
+    plainTag: 'Negatives',
+    val: negativesLine
+  });
 
   return { masterPrompt, sections };
 }
@@ -2643,6 +3253,7 @@ function compilePrompt() {
     activeDur: CLIP_DURATIONS.find(d => d.id === state.selectedDuration),
     activeFps: CLIP_FRAMERATES.find(f => f.id === state.selectedFramerate),
     quickTags: quickTagPrompts.join(', '),
+    references: state.references,
     isVideoMode
   };
 
@@ -2770,6 +3381,47 @@ function compilePrompt() {
 function formatHighlightedMasterPrompt(text, ctx) {
   if (!text) return '';
   let html = escapeHtml(text);
+
+  // MiniMax-H3 Production Tags Highlighter
+  if (/\[(REFERENCE USE|IDENTITY \/ CONTINUITY LOCKS|SCENE|DIALOGUE|CAMERA|LIGHT AND IMAGE|PRODUCTION SOUND|NEGATIVES)\]/.test(html)) {
+    const sectionMapH3 = {
+      'REFERENCE USE': { cls: 'mp-seg-spec', label: 'Использование референсов' },
+      'IDENTITY / CONTINUITY LOCKS': { cls: 'mp-seg-subject', label: 'Фиксация персонажа и непрерывности' },
+      'SCENE': { cls: 'mp-seg-subject', label: 'Сцена и тайминг' },
+      'DIALOGUE': { cls: 'mp-seg-audio', label: 'Диалог и реплики' },
+      'CAMERA': { cls: 'mp-seg-motion', label: 'Камера и ракурс' },
+      'LIGHT AND IMAGE': { cls: 'mp-seg-light', label: 'Свет, оптика и колористика' },
+      'PRODUCTION SOUND': { cls: 'mp-seg-audio', label: 'Саунд-дизайн 32kHz' },
+      'NEGATIVES': { cls: 'mp-seg-spec', label: 'Ограничения и исключения' }
+    };
+
+    const tagRegexH3 = /\[(REFERENCE USE|IDENTITY \/ CONTINUITY LOCKS|SCENE|DIALOGUE|CAMERA|LIGHT AND IMAGE|PRODUCTION SOUND|NEGATIVES)\]/g;
+    const matchesH3 = [...html.matchAll(tagRegexH3)];
+
+    if (matchesH3.length > 0) {
+      let resultHtml = '';
+      let lastIdx = 0;
+
+      for (let i = 0; i < matchesH3.length; i++) {
+        const match = matchesH3[i];
+        const tagName = match[1];
+        const startIdx = match.index;
+        const endIdx = (i + 1 < matchesH3.length) ? matchesH3[i + 1].index : html.length;
+
+        if (startIdx > lastIdx) resultHtml += html.slice(lastIdx, startIdx);
+
+        let chunk = html.slice(startIdx, endIdx).trim();
+        const cfg = sectionMapH3[tagName] || { cls: 'mp-seg-subject', label: tagName };
+
+        // Highlight tokens inside chunk: Image1..9, Video1..3, Audio1..3
+        chunk = chunk.replace(/\b(Image\d+|Video\d+|Audio\d+)\b/g, '<span class="mp-token-pill">$1</span>');
+
+        resultHtml += `<span class="mp-seg ${cfg.cls}" data-seg="${cfg.cls}" title="${cfg.label}">${chunk}</span><br><br>`;
+        lastIdx = endIdx;
+      }
+      return resultHtml.trim();
+    }
+  }
 
   // А) БЛОЧНЫЕ МОДЕЛИ: MiniMax-H3 и Grok Imagine 2.0 (FRAME)
   // Проверяем любой из тегов (даже если [Focus] пустой и промпт начинается с [Realm]:)
@@ -5387,12 +6039,29 @@ async function extractKeyframesFromVideo(videoEl, count = 10) {
 
         if (el.extractedFramesStrip) {
       el.extractedFramesStrip.innerHTML = frames.map((f, idx) => `
-        <div class="frame-thumb-card" title="Кадр #${idx + 1} (${f.timeLabel})">
+        <div class="frame-thumb-card" data-idx="${idx}" title="Кликните, чтобы добавить кадр #${idx + 1} в референсы (MiniMax H3)">
           <img src="${f.dataUrl}" alt="Кадр ${idx + 1} ${f.timeLabel}">
           <span class="frame-idx-chip">#${idx + 1}</span>
           <span class="frame-time-chip">${f.timeLabel}</span>
+          <button type="button" class="btn-frame-to-ref" data-idx="${idx}" title="Добавить в референсы">+ Референс</button>
         </div>
       `).join('');
+    }
+
+        if (el.extractedFramesStrip && !el.extractedFramesStrip.dataset.refBound) {
+      el.extractedFramesStrip.dataset.refBound = 'true';
+      el.extractedFramesStrip.addEventListener('click', (e) => {
+        const btn = e.target.closest('.btn-frame-to-ref');
+        const card = e.target.closest('.frame-thumb-card');
+        const target = btn || card;
+        if (target && state.videoAnalysis && state.videoAnalysis.frames) {
+          const idx = parseInt(target.dataset.idx, 10);
+          const frame = state.videoAnalysis.frames[idx];
+          if (frame) {
+            addFrameAsReference(frame.dataUrl, `Кадр #${idx + 1} (${frame.timeLabel})`);
+          }
+        }
+      });
     }
 
     if (el.framesCountBadge) {
