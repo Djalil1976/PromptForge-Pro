@@ -5333,11 +5333,11 @@ function loadVideoSource(sourceUrl, name) {
       el.previewFileMeta.textContent = `${mins}:${secs} • ${w}x${h}`;
     }
 
-    await extractKeyframesFromVideo(el.analyzerVideoPlayer, 5);
+    await extractKeyframesFromVideo(el.analyzerVideoPlayer, 10);
   };
 }
 
-async function extractKeyframesFromVideo(videoEl, count = 5) {
+async function extractKeyframesFromVideo(videoEl, count = 10) {
   try {
     const duration = videoEl.duration;
     if (!duration || isNaN(duration)) return;
@@ -5385,10 +5385,11 @@ async function extractKeyframesFromVideo(videoEl, count = 5) {
     videoEl.currentTime = savedTime;
     state.videoAnalysis.frames = frames;
 
-    if (el.extractedFramesStrip) {
-      el.extractedFramesStrip.innerHTML = frames.map(f => `
-        <div class="frame-thumb-card">
-          <img src="${f.dataUrl}" alt="Кадр ${f.timeLabel}">
+        if (el.extractedFramesStrip) {
+      el.extractedFramesStrip.innerHTML = frames.map((f, idx) => `
+        <div class="frame-thumb-card" title="Кадр #${idx + 1} (${f.timeLabel})">
+          <img src="${f.dataUrl}" alt="Кадр ${idx + 1} ${f.timeLabel}">
+          <span class="frame-idx-chip">#${idx + 1}</span>
           <span class="frame-time-chip">${f.timeLabel}</span>
         </div>
       `).join('');
@@ -5468,7 +5469,7 @@ async function runReverseVideoAnalysis(isOfflineDemo = false) {
   }
 
   try {
-    setProgress(15, '1/4 Извлечение и калибровка 5 ключевых кадров...');
+    setProgress(15, '1/4 Извлечение и калибровка 10 ключевых кадров...');
     await new Promise(r => setTimeout(r, 400));
 
     let analysisResult = null;
@@ -5584,7 +5585,7 @@ Available IDs for fields:
   // Build standard multi-part payload according to official Gemini REST API spec
   const parts = [
     { text: systemInstruction },
-    ...frames.slice(0, 5).map(f => ({
+    ...frames.slice(0, 10).map(f => ({
       inlineData: {
         mimeType: 'image/jpeg',
         data: f.base64

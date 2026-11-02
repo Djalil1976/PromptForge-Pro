@@ -4598,6 +4598,21 @@ body {
   border-radius: 2px;
 }
 
+.frame-idx-chip {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  background: rgba(16, 185, 129, 0.90);
+  font-size: 0.55rem;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: #ffffff;
+  padding: 1px 3px;
+  border-radius: 2px;
+  line-height: 1;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
 /* Automation Options */
 .analyzer-options-row {
   display: flex;
