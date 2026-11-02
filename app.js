@@ -1826,58 +1826,6 @@ function detectDialogue(text) {
   return false;
 }
 
-function generateOmniSoundscape(idea, motionId) {
-  const text = (idea || '').toLowerCase();
-
-  // 1. Truck Stop / Heavy Highway / Logistics / Desert Roadside
-  if (/\b(trucks?|semi-trucks?|lorry|lorries|truck stop|diesel|highway|freeway|interstate|parking lot|arizona|desert|trailer)\b/i.test(text) || /(трак[а-я]*|фур[а-я]*|тягач[а-я]*|стоянк[а-я]*|грузовик[а-я]*|дизел[а-я]*|автомагистрал[а-я]*|аризон[а-я]*|пустын[а-я]*)/i.test(text)) {
-    return 'Heavy diesel engine idle rumble, low-frequency semi-truck reverberation, distant highway traffic hum, subtle desert wind rustle across open asphalt lot';
-  }
-
-  // 2. Automotive / High-Speed / Cyberpunk
-  if (/\b(cars?|automobile\w*|vehicles?|traffic|supercars?|cyberpunk|motorcycle\w*|drift\w*|sports\s*car)\b/i.test(text) || /(автомобил[а-я]*|машин[а-я]*|суперкар[а-я]*|киберпанк[а-я]*|трафик[а-я]*|мотоцикл[а-я]*|гонк[а-я]*|дрифт[а-я]*)/i.test(text)) {
-    return 'Deep throaty engine resonance, tire road friction, subtle futuristic electronic synthesizer drone, stereo panning';
-  }
-
-  // 3. Loft / Renovation / Interior Architecture
-  if (/\b(loft\w*|renovation\w*|interior\w*|timelapse\w*|living\s*space|architecture\w*|apartment\w*)\b/i.test(text) || /(лофт[а-я]*|ремонт[а-я]*|интерьер[а-я]*|таймлапс[а-я]*|жилое\s*пространств[а-я]*|квартир[а-я]*|архитектур[а-я]*)/i.test(text)) {
-    return 'Natural room tone: subtle interior room acoustics, gentle synchronized timelapse assembly Foley, soft wood and metallic placement resonance';
-  }
-
-  // 4. Rain / Wet Streets / Storm
-  if (/\b(rains?|raining|rainy|rainfall|downpour|puddles?|thunderstorm|stormy?)\b/i.test(text) || /(дожд[а-я]*|ливн[а-я]*|ливень\b|луж[аеиыу]\b|гроз[а-я]*|непогод[а-я]*)/i.test(text)) {
-    return 'Gentle rhythmic rain patter on surfaces, distant wet street tire whoosh, atmospheric binaural acoustics';
-  }
-
-  // 5. Nature / Forest / Foliage
-  if (/\b(forest\w*|woods?\b|jungle\w*|nature\b|trees?\b|foliage\b|leaves\b|waterfall\w*)\b/i.test(text) || /(лес\b|лесн[а-я]*|деревь[а-я]*|природ[а-я]*|джунгл[а-я]*|рощ[а-я]*|водопад[а-я]*)/i.test(text)) {
-    return 'Organic nature ambiance: whispering wind rustling through foliage, crisp twigs, distant bird calls, pristine spatial acoustics';
-  }
-
-  // 6. Ocean / Beach / Coastal Waters (Strict word boundary to avoid matching "seats", "season", "search", "юмор")
-  if (/\b(ocean\w*|sea\b|seas\b|beach\w*|coastal\w*|coast\b|shoreline\w*|shore\b|waves?\b|surf\b|seabirds?)\b/i.test(text) || /(океан[а-я]*|море\b|моря\b|морем\b|морск[а-я]*|побережь[а-я]*|пляж[а-я]*|прибо[йя][а-я]*|морск[а-я]* волн[а-я]*)/i.test(text)) {
-    return 'Rhythmic ocean surf crashing on shoreline, refreshing sea spray, distant coastal seabirds, expansive panoramic acoustics';
-  }
-
-  // 7. City / Urban / Cafe
-  if (/\b(city\b|cities\b|urban\b|street\w*|downtown\b|tokyo\b|cafe\b|coffee\s*shop|pedestrians?)\b/i.test(text) || /(город[а-я]*|улиц[а-я]*|токио|кофейн[а-я]*|кафе\b|пешеход[а-я]*|мегаполис[а-я]*)/i.test(text)) {
-    return 'Rich urban environmental soundscape: gentle city rumble, muffled passing pedestrians, distant sirens, authentic spatial reverb';
-  }
-
-  // 8. Outer Space / Cosmos
-  if (/\b(outer space|deep space|cosmos|cosmic void|galaxy|interstellar|astronaut|spacesuit)\b/i.test(text) || /(космос[а-я]*|планет[а-я]*|астронавт[а-я]*|орбит[а-я]*|галактик[а-я]*)/i.test(text)) {
-    return 'Ethereal cosmic sound design: low frequency sub-bass vibration, muffled spacesuit telemetry, deep interstellar drone';
-  }
-
-  if (motionId === 'fpv-drone') {
-    return 'High-speed dynamic audio: rushing aerodynamic wind shear, high-pitch drone turbine harmonics, rapid Doppler shifts';
-  }
-  if (motionId === 'orbit-360' || motionId === 'dolly-in' || motionId === 'static-shot') {
-    return 'Subtle focal Foley textures, natural room acoustics, atmospheric presence';
-  }
-  return 'Authentic ambient environmental acoustics, crisp synchronized Foley textures, natural acoustic presence';
-}
-
 // --- IDENTITY LOCK (FACIAL PRESERVATION CONSTANTS) ---
 const IDENTITY_LOCK_DIRECTIVE = 'Strict 1:1 facial identity lock to @Image1 reference: preserve exact eye shape, eyelid folds, natural under-eye contours, exact nose bridge geometry, authentic facial bone structure, and natural beard/hair density with visible skin micro-texture. Maintain frontal fill light on face and crisp locked garment typography';
 const IDENTITY_LOCK_CONSTRAINTS = 'strict facial geometry lock to @Image1, no facial beautification, no eye widening, no cheek or jaw morphing, no beard thickening, no garment text garbling';
@@ -1999,7 +1947,7 @@ function compileOmniFlash(ctx) {
   }
 
   const hasDialogue = detectDialogue(ctx.rawIdea) || detectDialogue(ctx.baseDescription);
-  const soundDesign = ctx.customSoundEn || generateOmniSoundscape(ctx.baseDescription, ctx.activeMotion?.id);
+  const customSound = (ctx.customSoundEn || '').trim();
   const durStr = ctx.activeDur ? ctx.activeDur.id : '8s';
   const aspectStr = ctx.activeAspect ? ctx.activeAspect.id : '16:9';
 
@@ -2048,14 +1996,22 @@ function compileOmniFlash(ctx) {
 
   // Dedicated Sound design directive
   if (hasDialogue) {
-    masterParts.push(`Sound design: Clear synchronized English dialogue with authentic vocal presence, layered with ${soundDesign}. `);
+    if (customSound) {
+      masterParts.push(`Sound design: Clear synchronized English dialogue with authentic vocal presence, layered with ${customSound}. `);
+    } else {
+      masterParts.push(`Sound design: Clear synchronized English dialogue with authentic vocal presence. `);
+    }
     if (state.identityLock) {
       masterParts.push(`Natural synchronized dialogue and speech cadence. No scene cuts. No embellishments. No extra sound effects. No facial drift or beautification.`);
     } else {
       masterParts.push(`Natural synchronized dialogue and speech cadence. No scene cuts. No embellishments. No extra sound effects.`);
     }
   } else {
-    masterParts.push(`Sound design: ${soundDesign}. `);
+    if (customSound) {
+      masterParts.push(`Sound design: ${customSound}. `);
+    } else {
+      masterParts.push(`Sound design: Subtle natural ambient presence. `);
+    }
     if (state.identityLock) {
       masterParts.push(`No dialogue. No scene cuts. No embellishments. No extra sound effects. No facial drift or beautification.`);
     } else {
@@ -2100,8 +2056,12 @@ function compileOmniFlash(ctx) {
     uiTag: '🔊 Саунд-дизайн (Sound Design Block)',
     plainTag: 'Sound Design',
     val: hasDialogue
-      ? `Sound design: Clear synchronized English dialogue with authentic vocal presence, layered with ${soundDesign}.`
-      : `Sound design: ${soundDesign}. No dialogue.`
+      ? (customSound
+          ? `Sound design: Clear synchronized English dialogue with authentic vocal presence, layered with ${customSound}.`
+          : `Sound design: Clear synchronized English dialogue with authentic vocal presence.`)
+      : (customSound
+          ? `Sound design: ${customSound}. No dialogue.`
+          : `Sound design: Subtle natural ambient presence. No dialogue.`)
   });
 
   const cineParts = [];
@@ -2158,7 +2118,7 @@ function compileMinimaxH3(ctx) {
   const aspectStr = ctx.activeAspect ? ctx.activeAspect.id : '16:9';
   const durSec = parseInt(durStr, 10) || 8;
   const hasDialogue = detectDialogue(ctx.rawIdea) || detectDialogue(ctx.baseDescription);
-  const soundscape = ctx.customSoundEn || generateOmniSoundscape(ctx.baseDescription, ctx.activeMotion?.id);
+  const customSound = (ctx.customSoundEn || '').trim();
 
   // 1. Core Concept Block (Clean concise narrative summary)
   const descClean = (ctx.baseDescription || 'Dynamic cinematic scene').trim().replace(/\.+$/, '');
@@ -2203,14 +2163,22 @@ function compileMinimaxH3(ctx) {
   }
 
   if (hasDialogue) {
-    masterParts.push(`[Audio Environment]: Synchronized 32kHz stereo audio: natural English spoken dialogue with authentic vocal cadence and lip sync, paired with ${soundscape}. `);
+    if (customSound) {
+      masterParts.push(`[Audio Environment]: Synchronized 32kHz stereo audio: natural English spoken dialogue with authentic vocal cadence and lip sync, paired with ${customSound}. `);
+    } else {
+      masterParts.push(`[Audio Environment]: Synchronized 32kHz stereo audio: natural English spoken dialogue with authentic vocal cadence and lip sync. `);
+    }
     if (state.identityLock) {
       masterParts.push(`[Constraints]: Single continuous shot, no scene cuts, no morphing artifacts, no text watermark, natural lip synchronization, ${IDENTITY_LOCK_CONSTRAINTS}.`);
     } else {
       masterParts.push(`[Constraints]: Single continuous shot, no scene cuts, no morphing artifacts, no text watermark, natural lip synchronization.`);
     }
   } else {
-    masterParts.push(`[Audio Environment]: Synchronized 32kHz stereo audio: ${soundscape}. `);
+    if (customSound) {
+      masterParts.push(`[Audio Environment]: Synchronized 32kHz stereo audio: ${customSound}. `);
+    } else {
+      masterParts.push(`[Audio Environment]: Synchronized 32kHz stereo audio: natural ambient room presence, subtle environmental acoustics. `);
+    }
     if (state.identityLock) {
       masterParts.push(`[Constraints]: Single continuous shot, no scene cuts, no morphing artifacts, no text watermark, no spoken dialogue, ${IDENTITY_LOCK_CONSTRAINTS}.`);
     } else {
@@ -2256,11 +2224,15 @@ function compileMinimaxH3(ctx) {
   }
 
   sections.push({
-    uiTag: '🔊 Нативный звук 32kHz (Embedded Audio)',
+    uiTag: '🔊 Нативное аудио 32kHz (Embedded Audio)',
     plainTag: 'Native 32kHz Audio',
     val: hasDialogue
-      ? `32kHz stereo audio: natural English dialogue with synchronized lip delivery, layered with ${soundscape}.`
-      : `32kHz stereo soundscape: ${soundscape}. Synchronized diegetic audio cues.`
+      ? (customSound
+          ? `32kHz stereo audio: natural English dialogue with synchronized lip delivery, layered with ${customSound}.`
+          : `32kHz stereo audio: natural English dialogue with synchronized lip delivery.`)
+      : (customSound
+          ? `32kHz stereo soundscape: ${customSound}. Synchronized diegetic audio cues.`
+          : `32kHz stereo soundscape: Natural ambient room presence, subtle environmental acoustics.`)
   });
 
   sections.push({
