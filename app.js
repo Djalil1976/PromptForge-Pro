@@ -299,7 +299,7 @@ description: Specialized video generation using the Seedance 2.5 model with hard
 // --- APPLICATION STATE ---
 
 const state = {
-  mode: 'image', // 'image' or 'video'
+  mode: 'video', // 'image' or 'video'
   promptFormat: 'master', // 'master' (ready-to-use cohesive prompt) or 'structured' (spec tags)
   promptDisplayLang: 'en', // 'en' or 'ru'
   idea: '',
@@ -314,7 +314,7 @@ const state = {
   selectedFramerate: '24fps cinematic',
   selectedAspect: '9:16',
   selectedColor: '',
-  selectedModel: 'imagen-3',
+  selectedModel: 'minimax-h3',
   activeQuickTags: new Set(),
   activeSoundTags: new Set(),
   customSound: '',
@@ -346,7 +346,7 @@ const state = {
   isDirectorGenerating: false,
 
   // AI Model Skills & Specifications State
-  activeSkillModelId: 'omni-1.1-flash',
+  activeSkillModelId: 'minimax-h3',
   customModelSkills: JSON.parse(localStorage.getItem('promptforge_model_skills') || '{}'),
 
   // Snapshots State
@@ -615,7 +615,7 @@ async function init() {
     }
 
     attachEventListeners();
-    setMode(state.mode || 'image');
+    setMode(state.mode || 'video');
     renderPresets();
     renderSnapshots();
     renderCameraOptions();
@@ -3067,9 +3067,9 @@ function updateLivePrompt() {
     if (strengthDot) strengthDot.style.background = '#64748b';
   }
 
-  // Update Model Hint Card
-  el.hintTitle.textContent = currentModel.tipTitle;
-  el.hintDesc.textContent = currentModel.tipDesc;
+  // Update Model Hint Card (if present)
+  if (el.hintTitle) el.hintTitle.textContent = currentModel.tipTitle;
+  if (el.hintDesc) el.hintDesc.textContent = currentModel.tipDesc;
 }
 
 // --- EVENT LISTENERS ---
@@ -3842,7 +3842,7 @@ function setMode(mode) {
     // If current model is an image-only model, switch to video model
     const currentModel = AI_MODELS.find(m => m.id === state.selectedModel);
     if (!currentModel || currentModel.mediaType === 'image') {
-      state.selectedModel = 'omni-1.1-flash';
+      state.selectedModel = 'minimax-h3';
     }
 
     // Ensure video mode defaults
@@ -4088,7 +4088,7 @@ function handleResetAll() {
   state.selectedFramerate = '24fps cinematic';
   state.selectedAspect = '9:16';
   state.selectedColor = '';
-  state.selectedModel = state.mode === 'video' ? 'omni-1.1-flash' : 'imagen-3';
+  state.selectedModel = state.mode === 'video' ? 'minimax-h3' : 'imagen-3';
   state.customSound = '';
   state.onlineTranslatedSound = '';
   state.activeSoundTags.clear();
@@ -4312,8 +4312,8 @@ const SKILLS_BY_MODE = {
     { id: 'imagine-image-2', label: 'Grok Imagine 2.0 (FRAME спецификация)' }
   ],
   video: [
-    { id: 'omni-1.1-flash', label: 'Gemini Omni 1.1 Flash (Быстрое видео со звуком)' },
     { id: 'minimax-h3', label: 'MiniMax-H3 (2K Open-Weight со звуком)' },
+    { id: 'omni-1.1-flash', label: 'Gemini Omni 1.1 Flash (Быстрое видео со звуком)' },
     { id: 'seedance-2.5', label: 'Seedance 2.5 (30s Arc • Опционально)' }
   ]
 };
@@ -4357,7 +4357,7 @@ function getActiveSkill(modelId) {
     };
   }
 
-  const fallback = DEFAULT_MODEL_SKILLS[targetId] || DEFAULT_MODEL_SKILLS['omni-1.1-flash'];
+  const fallback = DEFAULT_MODEL_SKILLS[targetId] || DEFAULT_MODEL_SKILLS['minimax-h3'];
   return {
     ...fallback,
     isCustom: false

@@ -82,11 +82,11 @@
 
         <!-- Mode Toggle: Image vs Video -->
         <div class="generation-mode-toggle">
-          <button class="mode-btn active" id="modeImageBtn" data-mode="image">
+          <button class="mode-btn" id="modeImageBtn" data-mode="image">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
             <span>Картинка</span>
           </button>
-          <button class="mode-btn" id="modeVideoBtn" data-mode="video">
+          <button class="mode-btn active" id="modeVideoBtn" data-mode="video">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 8-6 4 6 4V8Z"/><rect width="14" height="12" x="2" y="6" rx="2"/></svg>
             <span>Видео</span>
           </button>
@@ -780,36 +780,7 @@
               <span>Сброс</span>
             </button>
           </div>
-
-          <!-- Google AI Direct Web Access -->
-          <div class="gemini-direct-link" style="display: flex; gap: 8px;">
-            <a href="https://flow.google.com" target="_blank" rel="noopener" class="gemini-link-btn flow-link-btn" title="Открыть веб-студию генерации Google Flow">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-              <span>Открыть в Google Flow</span>
-            </a>
-            <a href="https://gemini.google.com" target="_blank" rel="noopener" class="gemini-link-btn" title="Открыть веб-интерфейс Google Gemini Advanced">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/></svg>
-              <span>Gemini Advanced</span>
-            </a>
-          </div>
-
-          <!-- Optimization Hint Box -->
-          <div class="model-hint-card" id="modelHintCard">
-            <div class="hint-icon">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4"/><path d="M12 18v4"/><path d="m4.93 4.93 2.83 2.83"/><path d="m16.24 16.24 2.83 2.83"/><path d="M2 12h4"/><path d="M18 12h4"/><path d="m4.93 19.07 2.83-2.83"/><path d="m16.24 7.76 2.83-2.83"/></svg>
-            </div>
-            <div class="hint-body">
-              <div class="hint-title" id="hintTitle">Оптимизация под Imagen 3</div>
-              <div class="hint-desc" id="hintDesc">
-                Используются дескрипторы освещения, камеры и физики сцены на английском языке для максимально реалистичного рендера Google AI без перегрузки мусорными тегами.
-              </div>
-            </div>
-          </div>
-
         </div>
-
-
-
       </div>
     </section>
 
@@ -894,7 +865,7 @@
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
             <span id="skillEditorTitle">Спецификация модели</span>
           </div>
-          <span class="skill-editor-meta" id="skillEditorMeta">omni-1-1-flash.md (Встроенная)</span>
+          <span class="skill-editor-meta" id="skillEditorMeta">minimax-h3.md (Встроенная)</span>
         </div>
         <button class="modal-close" id="closeSkillEditorBtn" aria-label="Закрыть">&times;</button>
       </div>
@@ -929,6 +900,6 @@
 
   <!-- Scripts -->
   <script src="presets.js"></script>
-  <script src="app.js?v=6.9"></script>
+  <script src="app.js?v=7.0"></script>
 </body>
 </html>
